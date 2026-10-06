@@ -160,4 +160,4 @@ FR/NL/DE content; bundling partner files; offline service worker and portable bu
 
 - 2026-10-06 — Project started; plan approved. Settings (auto mode + context-guard Stop hook), git repo, Astro scaffold.
 - 2026-10-06 — Energy Profile engine verified against 52 Excel-computed scenarios; four deviations registered.
-- 2026-10-06 — First complete version: home, journey, 69 cards with session mode, Energy Profile calculator, Map explorer, Business Model workspace, lessons, My community, Library, glossary, About pages. E2E walkthrough added (`npm run e2e`); print layouts checked.
+- 2026-10-06 — First complete version: home, journey, 69 cards with session mode, Energy Profile calculator, Map explorer, Business Model workspace, lessons, My community, Library, glossary, About pages. E2E walkthrough added (`npm run e2e`); print layouts checked. Local commit `d32302a` (no remote).
