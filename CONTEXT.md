@@ -156,8 +156,17 @@ Names of the four activity groups (the PDF's tree has icons only); plain-English
 
 FR/NL/DE content; bundling partner files; offline service worker and portable build; public hosting and Zenodo deposit; automated accessibility tests; in-app methodology pages; facilitator track from the D.3.1.1 handbook; compact print layout for the profile.
 
+## 10. Resuming the next session
+
+- The user will bring **suggestions and clarifications** at the start of the next session; take them before any further building. Nothing is in progress and the working tree is clean (commit `73e24d4`).
+- The dev server is **not running** (Claude Code stopped it for low memory). Start it with `npm run dev` in `webapp/`, then `npm run e2e` needs a recent `npm run build`.
+- First checks of the new session: does `permissions.defaultMode: "auto"` apply; does the Stop hook fire; if auto mode did not apply, mirror it in `.claude/settings.local.json`.
+- Questions for the user that the build left open (all answered with placeholders so far): where the site will be hosted and under which path (`BASE_PATH`); the feedback route for the five test runs; whether the MTU-written texts in section 5 may stay until partners review them; whether the Chrome extension can be connected for a real-browser walkthrough; whether the Energy Profile printout should show inputs or results only.
+- Not a question, a reminder: the Chrome extension was unavailable, so browser checks run headless through `scripts/e2e-smoke.mjs`, `shot.mjs` and `print-check.mjs` (`SEED=<workspace.json>` preloads a workspace).
+
 ## 9. Changelog
 
 - 2026-10-06 — Project started; plan approved. Settings (auto mode + context-guard Stop hook), git repo, Astro scaffold.
 - 2026-10-06 — Energy Profile engine verified against 52 Excel-computed scenarios; four deviations registered.
 - 2026-10-06 — First complete version: home, journey, 69 cards with session mode, Energy Profile calculator, Map explorer, Business Model workspace, lessons, My community, Library, glossary, About pages. E2E walkthrough added (`npm run e2e`); print layouts checked. Local commit `d32302a` (no remote).
+- 2026-10-06 — Session closed at the user's request; section 10 records how to resume. The user will bring suggestions and clarifications next session.
