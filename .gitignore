@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+coverage/
+__pycache__/
+*.log
+~$*
+.claude/settings.local.json
+# copied from the source folders by webapp/scripts/copy-originals.mjs
+webapp/public/downloads/

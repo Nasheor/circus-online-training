@@ -1,0 +1,96 @@
+---
+import golden from '../../../../../tests/fixtures/energy-profile/golden.json';
+import PageHero from '../../../../components/PageHero.astro';
+import { DEVIATIONS } from '../../../../engine/energy-profile/deviations';
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { fill } from '../../../../i18n/format';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.profile.differencesPage;
+// Only the count is used, so the fixture data itself is not shipped to the browser.
+const scenarioCount = golden.manifest.scenarioCount;
+---
+
+<Base locale={locale} title={t.title} section="tools" phase="p1" path="tools/energy-profile/differences">
+  <PageHero
+    eyebrow={s.profile.title}
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.tools, href: href(locale, 'tools') },
+      { label: s.profile.title, href: href(locale, 'tools/energy-profile') },
+      { label: t.title },
+    ]}
+  />
+  <section class="section">
+    <div class="container stack-lg">
+      <p class="notice notice--warn">{t.pending}</p>
+      <ol class="differences">
+        {
+          DEVIATIONS.map((deviation) => (
+            <li class="panel stack">
+              <h2>{t.items[deviation.id].title}</h2>
+              <div class="split">
+                <div>
+                  <h3>{t.excel}</h3>
+                  <p>{t.items[deviation.id].excel}</p>
+                </div>
+                <div>
+                  <h3>{t.web}</h3>
+                  <p>{t.items[deviation.id].web}</p>
+                </div>
+              </div>
+              <p class="small muted">{fill(t.cells, { cells: deviation.workbookCells.join(', ') })}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="split">
+        <div>
+          <h2>{t.verifiedTitle}</h2>
+          <p>{fill(t.verified, { n: scenarioCount })}</p>
+        </div>
+        <div>
+          <h2>{t.additionsTitle}</h2>
+          <p>{t.additions}</p>
+        </div>
+      </div>
+      <p><a class="btn btn--primary" href={href(locale, 'tools/energy-profile')}>← {t.back}</a></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .differences {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-5);
+    counter-reset: difference;
+  }
+  .differences > li {
+    max-width: none;
+    margin: 0;
+    counter-increment: difference;
+  }
+  .differences h2 {
+    font-size: var(--text-xl);
+  }
+  .differences h2::before {
+    content: counter(difference) '. ';
+  }
+  .differences h3 {
+    font-size: var(--text-base);
+    color: var(--p1-strong);
+  }
+</style>

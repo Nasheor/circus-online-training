@@ -1,0 +1,85 @@
+---
+import PageHero from '../../../components/PageHero.astro';
+import ResourceLink from '../../../components/ResourceLink.astro';
+import { PUBLISHED_LOCALES } from '../../../i18n/config';
+import type { Locale } from '../../../i18n/config';
+import { href } from '../../../i18n/href';
+import { getStrings } from '../../../i18n/strings';
+import Base from '../../../layouts/Base.astro';
+
+type PageId = 'privacy' | 'accessibility' | 'feedback';
+
+// getStaticPaths runs in its own scope, so the list of pages lives inside it.
+export function getStaticPaths() {
+  const pages: PageId[] = ['privacy', 'accessibility', 'feedback'];
+  return PUBLISHED_LOCALES.flatMap((locale) => pages.map((page) => ({ params: { locale, page } })));
+}
+
+const locale = Astro.params.locale as Locale;
+const page = Astro.params.page as PageId;
+const s = getStrings(locale);
+const t = s[page];
+const sections: { title: string; paragraphs?: string[]; bullets?: string[] }[] = 'sections' in t ? t.sections : [];
+---
+
+<Base locale={locale} title={t.title} section="about" path={`about/${page}`}>
+  <PageHero
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.about, href: href(locale, 'about') },
+      { label: t.title },
+    ]}
+  />
+  <div class="container section stack-lg">
+    {page === 'accessibility' && <p class="notice">{s.accessibility.status}</p>}
+    {
+      sections.map((section) => (
+        <section>
+          <h2>{section.title}</h2>
+          {section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
+          {section.bullets && (
+            <ul>
+              {section.bullets.map((bullet) => (
+                <li>{bullet}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))
+    }
+    {
+      page === 'accessibility' && (
+        <>
+          <p><a class="btn" href={href(locale, 'about/feedback')}>{s.feedback.title}</a></p>
+          <p class="small muted">{s.accessibility.prepared}</p>
+        </>
+      )
+    }
+    {
+      page === 'privacy' && (
+        <p><a class="btn" href={href(locale, 'my-community')}>{s.nav.community}</a></p>
+      )
+    }
+    {
+      page === 'feedback' && (
+        <>
+          <section>
+            <h2>{s.feedback.howTitle}</h2>
+            <p>{s.feedback.how}</p>
+            <p><ResourceLink locale={locale} id="circus-website-contact" label={s.feedback.contact} class="btn btn--primary" /></p>
+          </section>
+          <section>
+            <h2>{s.feedback.questionsTitle}</h2>
+            <ul>
+              {s.feedback.questions.map((question) => <li>{question}</li>)}
+            </ul>
+            <p class="small muted">{s.feedback.versionNote}</p>
+          </section>
+        </>
+      )
+    }
+  </div>
+</Base>

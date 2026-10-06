@@ -1,0 +1,47 @@
+---
+import { PHASES, cardsOfDeck } from '../content/structure';
+import type { Locale } from '../i18n/config';
+import { fill } from '../i18n/format';
+import { href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const s = getStrings(locale);
+---
+
+<ol class="grid phase-cards">
+  {
+    PHASES.map((phase) => (
+      <li data-phase={phase.id}>
+        <a class="panel panel--phase" href={href(locale, `journey/${phase.slug}`)}>
+          <p class="eyebrow">{fill(s.common.phase, { n: phase.order })}</p>
+          <h3>{s.phases[phase.id].name}</h3>
+          <p>{s.phases[phase.id].audience}</p>
+          <p class="small muted">
+            {fill(s.common.cards, { n: cardsOfDeck(phase.id).length })} · {s.tools[phase.toolId].name}
+          </p>
+        </a>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .phase-cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .phase-cards li {
+    margin: 0;
+    max-width: none;
+    display: flex;
+  }
+  .phase-cards a {
+    flex: 1;
+  }
+</style>

@@ -1,0 +1,98 @@
+/* Design tokens. Colours follow the CIRCUS / WattWorks print material. */
+:root {
+  --navy: #17428f;
+  --navy-deep: #0f2c63;
+  --ink: #16233f;
+  --muted: #4d5872;
+  --yellow: #fce817;
+  --lilac: #a3abd6;
+  --lilac-soft: #eef0f9;
+  --teal: #008061;
+  --teal-soft: #e4f3ec;
+
+  --bg: #faf9f5;
+  --surface: #ffffff;
+  --border: #d5d9e6;
+  --border-strong: #8b93ad;
+  --danger: #a51d22;
+  --danger-soft: #fbeaea;
+
+  /* Phase colours. Only red passes contrast with white text, so orange and
+     green carry dark text (--phase-ink) and use the -strong shade for text and
+     borders on white. */
+  --p1: #c72126;
+  --p1-strong: #8a222a;
+  --p1-soft: #fbecec;
+  --p1-ink: #ffffff;
+  --p2: #f47b20;
+  --p2-strong: #9c4420;
+  --p2-soft: #fef1e6;
+  --p2-ink: #1d1206;
+  --p3: #6bba45;
+  --p3-strong: #266d36;
+  --p3-soft: #eef7e9;
+  --p3-ink: #0e1f0a;
+
+  --phase: var(--navy);
+  --phase-strong: var(--navy);
+  --phase-soft: var(--lilac-soft);
+  --phase-ink: #ffffff;
+
+  /* Chart series: distinguishable without relying on hue alone (pattern + label in the charts). */
+  --series-usage: #16233f;
+  --series-electricity: #5b6fb5;
+  --series-heating: #c72126;
+  --series-mobility: #8a5fb0;
+  --series-solar: #e0a100;
+  --series-wind: #2a8fbd;
+  --series-added: #6bba45;
+
+  --font: 'Montserrat Variable', 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+
+  --radius: 0.6rem;
+  --radius-lg: 1rem;
+  --shadow: 0 1px 2px rgb(22 35 63 / 0.06), 0 6px 20px rgb(22 35 63 / 0.07);
+  --measure: 68ch;
+  --page: 74rem;
+}
+
+[data-phase='p1'] {
+  --phase: var(--p1);
+  --phase-strong: var(--p1-strong);
+  --phase-soft: var(--p1-soft);
+  --phase-ink: var(--p1-ink);
+}
+[data-phase='p2'] {
+  --phase: var(--p2);
+  --phase-strong: var(--p2-strong);
+  --phase-soft: var(--p2-soft);
+  --phase-ink: var(--p2-ink);
+}
+[data-phase='p3'] {
+  --phase: var(--p3);
+  --phase-strong: var(--p3-strong);
+  --phase-soft: var(--p3-soft);
+  --phase-ink: var(--p3-ink);
+}
+[data-phase='intro'],
+[data-phase='boost'] {
+  --phase: var(--navy);
+  --phase-strong: var(--navy);
+  --phase-soft: var(--lilac-soft);
+  --phase-ink: #ffffff;
+}

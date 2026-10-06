@@ -1,0 +1,47 @@
+---
+import { PHASES, TOOL_PATHS } from '../content/structure';
+import type { Locale } from '../i18n/config';
+import { href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const s = getStrings(locale);
+const tools = [
+  { id: 'cards', path: 'tools/cards', phase: undefined },
+  ...PHASES.map((phase) => ({ id: phase.toolId, path: TOOL_PATHS[phase.toolId], phase: phase.id })),
+] as const;
+---
+
+<ul class="grid tool-cards">
+  {
+    tools.map((tool) => (
+      <li data-phase={tool.phase}>
+        <a class="panel panel--phase" href={href(locale, tool.path)}>
+          <p class="eyebrow">{s.tools[tool.id].number}</p>
+          <h3>{s.tools[tool.id].name}</h3>
+          <p>{s.tools[tool.id].summary}</p>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .tool-cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tool-cards li {
+    margin: 0;
+    max-width: none;
+    display: flex;
+  }
+  .tool-cards a {
+    flex: 1;
+  }
+</style>

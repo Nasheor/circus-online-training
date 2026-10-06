@@ -1,0 +1,107 @@
+/** Text for the GIS Tool pages (Tool 2). Instructions follow the GIS Tool manual. */
+export const map = {
+  title: 'GIS Tool',
+  eyebrow: 'Tool 2 · Phase 2 – Exploring Renewable Energy Opportunities',
+  lead:
+    'Web maps that help communities and planners see which locations could suit ground-mounted solar (GM-PV) and agrivoltaics (Agri-PV). All you need is an internet connection.',
+  what: {
+    title: 'What the maps show',
+    text: [
+      'The GIS Tool combines open geospatial data with what communities care about — food security, environmental protection, the landscape and regulations — into suitability maps for ground-mounted solar panels and for agrivoltaics, where solar panels and farming share the same land.',
+      'The maps were made by KIT (Karlsruhe Institute of Technology) for the CIRCUS pilot regions. Use them alongside the WattWorks cards: in phase 2 to find and discuss promising locations, and in phase 3 to look at feasibility and land use in more detail.',
+    ],
+  },
+  chooseTitle: 'Choose a region',
+  openRegion: 'Open the guide and map',
+  scope:
+    'Maps exist for the six CIRCUS pilot regions. If your community is somewhere else, they still show what this kind of analysis looks like and what questions it raises.',
+  elsewhere: {
+    title: 'My area is not on the list',
+    text: [
+      'The maps were prepared region by region and cannot be switched to another area. You can still use this phase: look at one of the pilot maps together to see which considerations decide whether a location is suitable, then take the same questions to your own area.',
+      'Card 5 of phase 2 asks whether you know of other maps or resources that could help identify opportunities — your local or regional authority may publish some. The project website lists the partners to contact about the GIS Tool.',
+    ],
+  },
+  regions: {
+    fr: { name: 'France – Redon', area: 'The area around Redon, in the west of France.' },
+    be: { name: 'Belgium – Antwerp', area: 'The pilot area in the province of Antwerp.' },
+    'nl-altena': { name: 'The Netherlands – Altena', area: 'The municipality of Altena, in North Brabant.' },
+    ie: { name: 'Ireland', area: 'The Irish pilot area.' },
+    'de-emmendingen': { name: 'Germany – Emmendingen', area: 'The Emmendingen area, in Baden-Württemberg.' },
+    'de-bad-bergzabern': { name: 'Germany – Bad Bergzabern', area: 'The Bad Bergzabern area.' },
+  },
+  region: {
+    openMap: 'Open the map in a new tab',
+    openMapNote: 'The map opens on qgiscloud.com, where KIT hosts it.',
+    stepsTitle: 'How to use the map',
+    steps: [
+      { title: 'Open the map', text: 'Use the button above. Keep this page open beside it for the guide and your notes.' },
+      {
+        title: 'Select map layers',
+        text: 'Use the legend to turn map layers on or off by ticking or unticking the boxes.',
+      },
+      {
+        title: 'Explore',
+        text: 'Zoom in and out, search for an address, and examine the suitability maps around the places you know.',
+      },
+      {
+        title: 'Talk about what you see',
+        text: 'No technical background is needed. Note the locations that look promising below, with what speaks for and against them.',
+      },
+    ],
+    layersTitle: 'Layers in this map',
+    layersLead: 'The names are shown exactly as they appear in the map’s legend.',
+    layerKinds: {
+      'ground-pv': 'Suitability for ground-mounted solar panels (GM-PV; “FF-PV” in the German maps).',
+      'agri-pv': 'Suitability for agrivoltaics: solar panels combined with farming on the same land.',
+      rooftop: 'Potential for solar panels on roofs, in kilowatt-peak (kWp).',
+      existing: 'Solar installations that already exist.',
+      other: 'No description available yet — ask the tool’s authors at KIT what this layer shows.',
+    },
+    feedbackTitle: 'Leaving feedback on the map',
+    feedback:
+      'This map has feedback layers: visitors can draw a point or an area and add a comment. What you add there is stored with the map and goes to KIT — it is not kept on this site. For your own group’s notes, use the candidate sites list below.',
+    promptsTitle: 'Questions to discuss',
+    promptsSource: 'From WattWorks phase 2, cards 6 and 7',
+    embedTitle: 'Show the map on this page',
+    embedLead:
+      'You can also load the map here, next to your notes. The map then connects to qgiscloud.com, which sets a cookie and uses analytics of its own. In browsers that block third-party cookies the map may stay empty — in that case use the button above.',
+    embedButton: 'Load the map here',
+    embedHide: 'Remove the map from this page',
+    embedFrameTitle: 'Map: {region}',
+    embedBlank: 'Map empty or not loading?',
+    otherRegions: 'Other regions',
+  },
+  sites: {
+    title: 'Candidate sites',
+    lead: 'Keep a list of the locations your group wants to look at more closely. The list is saved in this browser and shown again in the Business Model Tool.',
+    empty: 'No candidate sites yet.',
+    add: 'Add a site',
+    addTitle: 'New candidate site',
+    editTitle: 'Edit candidate site',
+    name: 'Name of the site',
+    nameHint: 'A name your group will recognise, for example “Field behind the dairy”.',
+    nameRequired: 'Give the site a name.',
+    region: 'Region',
+    noRegion: 'Not in a pilot region',
+    technology: 'What for?',
+    technologies: {
+      'ground-pv': 'Ground-mounted solar',
+      'agri-pv': 'Agrivoltaics',
+      'rooftop-pv': 'Rooftop solar',
+      other: 'Something else',
+    },
+    noTechnology: 'Not decided',
+    where: 'Where is it?',
+    whereHint: 'Address, townland or a description.',
+    why: 'Why does it look promising?',
+    concerns: 'Concerns or open questions',
+    mapLink: 'Link to this view of the map',
+    mapLinkHint: 'In the map, move to the site and copy the address from your browser’s address bar: it changes as you move.',
+    openMapLink: 'Open map view',
+    edit: 'Edit',
+    delete: 'Delete',
+    deleteConfirm: 'Delete this site?',
+    confirmDelete: 'Yes, delete',
+  },
+};

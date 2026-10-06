@@ -1,0 +1,161 @@
+---
+import { LOCALE_NAMES, PUBLISHED_LOCALES } from '../i18n/config';
+import type { Locale } from '../i18n/config';
+import { asset, href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+  section?: string;
+  path: string;
+}
+
+const { locale, section, path } = Astro.props;
+const s = getStrings(locale);
+const items = [
+  { id: 'journey', label: s.nav.journey, path: 'journey' },
+  { id: 'tools', label: s.nav.tools, path: 'tools' },
+  { id: 'learn', label: s.nav.learn, path: 'learn' },
+  { id: 'community', label: s.nav.community, path: 'my-community' },
+  { id: 'library', label: s.nav.library, path: 'library' },
+  { id: 'about', label: s.nav.about, path: 'about' },
+];
+---
+
+<header class="site-header">
+  <div class="container site-header__bar">
+    <a class="site-header__brand" href={href(locale)} aria-current={section === 'home' ? 'page' : undefined}>
+      <img src={asset('brand/circus-logo.png')} alt="" width="337" height="301" />
+      <span>
+        <strong>{s.site.short}</strong>
+        <span>{s.site.strapline}</span>
+      </span>
+    </a>
+    <nav aria-label={s.nav.label}>
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a href={href(locale, item.path)} aria-current={section === item.id ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    {
+      PUBLISHED_LOCALES.length > 1 && (
+        <nav class="site-header__languages" aria-label={s.site.language}>
+          <ul>
+            {PUBLISHED_LOCALES.map((other) => (
+              <li>
+                <a href={href(other, path)} lang={other} hreflang={other} aria-current={other === locale ? 'true' : undefined}>
+                  {LOCALE_NAMES[other]}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+    <img
+      class="site-header__funding"
+      src={asset('brand/interreg.png')}
+      alt={s.site.logoAlt.interreg}
+      width="459"
+      height="176"
+    />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-5);
+    padding-block: var(--space-3);
+  }
+  .site-header__brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: var(--navy-deep);
+    line-height: 1.15;
+  }
+  .site-header__brand img {
+    height: 3.25rem;
+    width: auto;
+    border-radius: var(--radius);
+  }
+  .site-header__brand span {
+    display: grid;
+  }
+  .site-header__brand strong {
+    font-size: var(--text-xl);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+  }
+  .site-header__brand span span {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--teal);
+  }
+  nav {
+    flex: 1 1 auto;
+  }
+  nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  nav li {
+    margin: 0;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  nav a:hover {
+    background: var(--lilac-soft);
+  }
+  nav a[aria-current] {
+    background: var(--navy);
+    color: #fff;
+  }
+  .site-header__languages {
+    flex: 0 0 auto;
+  }
+  .site-header__funding {
+    height: 4.6rem;
+    width: auto;
+    border-radius: var(--radius);
+    flex: none;
+  }
+  @media (max-width: 40rem) {
+    .site-header__funding {
+      height: 3.6rem;
+      order: 2;
+      margin-left: auto;
+    }
+    nav {
+      order: 3;
+      flex-basis: 100%;
+    }
+  }
+</style>

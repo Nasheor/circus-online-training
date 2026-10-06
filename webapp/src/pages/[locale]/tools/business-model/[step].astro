@@ -1,0 +1,81 @@
+---
+import BusinessSteps from '../../../../components/BusinessSteps.astro';
+import { BUSINESS_STEPS } from '../../../../content/business';
+import type { BusinessStep } from '../../../../content/business';
+import { PUBLISHED_LOCALES } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { fill } from '../../../../i18n/format';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+import BusinessStepApp from '../../../../tools/business/BusinessStepApp';
+import ReturnBar from '../../../../tools/cards/ReturnBar';
+
+export function getStaticPaths() {
+  return PUBLISHED_LOCALES.flatMap((locale) => BUSINESS_STEPS.map((step) => ({ params: { locale, step } })));
+}
+
+const locale = Astro.params.locale as Locale;
+const step = Astro.params.step as BusinessStep;
+const s = getStrings(locale);
+const t = s.business;
+const index = BUSINESS_STEPS.indexOf(step);
+const page = { explore: t.explore, draw: t.draw, collect: t.collect, build: t.build, 'go-further': t.goFurther }[step];
+const previous = BUSINESS_STEPS[index - 1];
+const next = BUSINESS_STEPS[index + 1];
+---
+
+<Base locale={locale} title={`${t.title}: ${t.steps[step].name}`} section="tools" phase="p3" path={`tools/business-model/${step}`}>
+  <ReturnBar client:only="react" locale={locale} toolId="business-model" />
+  <nav class="breadcrumb container" aria-label={s.common.breadcrumb}>
+    <ol>
+      <li><a href={href(locale)}>{s.nav.home}</a></li>
+      <li><a href={href(locale, 'tools')}>{s.nav.tools}</a></li>
+      <li><a href={href(locale, 'tools/business-model')}>{t.title}</a></li>
+      <li><span aria-current="page">{t.steps[step].name}</span></li>
+    </ol>
+  </nav>
+
+  <div class="container section--tight stack-lg">
+    <BusinessSteps locale={locale} current={step} />
+    <header class="no-print">
+      <p class="eyebrow">{fill(t.step, { n: index + 1 })} · {t.steps[step].name}</p>
+      <h1>{page.title}</h1>
+      <p class="lead">{page.lead}</p>
+    </header>
+
+    <BusinessStepApp client:only="react" locale={locale} step={step} />
+    <noscript><p class="notice notice--warn">{s.site.noscript}</p></noscript>
+
+    <nav class="step-nav no-print" aria-label={t.stepsLabel}>
+      {
+        previous ? (
+          <a class="btn" href={href(locale, `tools/business-model/${previous}`)}>
+            ← {fill(t.previousStep, { name: t.steps[previous].name })}
+          </a>
+        ) : (
+          <a class="btn" href={href(locale, 'tools/business-model')}>← {t.title}</a>
+        )
+      }
+      {
+        next && (
+          <a class="btn btn--primary" href={href(locale, `tools/business-model/${next}`)}>
+            {fill(t.nextStep, { name: t.steps[next].name })} →
+          </a>
+        )
+      }
+    </nav>
+  </div>
+</Base>
+
+<style>
+  h1 {
+    font-size: var(--text-2xl);
+  }
+  .step-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+</style>

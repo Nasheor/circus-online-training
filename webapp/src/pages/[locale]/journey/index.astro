@@ -1,0 +1,54 @@
+---
+import PageHero from '../../../components/PageHero.astro';
+import PhaseCards from '../../../components/PhaseCards.astro';
+import { localePaths } from '../../../i18n/config';
+import type { Locale } from '../../../i18n/config';
+import { href } from '../../../i18n/href';
+import { getStrings } from '../../../i18n/strings';
+import Base from '../../../layouts/Base.astro';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.journey;
+---
+
+<Base locale={locale} title={t.title} section="journey" path="journey">
+  <PageHero
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.journey }]}
+  />
+  <section class="section">
+    <div class="container stack-lg">
+      <PhaseCards locale={locale} />
+      <div>
+        <h2>{t.rhythmTitle}</h2>
+        <ol class="steps grid">
+          {
+            t.rhythm.map((step) => (
+              <li>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      <div class="panel panel--soft">
+        <h2>{t.facilitator}</h2>
+        <ul>
+          {t.facilitatorNotes.map((note) => <li>{note}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .steps.grid > li {
+    margin-top: 0;
+  }
+</style>

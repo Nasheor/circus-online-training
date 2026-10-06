@@ -1,0 +1,497 @@
+/* Styles for the interactive tools (React islands). */
+
+/* --- Card session --- */
+.return-bar {
+  background: var(--phase-soft);
+  border-bottom: 3px solid var(--phase);
+}
+.return-bar__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding-block: var(--space-2);
+}
+.return-bar p {
+  margin: 0;
+  max-width: none;
+}
+
+.session__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-5);
+}
+.session__bar progress {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  height: 0.6rem;
+  accent-color: var(--phase-strong);
+}
+.session__stage {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 62rem) {
+  .session__stage {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+  .session__stage--present {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 60rem;
+    margin-inline: auto;
+  }
+}
+.wcard--large {
+  min-height: 18rem;
+  padding: var(--space-6);
+  border-width: 0.8rem;
+  justify-content: flex-start;
+}
+.wcard--large .wcard__category,
+.wcard--large .wcard__number {
+  font-size: var(--text-lg);
+}
+.wcard--large .wcard__lines {
+  font-size: clamp(1.25rem, 0.9rem + 1.4vw, 1.9rem);
+  line-height: 1.35;
+  margin-block: auto;
+}
+.wcard--large.wcard--info .wcard__lines {
+  font-size: var(--text-lg);
+  margin-block: 0;
+}
+.session__stage--present .wcard--large {
+  min-height: 60vh;
+}
+.session__stage--present .wcard--large .wcard__lines {
+  font-size: clamp(1.6rem, 1rem + 2.6vw, 2.9rem);
+}
+.session__nav {
+  justify-content: space-between;
+}
+.session__note {
+  min-height: 12rem;
+}
+.session__overview {
+  list-style: none;
+  margin: 0;
+  max-height: 20rem;
+  overflow: auto;
+}
+.session__overview li {
+  margin: 0;
+}
+.session__jump {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 0.4rem 0.5rem;
+  min-height: 2.25rem;
+  cursor: pointer;
+}
+.session__jump:hover {
+  background: var(--lilac-soft);
+}
+.session__jump[aria-current] {
+  background: var(--phase-soft);
+  font-weight: 700;
+  box-shadow: inset 4px 0 0 var(--phase);
+}
+.session__summary {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.session__summary li {
+  max-width: none;
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.session__summary-card {
+  margin: 0 0 var(--space-1);
+  max-width: none;
+  font-weight: 600;
+  color: var(--navy);
+}
+.session__summary-note {
+  margin: 0;
+  max-width: none;
+  white-space: pre-wrap;
+}
+body.presenting .site-header,
+body.presenting .site-footer,
+body.presenting .page-intro {
+  display: none;
+}
+
+/* --- Energy profile --- */
+.profile {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 68rem) {
+  .profile {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  }
+  .profile__results {
+    position: sticky;
+    top: var(--space-4);
+    max-height: calc(100vh - 2rem);
+    overflow: auto;
+    /* room for focus rings inside the scroll box */
+    padding: 0.5rem;
+    margin: -0.5rem;
+  }
+}
+.profile__step {
+  scroll-margin-top: var(--space-4);
+}
+.profile__step > h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.profile__step-number {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--p1);
+  color: #fff;
+  font-size: var(--text-base);
+  font-weight: 800;
+}
+.homes-table input {
+  width: 100%;
+  min-width: 3.75rem;
+  max-width: none;
+}
+.homes-table th[scope='row'] {
+  font-weight: 600;
+  min-width: 7rem;
+}
+.homes-table td,
+.homes-table th {
+  padding-inline: 0.4rem;
+}
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+}
+.field-row .hint,
+.field-row .error {
+  grid-column: 1 / -1;
+}
+.slider-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6.5rem;
+  gap: var(--space-3);
+  align-items: center;
+}
+.wind-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 2fr) minmax(5rem, 1fr) minmax(5rem, 1fr) auto;
+  gap: var(--space-2);
+  align-items: end;
+}
+@media (max-width: 34rem) {
+  .wind-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.stats {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+.breakdown {
+  display: flex;
+  height: 1.4rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--lilac-soft);
+  border: 1px solid var(--border);
+}
+.breakdown span {
+  display: block;
+  min-width: 2px;
+}
+.legend {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+}
+.legend li {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.legend__swatch {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  flex: none;
+  border: 1px solid rgb(0 0 0 / 0.25);
+}
+.legend__swatch--line {
+  height: 0;
+  border: 0;
+  border-top: 3px solid var(--series-usage);
+  width: 1.5rem;
+  border-radius: 0;
+}
+.legend__swatch--dashed {
+  border-top-style: dashed;
+}
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.chart text {
+  font-family: var(--font);
+  font-size: 14px;
+  fill: var(--muted);
+}
+.chart__grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.segmented label {
+  cursor: pointer;
+}
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.segmented span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.3rem 0.9rem;
+  border: 2px solid var(--border-strong);
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  background: var(--surface);
+}
+.segmented input:checked + span {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.segmented input:focus-visible + span {
+  outline: 3px solid var(--navy);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 7px var(--yellow);
+}
+.match {
+  border-left: 5px solid var(--series-solar);
+  padding-left: var(--space-4);
+}
+.match p {
+  margin-bottom: var(--space-1);
+}
+.assumption-grid {
+  display: grid;
+  gap: var(--space-3) var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+.changed {
+  box-shadow: inset 3px 0 0 var(--p2);
+  padding-left: var(--space-2);
+}
+body.present-large {
+  font-size: 1.2rem;
+}
+body.present-large .site-footer,
+body.present-large .page-intro {
+  display: none;
+}
+
+/* --- Map explorer --- */
+.map-frame {
+  width: 100%;
+  height: min(75vh, 44rem);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--lilac-soft);
+}
+.map-consent {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: var(--space-6);
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--lilac-soft);
+}
+.map-consent p {
+  margin-inline: auto;
+}
+
+/* --- Business model --- */
+.activity-group + .activity-group {
+  margin-top: var(--space-6);
+}
+.activity {
+  display: grid;
+  gap: var(--space-3);
+}
+.canvas {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 62rem) {
+  .canvas {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-areas:
+      'partners partners activities activities value value relationships relationships segments segments'
+      'partners partners resources resources value value channels channels segments segments'
+      'costs costs costs costs costs revenues revenues revenues revenues revenues';
+  }
+  .canvas__block--partners { grid-area: partners; }
+  .canvas__block--activities { grid-area: activities; }
+  .canvas__block--resources { grid-area: resources; }
+  .canvas__block--value { grid-area: value; }
+  .canvas__block--relationships { grid-area: relationships; }
+  .canvas__block--channels { grid-area: channels; }
+  .canvas__block--segments { grid-area: segments; }
+  .canvas__block--costs { grid-area: costs; }
+  .canvas__block--revenues { grid-area: revenues; }
+}
+.canvas__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--surface);
+  border: 2px solid var(--p3-strong);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.canvas__block label {
+  font-weight: 800;
+  color: var(--p3-strong);
+}
+.canvas__block .hint {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.canvas__block textarea {
+  flex: 1;
+  min-height: 7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.4rem;
+  resize: vertical;
+  width: 100%;
+  line-height: 1.4;
+}
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.checklist > li {
+  max-width: none;
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--border);
+}
+.checklist__fields {
+  display: grid;
+  gap: var(--space-2) var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  margin-top: var(--space-2);
+  padding-left: 2rem;
+}
+
+@media print {
+  .session__stage,
+  .profile {
+    display: block;
+  }
+  .profile__results {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+  .canvas {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    grid-template-areas:
+      'partners partners activities activities value value relationships relationships segments segments'
+      'partners partners resources resources value value channels channels segments segments'
+      'costs costs costs costs costs revenues revenues revenues revenues revenues';
+  }
+  .canvas__block--partners { grid-area: partners; }
+  .canvas__block--activities { grid-area: activities; }
+  .canvas__block--resources { grid-area: resources; }
+  .canvas__block--value { grid-area: value; }
+  .canvas__block--relationships { grid-area: relationships; }
+  .canvas__block--channels { grid-area: channels; }
+  .canvas__block--segments { grid-area: segments; }
+  .canvas__block--costs { grid-area: costs; }
+  .canvas__block--revenues { grid-area: revenues; }
+  /* Fits one A4 landscape sheet with its title and funding line. */
+  .canvas {
+    height: 140mm;
+    grid-template-rows: 1fr 1fr 0.55fr;
+    gap: 1.5mm;
+  }
+  .canvas__block {
+    padding: 2mm;
+    overflow: hidden;
+    break-inside: avoid;
+  }
+  .canvas__block label {
+    font-size: 9.5pt;
+  }
+  .canvas__block .hint {
+    font-size: 7pt;
+    line-height: 1.25;
+  }
+  .canvas__block .print-text {
+    font-size: 8.5pt;
+    line-height: 1.3;
+    margin-top: 1mm;
+  }
+  .canvas-print-title {
+    font-size: 13pt;
+    margin: 0 0 2mm;
+  }
+  .canvas-print-funding {
+    font-size: 7.5pt;
+    margin: 2mm 0 0;
+    max-width: none;
+  }
+}

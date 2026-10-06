@@ -1,0 +1,102 @@
+/* One print stylesheet for every printable view: dossier, session summary, profile, canvas. */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  html {
+    font-size: 11pt;
+  }
+  body {
+    background: #fff;
+    display: block;
+    min-height: 0;
+  }
+  .site-header nav,
+  .site-header .menu,
+  .skip-link,
+  .site-footer__links,
+  .no-print,
+  .breadcrumb,
+  .tabs,
+  button,
+  .btn {
+    display: none !important;
+  }
+  .site-header {
+    border-bottom: 1px solid #999;
+    margin-bottom: 6mm;
+  }
+  .site-footer {
+    border-top: 1px solid #999;
+    margin-top: 8mm;
+    background: none !important;
+    color: #000 !important;
+  }
+  .hero {
+    padding-block: 5mm;
+  }
+  .section,
+  .section--tight {
+    padding-block: 4mm;
+  }
+  body:has(.print-landscape) .section--tight {
+    padding-block: 0;
+  }
+  .hero__bolt {
+    display: none;
+  }
+  .panel {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  .wcard,
+  .stat,
+  tr,
+  figure,
+  .keep-together {
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  .hero,
+  .wcard,
+  .badge--solid,
+  .steps > li::before,
+  .chart,
+  .print-colour {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 8pt;
+    word-break: break-all;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .screen-only {
+    display: none !important;
+  }
+  .print-text {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  /* A page that is one landscape sheet (the canvas) prints without the site header and footer. */
+  body:has(.print-landscape) .site-header,
+  body:has(.print-landscape) .site-footer {
+    display: none;
+  }
+  textarea,
+  .input {
+    border: 1px solid #999;
+  }
+}
+
+.print-only {
+  display: none;
+}

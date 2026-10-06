@@ -1,0 +1,38 @@
+{
+  "name": "circus-method-training",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CIRCUS online method training (Interreg NWE0200304, deliverable D.3.3.1)",
+  "scripts": {
+    "predev": "node scripts/copy-originals.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/copy-originals.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fixtures": "python -I scripts/fixtures/generate_fixtures.py",
+    "e2e": "node scripts/e2e-smoke.mjs"
+  },
+  "dependencies": {
+    "@astrojs/react": "7.0.1",
+    "@fontsource-variable/montserrat": "5.3.0",
+    "@nanostores/react": "2.0.1",
+    "astro": "7.3.6",
+    "nanostores": "1.5.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "puppeteer-core": "25.12.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.3"
+  }
+}

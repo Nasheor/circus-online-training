@@ -1,0 +1,75 @@
+---
+import PageHero from '../../../../components/PageHero.astro';
+import ResourceLink from '../../../../components/ResourceLink.astro';
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+import ReturnBar from '../../../../tools/cards/ReturnBar';
+import EnergyProfileApp from '../../../../tools/energy-profile/EnergyProfileApp';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.profile;
+---
+
+<Base locale={locale} title={t.title} section="tools" phase="p1" path="tools/energy-profile">
+  <ReturnBar client:only="react" locale={locale} toolId="energy-profile" />
+  <div class="page-intro">
+    <PageHero
+      eyebrow={t.eyebrow}
+      title={t.title}
+      lead={t.lead}
+      breadcrumbLabel={s.common.breadcrumb}
+      crumbs={[
+        { label: s.nav.home, href: href(locale) },
+        { label: s.nav.tools, href: href(locale, 'tools') },
+        { label: t.title },
+      ]}
+    />
+  </div>
+
+  <section class="section--tight">
+    <div class="container">
+      <EnergyProfileApp client:only="react" locale={locale} />
+      <noscript><p class="notice notice--warn">{s.site.noscript}</p></noscript>
+    </div>
+  </section>
+
+  <section class="section no-print">
+    <div class="container grid grid--wide">
+      <div class="panel panel--flat stack">
+        <h2>{t.about.title}</h2>
+        <ul>
+          <li><a href={href(locale, 'learn/energy-profile')}>{t.about.lesson}</a></li>
+          <li><a href={href(locale, 'tools/energy-profile/differences')}>{t.about.differences}</a></li>
+          <li><ResourceLink locale={locale} id="energy-profile-tool-1a-v1.03" label={t.about.original} /></li>
+          <li><ResourceLink locale={locale} id="manual-energy-profile-tool" label={t.about.manual} /></li>
+        </ul>
+      </div>
+      <div class="panel panel--flat stack">
+        <h2>{t.otherParts.title}</h2>
+        <p>{t.otherParts.lead}</p>
+        <dl>
+          <dt><strong>{t.otherParts.b.name}</strong></dt>
+          <dd>{t.otherParts.b.text}</dd>
+          <dt><strong>{t.otherParts.c.name}</strong></dt>
+          <dd>{t.otherParts.c.text}</dd>
+        </dl>
+        <p><ResourceLink locale={locale} id="drive-energy-profile" label={t.otherParts.link} /></p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  h2 {
+    font-size: var(--text-xl);
+  }
+  dd {
+    margin: 0 0 var(--space-3);
+  }
+</style>

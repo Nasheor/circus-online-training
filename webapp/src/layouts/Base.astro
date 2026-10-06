@@ -1,0 +1,64 @@
+---
+import '@fontsource-variable/montserrat';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/components.css';
+import '../styles/tools.css';
+import '../styles/print.css';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { LOCALE_NAMES } from '../i18n/config';
+import type { Locale } from '../i18n/config';
+import { fill } from '../i18n/format';
+import { asset } from '../i18n/href';
+import { getStrings, translationCoverage } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description?: string;
+  /** Which main navigation item this page belongs to. */
+  section?: 'home' | 'journey' | 'tools' | 'learn' | 'community' | 'library' | 'about';
+  /** Colours the page in a phase: p1, p2, p3. */
+  phase?: string;
+  /** Path of this page relative to the locale root, for the language switcher. */
+  path?: string;
+}
+
+const { locale, title, description, section, phase, path = '' } = Astro.props;
+const s = getStrings(locale);
+const partlyTranslated = translationCoverage(locale) < 1;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {s.site.name}</title>
+    <meta name="description" content={description ?? s.site.description} />
+    <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
+  </head>
+  <body data-phase={phase}>
+    <a class="skip-link" href="#main">{s.site.skip}</a>
+    <Header locale={locale} section={section} path={path} />
+    {
+      partlyTranslated && (
+        <div class="container">
+          <p class="notice notice--warn small">{fill(s.site.notTranslated, { language: LOCALE_NAMES[locale] })}</p>
+        </div>
+      )
+    }
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>
+
+<style is:global>
+  main:focus {
+    outline: none;
+    box-shadow: none;
+  }
+</style>

@@ -1,0 +1,43 @@
+---
+import { getResource, resourceTarget } from '../content/resources';
+import type { Locale } from '../i18n/config';
+import { fill } from '../i18n/format';
+import { asset } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+  id: string;
+  label: string;
+  class?: string;
+}
+
+const { locale, id, label, class: className } = Astro.props;
+const s = getStrings(locale);
+const resource = getResource(id);
+const target = resourceTarget(resource);
+---
+
+{
+  target.isLocal ? (
+    <a class={className} href={asset(target.path)} download>
+      {label}
+      {resource.format && <span class="resource-meta"> ({resource.format.toUpperCase()})</span>}
+    </a>
+  ) : (
+    <a class={className} href={target.path} target="_blank" rel="noopener noreferrer">
+      {label}
+      <span class="resource-meta">
+        {' '}
+        ({fill(s.common.hostedBy, { holder: resource.holder })}, {s.common.newTab})
+      </span>
+    </a>
+  )
+}
+
+<style>
+  .resource-meta {
+    font-weight: 400;
+    font-size: var(--text-sm);
+  }
+</style>

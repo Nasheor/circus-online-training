@@ -1,0 +1,28 @@
+---
+import PageHero from '../../components/PageHero.astro';
+import { localePaths } from '../../i18n/config';
+import type { Locale } from '../../i18n/config';
+import { href } from '../../i18n/href';
+import { getStrings } from '../../i18n/strings';
+import Base from '../../layouts/Base.astro';
+import DossierApp from '../../tools/dossier/DossierApp';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.community;
+---
+
+<Base locale={locale} title={t.title} section="community" path="my-community">
+  <PageHero
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.community }]}
+  />
+  <div class="container section">
+    <DossierApp client:only="react" locale={locale} />
+    <noscript><p class="notice notice--warn">{s.site.noscript}</p></noscript>
+  </div>
+</Base>

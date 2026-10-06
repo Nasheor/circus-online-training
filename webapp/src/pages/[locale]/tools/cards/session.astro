@@ -1,0 +1,30 @@
+---
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+import SessionApp from '../../../../tools/cards/SessionApp';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.wattworks.session;
+---
+
+<Base locale={locale} title={t.title} section="tools" path="tools/cards/session">
+  <nav class="breadcrumb container page-intro" aria-label={s.common.breadcrumb}>
+    <ol>
+      <li><a href={href(locale)}>{s.nav.home}</a></li>
+      <li><a href={href(locale, 'tools')}>{s.nav.tools}</a></li>
+      <li><a href={href(locale, 'tools/cards')}>{s.tools.cards.name}</a></li>
+      <li><span aria-current="page">{t.title}</span></li>
+    </ol>
+  </nav>
+  <div class="container section--tight">
+    <h1 class="page-intro">{t.title}</h1>
+    <SessionApp client:only="react" locale={locale} />
+    <noscript><p class="notice notice--warn">{s.site.noscript}</p></noscript>
+  </div>
+</Base>

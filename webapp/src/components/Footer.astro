@@ -1,0 +1,94 @@
+---
+import pkg from '../../package.json';
+import type { Locale } from '../i18n/config';
+import { fill } from '../i18n/format';
+import { asset, href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+import { getResource } from '../content/resources';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const s = getStrings(locale);
+const projectSite = getResource('circus-website').external;
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__funding">
+      <img src={asset('brand/interreg.png')} alt={s.site.logoAlt.interreg} width="459" height="176" loading="lazy" />
+      <p>{s.site.fundingLong}</p>
+      <p class="small">{s.site.disclaimer}</p>
+    </div>
+    <div>
+      <nav class="site-footer__links" aria-label={s.footer.label}>
+        <ul>
+          <li><a href={href(locale, 'about')}>{s.nav.about}</a></li>
+          <li><a href={href(locale, 'about/privacy')}>{s.footer.privacy}</a></li>
+          <li><a href={href(locale, 'about/accessibility')}>{s.footer.accessibility}</a></li>
+          <li><a href={href(locale, 'about/feedback')}>{s.footer.feedback}</a></li>
+          <li><a href={projectSite} rel="noopener">{s.footer.projectSite}</a></li>
+        </ul>
+      </nav>
+      <p class="small">{s.footer.dataNote}</p>
+      <p class="small muted">{fill(s.site.version, { version: pkg.version })}</p>
+    </div>
+  </div>
+  <div class="site-footer__partners">
+    <div class="container">
+      <h2 class="visually-hidden">{s.footer.partners}</h2>
+      <img src={asset('brand/partners.png')} alt={s.site.logoAlt.partners} width="1211" height="199" loading="lazy" />
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-8);
+    background: var(--teal-soft);
+    border-top: 4px solid var(--teal);
+  }
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+  .site-footer__funding img {
+    width: min(100%, 17rem);
+    display: block;
+    margin-bottom: var(--space-3);
+    /* the logo file carries the same pale green as this footer */
+    margin-left: -0.4rem;
+  }
+  .site-footer p {
+    margin-bottom: var(--space-2);
+  }
+  .site-footer__links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+  }
+  .site-footer__links li {
+    margin: 0;
+  }
+  .site-footer__links a {
+    font-weight: 700;
+    display: inline-block;
+    padding-block: var(--space-1);
+  }
+  .site-footer__partners {
+    background: #fff;
+    padding-block: var(--space-4);
+  }
+  .site-footer__partners img {
+    display: block;
+    width: min(100%, 46rem);
+    margin-inline: auto;
+  }
+</style>

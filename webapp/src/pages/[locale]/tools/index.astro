@@ -1,0 +1,79 @@
+---
+import PageHero from '../../../components/PageHero.astro';
+import { PHASES, TOOL_PATHS } from '../../../content/structure';
+import { localePaths } from '../../../i18n/config';
+import type { Locale } from '../../../i18n/config';
+import { fill } from '../../../i18n/format';
+import { href } from '../../../i18n/href';
+import { getStrings } from '../../../i18n/strings';
+import Base from '../../../layouts/Base.astro';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.toolsPage;
+const tools = [
+  { id: 'cards' as const, path: 'tools/cards', lesson: 'learn/cards', phase: undefined },
+  ...PHASES.map((phase) => ({
+    id: phase.toolId,
+    path: TOOL_PATHS[phase.toolId],
+    lesson: `learn/${phase.toolId}`,
+    phase,
+  })),
+];
+---
+
+<Base locale={locale} title={t.title} section="tools" path="tools">
+  <PageHero
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.tools }]}
+  />
+  <section class="section">
+    <div class="container">
+      <ul class="grid grid--wide tool-list">
+        {
+          tools.map((tool) => (
+            <li class="panel panel--phase stack" data-phase={tool.phase?.id}>
+              <p class="eyebrow">{s.tools[tool.id].number}</p>
+              <h2>{s.tools[tool.id].name}</h2>
+              <p>{s.tools[tool.id].summary}</p>
+              <p class="small muted">
+                {tool.phase
+                  ? fill(t.usedIn, { n: tool.phase.order, name: s.phases[tool.phase.id].name })
+                  : t.usedThroughout}
+              </p>
+              <div class="cluster">
+                <a class="btn btn--primary" href={href(locale, tool.path)}>
+                  {t.open}
+                  <span class="visually-hidden">: {s.tools[tool.id].name}</span>
+                </a>
+                <a class="btn" href={href(locale, tool.lesson)}>
+                  {t.learn}
+                  <span class="visually-hidden">: {s.tools[tool.id].name}</span>
+                </a>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .tool-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tool-list li {
+    margin: 0;
+    max-width: none;
+  }
+  .tool-list h2 {
+    font-size: var(--text-xl);
+  }
+</style>

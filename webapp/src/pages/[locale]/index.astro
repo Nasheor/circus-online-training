@@ -1,0 +1,132 @@
+---
+import Bolt from '../../components/Bolt.astro';
+import PhaseCards from '../../components/PhaseCards.astro';
+import ToolCards from '../../components/ToolCards.astro';
+import { localePaths } from '../../i18n/config';
+import type { Locale } from '../../i18n/config';
+import { href } from '../../i18n/href';
+import { getStrings } from '../../i18n/strings';
+import Base from '../../layouts/Base.astro';
+import Resume from '../../tools/home/Resume';
+import SelfCheck from '../../tools/home/SelfCheck';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.home;
+---
+
+<Base locale={locale} title={t.title} section="home">
+  <section class="hero home-hero">
+    <Bolt />
+    <div class="container stack">
+      <p class="eyebrow">{t.eyebrow}</p>
+      <h1>{t.title}</h1>
+      <p class="lead">{t.lead}</p>
+      <div class="cluster">
+        <a class="btn btn--accent" href="#where">{t.ctaStart}</a>
+        <a class="btn" href={href(locale, 'journey')}>{t.ctaJourney}</a>
+      </div>
+    </div>
+  </section>
+
+  <Resume client:only="react" locale={locale} />
+
+  <section class="section">
+    <div class="container stack-lg">
+      <div>
+        <h2>{t.how.title}</h2>
+        <p class="lead">{t.how.lead}</p>
+      </div>
+      <PhaseCards locale={locale} />
+    </div>
+  </section>
+
+  <section class="section band" id="where">
+    <div class="container stack-lg">
+      <div>
+        <h2>{s.selfCheck.title}</h2>
+        <p class="lead">{s.selfCheck.lead}</p>
+      </div>
+      <SelfCheck client:only="react" locale={locale} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container stack-lg">
+      <h2>{t.different.title}</h2>
+      <div class="grid">
+        {
+          t.different.items.map((item) => (
+            <div class="panel panel--flat">
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="container stack-lg">
+      <h2>{t.toolsTitle}</h2>
+      <ToolCards locale={locale} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container split">
+      <div class="stack">
+        <h2>{t.audience.title}</h2>
+        {
+          t.audience.items.map((item) => (
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </div>
+          ))
+        }
+      </div>
+      <figure class="panel panel--soft definition">
+        <h2>{t.definition.title}</h2>
+        <blockquote>{t.definition.quote}</blockquote>
+        <figcaption class="small muted">{t.definition.source}</figcaption>
+      </figure>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .home-hero {
+    background: var(--navy);
+    color: #fff;
+  }
+  .home-hero .hero__bolt {
+    color: var(--yellow);
+    opacity: 0.22;
+  }
+  .home-hero .btn:not(.btn--accent) {
+    background: transparent;
+    border-color: #fff;
+    color: #fff;
+  }
+  .home-hero .btn:not(.btn--accent):hover {
+    background: rgb(255 255 255 / 0.14);
+  }
+  .band {
+    background: var(--lilac-soft);
+  }
+  .definition blockquote {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--navy-deep);
+    border-left: 5px solid var(--teal);
+    padding-left: var(--space-4);
+  }
+  .definition {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+import '@fontsource-variable/montserrat';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/components.css';
+import { DEFAULT_LOCALE, LOCALE_NAMES, PUBLISHED_LOCALES } from '../i18n/config';
+import { asset, href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+// Language chooser. With a single published language it forwards straight to it.
+const s = getStrings(DEFAULT_LOCALE);
+const single = PUBLISHED_LOCALES.length === 1;
+---
+
+<!doctype html>
+<html lang={DEFAULT_LOCALE}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{s.site.name}</title>
+    <meta name="description" content={s.site.description} />
+    <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
+    {single && <meta http-equiv="refresh" content={`0; url=${href(PUBLISHED_LOCALES[0])}`} />}
+  </head>
+  <body>
+    <main class="container section">
+      <h1>{s.site.name}</h1>
+      <p class="lead">{s.site.chooseLanguage}</p>
+      <ul class="cluster" style="list-style:none;padding:0">
+        {
+          PUBLISHED_LOCALES.map((locale) => (
+            <li>
+              <a class="btn btn--primary" href={href(locale)} lang={locale} hreflang={locale}>
+                {LOCALE_NAMES[locale]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+  </body>
+</html>

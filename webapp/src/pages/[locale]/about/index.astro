@@ -1,0 +1,77 @@
+---
+import PageHero from '../../../components/PageHero.astro';
+import ResourceLink from '../../../components/ResourceLink.astro';
+import { localePaths } from '../../../i18n/config';
+import type { Locale } from '../../../i18n/config';
+import { asset, href } from '../../../i18n/href';
+import { getStrings } from '../../../i18n/strings';
+import Base from '../../../layouts/Base.astro';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.about;
+---
+
+<Base locale={locale} title={t.title} section="about" path="about">
+  <PageHero
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.about }]}
+  />
+  <div class="container section split split--aside">
+    <div class="stack-lg">
+      {
+        t.sections.map((section) => (
+          <section>
+            <h2>{section.title}</h2>
+            {section.paragraphs.map((paragraph) => (
+              <p>{paragraph}</p>
+            ))}
+          </section>
+        ))
+      }
+      <section>
+        <h2>{t.licenceTitle}</h2>
+        <p>{t.licence}</p>
+      </section>
+      <ul>
+        <li><a href={href(locale, 'tools/energy-profile/differences')}>{t.differences}</a></li>
+        <li><a href={href(locale, 'about/privacy')}>{t.links.privacy}</a></li>
+        <li><a href={href(locale, 'about/accessibility')}>{t.links.accessibility}</a></li>
+        <li><a href={href(locale, 'about/feedback')}>{t.links.feedback}</a></li>
+        <li><ResourceLink locale={locale} id="circus-website" label={t.projectSite} /></li>
+      </ul>
+    </div>
+    <aside class="stack-lg">
+      <div class="panel funding">
+        <h2>{t.fundingTitle}</h2>
+        <img src={asset('brand/interreg.png')} alt={s.site.logoAlt.interreg} width="459" height="176" />
+        <p>{s.site.fundingLong}</p>
+        <p class="small muted">{s.site.disclaimer}</p>
+      </div>
+      <div class="panel panel--flat">
+        <h2>{t.partnersTitle}</h2>
+        <ul>
+          {t.partners.map((partner) => <li>{partner}</li>)}
+        </ul>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  aside h2 {
+    font-size: var(--text-lg);
+  }
+  .funding {
+    background: var(--teal-soft);
+  }
+  .funding img {
+    width: min(100%, 16rem);
+    display: block;
+    margin-bottom: var(--space-3);
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+import Bolt from './Bolt.astro';
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  lead?: string;
+  crumbs?: Crumb[];
+  breadcrumbLabel?: string;
+}
+
+const { title, eyebrow, lead, crumbs = [], breadcrumbLabel } = Astro.props;
+---
+
+{
+  crumbs.length > 0 && (
+    <nav class="breadcrumb container" aria-label={breadcrumbLabel}>
+      <ol>
+        {crumbs.map((crumb) => (
+          <li>{crumb.href ? <a href={crumb.href}>{crumb.label}</a> : <span aria-current="page">{crumb.label}</span>}</li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+<header class="hero">
+  <Bolt />
+  <div class="container stack">
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    <slot />
+  </div>
+</header>

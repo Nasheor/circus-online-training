@@ -1,0 +1,189 @@
+---
+import CardFace from '../../../../components/CardFace.astro';
+import PageHero from '../../../../components/PageHero.astro';
+import ResourceLink from '../../../../components/ResourceLink.astro';
+import { CARDS, DECK_IDS, METHODOLOGY_IDS, SESSION_DECKS, cardsOfDeck, groupedCards } from '../../../../content/structure';
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { fill } from '../../../../i18n/format';
+import { asset, href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.wattworks;
+const printFiles = [
+  { id: 'cards-intro-outro', label: `${s.decks.intro} / ${s.decks.boost}` },
+  { id: 'cards-phase-1-awareness', label: s.decks.p1 },
+  { id: 'cards-phase-2-exploring', label: s.decks.p2 },
+  { id: 'cards-phase-3-collaboration', label: s.decks.p3 },
+];
+const methodologyCard = (id: string) => CARDS.find((card) => card.methodologyId === id)?.number;
+---
+
+<Base locale={locale} title={t.title} section="tools" path="tools/cards">
+  <PageHero
+    eyebrow={s.tools.cards.number}
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.tools, href: href(locale, 'tools') },
+      { label: s.tools.cards.name },
+    ]}
+  >
+    <div class="cluster">
+      <a class="btn btn--accent" href={href(locale, 'tools/cards/session')}>{t.startSession}</a>
+      <a class="btn" href="#all-cards">{t.browseTitle}</a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container split">
+      <div>
+        <h2>{t.howTitle}</h2>
+        <ol class="steps">
+          {
+            t.how.map((step) => (
+              <li>
+                <strong>{step.title}</strong>
+                <br />
+                {step.text}
+              </li>
+            ))
+          }
+        </ol>
+        <p class="notice">{t.note}</p>
+      </div>
+      <div class="stack-lg">
+        <div class="panel stack">
+          <img class="wattworks-logo" src={asset('brand/wattworks.png')} alt={s.site.logoAlt.wattworks} width="740" height="273" />
+          <h2>{t.sessionTitle}</h2>
+          <p>{t.sessionLead}</p>
+          <ul class="deck-starts">
+            {
+              SESSION_DECKS.map((deck) => (
+                <li data-phase={deck}>
+                  <a class="btn" href={href(locale, 'tools/cards/session', `?deck=${deck}`)}>
+                    <span class="badge badge--solid">{cardsOfDeck(deck).length}</span>
+                    {s.decks[deck]}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="panel panel--flat stack">
+          <h2>{t.printTitle}</h2>
+          <p>{t.printLead}</p>
+          <ul>
+            {printFiles.map((file) => <li><ResourceLink locale={locale} id={file.id} label={file.label} /></li>)}
+            <li><ResourceLink locale={locale} id="manual-wattworks" label={t.manual} /></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section band" id="all-cards">
+    <div class="container stack-lg">
+      <div>
+        <h2>{t.browseTitle}</h2>
+        <p class="lead">{t.browseLead}</p>
+        <ul class="tabs">
+          {DECK_IDS.map((deck) => <li><a href={`#deck-${deck}`}>{s.decks[deck]}</a></li>)}
+        </ul>
+      </div>
+      {
+        DECK_IDS.map((deck) => (
+          <section class="stack" id={`deck-${deck}`} data-phase={deck}>
+            <h3 class="deck-title">
+              {s.decks[deck]} <span class="badge">{fill(s.common.cards, { n: cardsOfDeck(deck).length })}</span>
+            </h3>
+            {groupedCards(deck).map((group) => (
+              <div class="card-grid">
+                {group.cards.map((card) => (
+                  <CardFace locale={locale} card={card} />
+                ))}
+              </div>
+            ))}
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section" data-phase="p3">
+    <div class="container stack">
+      <h2>{t.methodologiesTitle}</h2>
+      <p class="lead">{t.methodologiesLead}</p>
+      <dl class="grid methodologies">
+        {
+          METHODOLOGY_IDS.map((id) => (
+            <div class="panel panel--flat">
+              <dt>
+                <strong>{s.methodologies[id]}</strong>{' '}
+                <span class="small muted">{fill(t.methodologyCard, { n: methodologyCard(id) ?? '' })}</span>
+              </dt>
+              <dd>{t.methodologyDescriptions[id]}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p><ResourceLink locale={locale} id="drive-methodologies" label={t.openMethodologies} class="btn" /></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .band {
+    background: var(--lilac-soft);
+  }
+  .wattworks-logo {
+    width: min(100%, 15rem);
+  }
+  .deck-starts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+  .deck-starts li {
+    margin: 0;
+    max-width: none;
+  }
+  .deck-starts .btn {
+    width: 100%;
+    justify-content: flex-start;
+    border-radius: var(--radius);
+    border-color: var(--phase-strong);
+    color: var(--ink);
+    text-align: left;
+  }
+  .deck-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+  .card-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .card-grid :global(.wcard--info) {
+    grid-column: 1 / -1;
+  }
+  .methodologies {
+    margin: 0;
+  }
+  .methodologies dd {
+    margin: var(--space-2) 0 0;
+  }
+</style>

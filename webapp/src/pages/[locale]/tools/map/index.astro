@@ -1,0 +1,91 @@
+---
+import PageHero from '../../../../components/PageHero.astro';
+import ResourceLink from '../../../../components/ResourceLink.astro';
+import { REGIONS } from '../../../../content/regions';
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+import ReturnBar from '../../../../tools/cards/ReturnBar';
+import SiteNotebook from '../../../../tools/map/SiteNotebook';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.map;
+const regionText = (id: string) => t.regions[id as keyof typeof t.regions];
+---
+
+<Base locale={locale} title={t.title} section="tools" phase="p2" path="tools/map">
+  <ReturnBar client:only="react" locale={locale} toolId="map" />
+  <PageHero
+    eyebrow={t.eyebrow}
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.tools, href: href(locale, 'tools') },
+      { label: t.title },
+    ]}
+  />
+
+  <section class="section">
+    <div class="container stack-lg">
+      <div class="split split--aside">
+        <div>
+          <h2>{t.what.title}</h2>
+          {t.what.text.map((paragraph) => <p>{paragraph}</p>)}
+          <ul>
+            <li><a href={href(locale, 'learn/map')}>{s.toolsPage.learn}</a></li>
+            <li><ResourceLink locale={locale} id="manual-gis-tool" label={s.library.items['manual-gis-tool']} /></li>
+          </ul>
+        </div>
+        <p class="notice">{t.scope}</p>
+      </div>
+
+      <div>
+        <h2>{t.chooseTitle}</h2>
+        <ul class="grid region-list">
+          {
+            REGIONS.map((region) => (
+              <li>
+                <a class="panel panel--phase" href={href(locale, `tools/map/${region.id}`)}>
+                  <h3>{regionText(region.id).name}</h3>
+                  <p>{regionText(region.id).area}</p>
+                  <p class="small muted">{t.openRegion}</p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="panel panel--soft">
+        <h2>{t.elsewhere.title}</h2>
+        {t.elsewhere.text.map((paragraph) => <p>{paragraph}</p>)}
+        <p><ResourceLink locale={locale} id="circus-website" label={s.footer.projectSite} /></p>
+      </div>
+
+      <SiteNotebook client:only="react" locale={locale} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .region-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .region-list li {
+    margin: 0;
+    max-width: none;
+    display: flex;
+  }
+  .region-list a {
+    flex: 1;
+  }
+</style>

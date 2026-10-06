@@ -1,0 +1,106 @@
+---
+import PageHero from '../../../components/PageHero.astro';
+import ResourceLink from '../../../components/ResourceLink.astro';
+import { LESSONS } from '../../../content/lessons';
+import { PUBLISHED_LOCALES } from '../../../i18n/config';
+import type { Locale } from '../../../i18n/config';
+import { fill } from '../../../i18n/format';
+import { href } from '../../../i18n/href';
+import { getStrings } from '../../../i18n/strings';
+import Base from '../../../layouts/Base.astro';
+import Quiz from '../../../tools/learn/Quiz';
+
+export function getStaticPaths() {
+  return PUBLISHED_LOCALES.flatMap((locale) =>
+    LESSONS.map((lesson) => ({ params: { locale, lesson: lesson.id } })),
+  );
+}
+
+const locale = Astro.params.locale as Locale;
+const index = LESSONS.findIndex((item) => item.id === Astro.params.lesson);
+const lesson = LESSONS[index];
+const next = LESSONS[index + 1];
+const s = getStrings(locale);
+const t = s.learn;
+const text = t.lessons[lesson.id];
+const anchor = (position: number) => `part-${position + 1}`;
+---
+
+<Base locale={locale} title={text.title} section="learn" phase={lesson.phase} path={`learn/${lesson.id}`}>
+  <PageHero
+    eyebrow={`${fill(t.lessonLabel, { n: index + 1 })} · ${fill(s.common.minutes, { n: text.minutes })}`}
+    title={text.title}
+    lead={text.intro}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.learn, href: href(locale, 'learn') },
+      { label: text.title },
+    ]}
+  />
+  <div class="container section split split--aside">
+    <article class="stack-lg">
+      {
+        text.sections.map((section, position) => (
+          <section id={anchor(position)}>
+            <h2>{section.title}</h2>
+            {section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
+            {section.steps && (
+              <ol class="steps">
+                {section.steps.map((step) => (
+                  <li>{step}</li>
+                ))}
+              </ol>
+            )}
+            {section.bullets && (
+              <ul>
+                {section.bullets.map((bullet) => (
+                  <li>{bullet}</li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))
+      }
+      <section class="panel" id="check">
+        <h2>{t.checkTitle}</h2>
+        <p>{t.checkLead}</p>
+        <Quiz client:visible locale={locale} lessonId={lesson.id} />
+      </section>
+      <div class="cluster">
+        <a class="btn btn--primary" href={href(locale, lesson.toolPath)}>{text.tryLabel}</a>
+        {
+          next ? (
+            <a class="btn" href={href(locale, `learn/${next.id}`)}>
+              {fill(t.next, { title: t.lessons[next.id].title })} →
+            </a>
+          ) : (
+            <a class="btn" href={href(locale, 'learn')}>{t.allLessons}</a>
+          )
+        }
+      </div>
+    </article>
+    <aside class="stack-lg lesson-aside">
+      <nav class="panel panel--flat" aria-label={t.inThisLesson}>
+        <h2>{t.inThisLesson}</h2>
+        <ol>
+          {text.sections.map((section, position) => <li><a href={`#${anchor(position)}`}>{section.title}</a></li>)}
+          <li><a href="#check">{t.checkTitle}</a></li>
+        </ol>
+      </nav>
+      <div class="panel panel--soft stack">
+        <a class="btn btn--primary" href={href(locale, lesson.toolPath)}>{text.tryLabel}</a>
+        <p class="small"><ResourceLink locale={locale} id={lesson.manual} label={t.manualLabel} /></p>
+      </div>
+    </aside>
+  </div>
+</Base>
+
+<style>
+  .lesson-aside h2 {
+    font-size: var(--text-lg);
+  }
+  article section {
+    scroll-margin-top: var(--space-4);
+  }
+</style>

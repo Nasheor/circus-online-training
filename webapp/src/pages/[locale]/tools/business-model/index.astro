@@ -1,0 +1,91 @@
+---
+import PageHero from '../../../../components/PageHero.astro';
+import ResourceLink from '../../../../components/ResourceLink.astro';
+import { BUSINESS_STEPS } from '../../../../content/business';
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { fill } from '../../../../i18n/format';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+import ReturnBar from '../../../../tools/cards/ReturnBar';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.business;
+---
+
+<Base locale={locale} title={t.title} section="tools" phase="p3" path="tools/business-model">
+  <ReturnBar client:only="react" locale={locale} toolId="business-model" />
+  <PageHero
+    eyebrow={t.eyebrow}
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.tools, href: href(locale, 'tools') },
+      { label: t.title },
+    ]}
+  >
+    <div>
+      <a class="btn btn--accent" href={href(locale, `tools/business-model/${BUSINESS_STEPS[0]}`)}>
+        {fill(t.openStep, { n: 1 })}: {t.steps[BUSINESS_STEPS[0]].name}
+      </a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container stack-lg">
+      <div>{t.intro.map((paragraph) => <p>{paragraph}</p>)}</div>
+      <ol class="step-list">
+        {
+          BUSINESS_STEPS.map((step, index) => (
+            <li>
+              <a class="panel panel--phase" href={href(locale, `tools/business-model/${step}`)}>
+                <p class="eyebrow">{fill(t.step, { n: index + 1 })}</p>
+                <h2>{t.steps[step].name}</h2>
+                <p>{t.steps[step].summary}</p>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="panel panel--flat">
+        <ul>
+          <li><a href={href(locale, 'learn/business-model')}>{s.toolsPage.learn}</a></li>
+          <li><ResourceLink locale={locale} id="business-tool" label={t.original} /></li>
+          <li><ResourceLink locale={locale} id="manual-business-tool" label={t.manual} /></li>
+          <li><ResourceLink locale={locale} id="drive-business-tool" label={t.partnerFolder} /></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .step-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  }
+  .step-list li {
+    margin: 0;
+    max-width: none;
+    display: flex;
+  }
+  .step-list a {
+    flex: 1;
+  }
+  .step-list h2 {
+    font-size: var(--text-xl);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+</style>

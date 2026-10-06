@@ -1,0 +1,146 @@
+---
+import PageHero from '../../../components/PageHero.astro';
+import { PHASES, TOOL_PATHS, cardsOfDeck, groupedCards } from '../../../content/structure';
+import { PUBLISHED_LOCALES } from '../../../i18n/config';
+import type { Locale } from '../../../i18n/config';
+import { fill } from '../../../i18n/format';
+import { href } from '../../../i18n/href';
+import { getStrings } from '../../../i18n/strings';
+import Base from '../../../layouts/Base.astro';
+import PhaseDone from '../../../tools/home/PhaseDone';
+
+export function getStaticPaths() {
+  return PUBLISHED_LOCALES.flatMap((locale) =>
+    PHASES.map((phase) => ({ params: { locale, phase: phase.slug }, props: { phaseId: phase.id } })),
+  );
+}
+
+const locale = Astro.params.locale as Locale;
+const phase = PHASES.find((item) => item.id === Astro.props.phaseId)!;
+const s = getStrings(locale);
+const t = s.journey;
+const text = t.phases[phase.id];
+const name = s.phases[phase.id].name;
+const tool = s.tools[phase.toolId];
+const groups = groupedCards(phase.id);
+const previous = PHASES.find((item) => item.order === phase.order - 1);
+const next = PHASES.find((item) => item.order === phase.order + 1);
+const range = (cards: { number: number | null }[]) =>
+  cards.length === 1 ? String(cards[0].number) : `${cards[0].number}–${cards[cards.length - 1].number}`;
+---
+
+<Base locale={locale} title={`${fill(t.phaseLabel, { n: phase.order })}: ${name}`} section="journey" phase={phase.id} path={`journey/${phase.slug}`}>
+  <PageHero
+    eyebrow={fill(t.phaseLabel, { n: phase.order })}
+    title={name}
+    lead={s.phases[phase.id].audience}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.journey, href: href(locale, 'journey') },
+      { label: name },
+    ]}
+  >
+    <div class="cluster">
+      <a class="btn btn--accent" href={href(locale, 'tools/cards/session', `?deck=${phase.id}`)}>{t.startSession}</a>
+      <a class="btn" href={href(locale, TOOL_PATHS[phase.toolId])}>{fill(t.openTool, { tool: tool.name })}</a>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <div class="container split split--aside">
+      <div class="stack-lg">
+        <div>
+          <h2>{t.goal}</h2>
+          {text.goal.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+        <div>
+          <h2>{t.sequence}</h2>
+          <ol class="steps">
+            {
+              groups.map((group) =>
+                group.category === 'tool' ? (
+                  <li>
+                    <strong>{fill(t.sequenceTool, { n: group.cards[0].number ?? '', tool: tool.name })}</strong>
+                    <br />
+                    <span>{s.cards[group.cards[0].id].lines.slice(1).join(' ')}</span>
+                    <br />
+                    <a href={href(locale, TOOL_PATHS[phase.toolId])}>{fill(t.openTool, { tool: tool.name })}</a>
+                    {' · '}
+                    <a href={href(locale, `learn/${phase.toolId}`)}>{fill(t.lesson, { tool: tool.name })}</a>
+                  </li>
+                ) : (
+                  <li>
+                    <strong>
+                      {fill(group.cards.length === 1 ? t.sequenceCard : t.sequenceCards, {
+                        category: s.cardCategories[group.category],
+                        range: range(group.cards),
+                      })}
+                    </strong>
+                    <br />
+                    <span class="muted">{s.cards[group.cards[0].id].lines[0]}</span>
+                  </li>
+                ),
+              )
+            }
+          </ol>
+          <p>
+            <a href={href(locale, 'tools/cards', `#deck-${phase.id}`)}>
+              {fill(t.browseCards, { n: cardsOfDeck(phase.id).length })}
+            </a>
+          </p>
+        </div>
+        <div>
+          <h2>{t.carry}</h2>
+          <ul>
+            {text.carry.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </div>
+      <aside class="stack-lg">
+        <div class="panel panel--soft">
+          <h2 class="aside-title">{t.audience}</h2>
+          <p>{s.phases[phase.id].audience}</p>
+        </div>
+        <div class="panel panel--flat">
+          <h2 class="aside-title">{t.facilitator}</h2>
+          <ul class="small">
+            {t.facilitatorNotes.map((note) => <li>{note}</li>)}
+          </ul>
+        </div>
+        <PhaseDone client:only="react" locale={locale} phaseId={phase.id} />
+      </aside>
+    </div>
+  </section>
+
+  <nav class="container phase-nav" aria-label={s.nav.journey}>
+    {
+      previous ? (
+        <a class="btn" href={href(locale, `journey/${previous.slug}`)}>
+          ← {fill(t.previousPhase, { n: previous.order, name: s.phases[previous.id].name })}
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      next && (
+        <a class="btn btn--primary" href={href(locale, `journey/${next.slug}`)}>
+          {fill(t.nextPhase, { n: next.order, name: s.phases[next.id].name })} →
+        </a>
+      )
+    }
+  </nav>
+</Base>
+
+<style>
+  .aside-title {
+    font-size: var(--text-lg);
+  }
+  .phase-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+</style>

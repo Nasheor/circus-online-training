@@ -1,0 +1,30 @@
+---
+import { BUSINESS_STEPS } from '../content/business';
+import type { BusinessStep } from '../content/business';
+import type { Locale } from '../i18n/config';
+import { href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+  current?: BusinessStep;
+}
+
+const { locale, current } = Astro.props;
+const s = getStrings(locale);
+---
+
+<nav aria-label={s.business.stepsLabel} class="no-print">
+  <ol class="tabs">
+    {
+      BUSINESS_STEPS.map((step, index) => (
+        <li>
+          <a href={href(locale, `tools/business-model/${step}`)} aria-current={step === current ? 'step' : undefined}>
+            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+            {s.business.steps[step].name}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>

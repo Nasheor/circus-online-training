@@ -1,0 +1,147 @@
+---
+import PageHero from '../../../../components/PageHero.astro';
+import { REGIONS, REGION_BY_ID } from '../../../../content/regions';
+import { getResource } from '../../../../content/resources';
+import { PUBLISHED_LOCALES } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+import ReturnBar from '../../../../tools/cards/ReturnBar';
+import MapEmbed from '../../../../tools/map/MapEmbed';
+import SiteNotebook from '../../../../tools/map/SiteNotebook';
+
+export function getStaticPaths() {
+  return PUBLISHED_LOCALES.flatMap((locale) =>
+    REGIONS.map((region) => ({ params: { locale, region: region.id } })),
+  );
+}
+
+const locale = Astro.params.locale as Locale;
+const region = REGION_BY_ID.get(Astro.params.region as string)!;
+const s = getStrings(locale);
+const t = s.map;
+const r = t.region;
+const text = t.regions[region.id as keyof typeof t.regions];
+const mapUrl = getResource(region.resourceId).external!;
+const prompts = [...s.cards['p2-6'].lines.slice(1), ...s.cards['p2-7'].lines];
+---
+
+<Base locale={locale} title={`${t.title}: ${text.name}`} section="tools" phase="p2" path={`tools/map/${region.id}`}>
+  <ReturnBar client:only="react" locale={locale} toolId="map" />
+  <PageHero
+    eyebrow={t.eyebrow}
+    title={text.name}
+    lead={text.area}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.tools, href: href(locale, 'tools') },
+      { label: t.title, href: href(locale, 'tools/map') },
+      { label: text.name },
+    ]}
+  >
+    <div>
+      <a class="btn btn--accent" href={mapUrl} target="_blank" rel="noopener noreferrer">
+        {r.openMap}
+      </a>
+    </div>
+    <p class="small">{r.openMapNote}</p>
+  </PageHero>
+
+  <section class="section">
+    <div class="container stack-lg">
+      <div class="split">
+        <div>
+          <h2>{r.stepsTitle}</h2>
+          <ol class="steps">
+            {
+              r.steps.map((step) => (
+                <li>
+                  <strong>{step.title}</strong>
+                  <br />
+                  {step.text}
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+        <div class="stack-lg">
+          <div class="panel panel--soft">
+            <h2>{r.promptsTitle}</h2>
+            <ul>
+              {prompts.map((prompt) => <li>{prompt}</li>)}
+            </ul>
+            <p class="small muted">{r.promptsSource}</p>
+          </div>
+          {
+            region.hasFeedback && (
+              <div class="notice">
+                <h2 class="notice-title">{r.feedbackTitle}</h2>
+                <p>{r.feedback}</p>
+              </div>
+            )
+          }
+        </div>
+      </div>
+
+      <div>
+        <h2>{r.layersTitle}</h2>
+        <p>{r.layersLead}</p>
+        <div class="table-wrap">
+          <table class="table">
+            <tbody>
+              {
+                region.layers.map((layer) => (
+                  <tr>
+                    <th scope="row"><code>{layer.name}</code></th>
+                    <td class={layer.kind === 'other' ? 'muted' : undefined}>{r.layerKinds[layer.kind]}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stack no-print">
+        <h2>{r.embedTitle}</h2>
+        <MapEmbed client:only="react" locale={locale} url={mapUrl} regionName={text.name} />
+      </div>
+
+      <SiteNotebook client:only="react" locale={locale} regionId={region.id} />
+
+      <nav aria-label={r.otherRegions} class="no-print">
+        <h2>{r.otherRegions}</h2>
+        <ul class="tabs">
+          {
+            REGIONS.map((other) => (
+              <li>
+                <a
+                  href={href(locale, `tools/map/${other.id}`)}
+                  aria-current={other.id === region.id ? 'page' : undefined}
+                >
+                  {t.regions[other.id as keyof typeof t.regions].name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notice-title {
+    font-size: var(--text-lg);
+  }
+  code {
+    font-size: 0.92em;
+    word-break: break-word;
+  }
+  th[scope='row'] {
+    width: 45%;
+    font-weight: 600;
+  }
+</style>
