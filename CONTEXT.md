@@ -155,7 +155,7 @@ Names of the four activity groups (the PDF's tree has icons only); plain-English
 | M6 Map explorer | done |
 | M7 Business model | done |
 | M8 Join-up, About pages, accessibility and print pass | done, with the limits below |
-| M10 Test deployment (GitHub Pages) | see the changelog line of 2026-11-11 for its outcome |
+| M10 Test deployment (GitHub Pages) | **done** 2026-11-11 — live at https://nasheor.github.io/circus-online-training/ ; e2e 23/23 against the live site (`SITE_ORIGIN=https://nasheor.github.io SITE_BASE=/circus-online-training/ npm run e2e`) |
 | M9 Redesign on the site starter kit (`webapp/site-starter-kit/`, brief in `.claude/skills/site-design/SKILL.md`) | **done** — every page redesigned and approved (2026-11-11); committed as `5b368c2` and merged into `master` (fast-forward; branch `redesign/site-starter-kit` kept; no remote) |
 
 **Verified (2026-10-06):** 24 unit tests; `astro check` clean; build of 36 pages; `npm run e2e` — 23 checks: full journey (self-check → phase 1 session → tool card → profile → return → summary → site → business steps → dossier → erase → open file → foreign file refused), no script errors on any page, no sideways scroll at 360 px, one h1 per page; print output of canvas (one landscape sheet), dossier and profile.
@@ -221,7 +221,7 @@ FR/NL/DE content; bundling partner files; offline service worker and portable bu
 
 ## 9. Changelog
 
-- 2026-11-11 — Test deployment set up at the user's request: `.github/workflows/pages.yml`, `NOINDEX=1` switch in `Base.astro` and `pages/index.astro`, public repo `Nasheor/circus-online-training` with remote `origin`. Locally: 24 tests, check clean, 36 pages (sub-path + noindex build verified: no unprefixed links, 10 downloads; normal build has no noindex), e2e 23/23 against preview on 4400.
+- 2026-11-11 — Test deployment set up at the user's request: `.github/workflows/pages.yml`, `NOINDEX=1` switch in `Base.astro` and `pages/index.astro`, public repo `Nasheor/circus-online-training` with remote `origin`. Locally: 24 tests, check clean, 36 pages (sub-path + noindex build verified: no unprefixed links, 10 downloads; normal build has no noindex), e2e 23/23 against preview on 4400. First deploy was refused: the auto-created `github-pages` environment only allowed branch `main`; `master` added as a deployment branch policy, rerun green. Live site: pages, downloads and noindex return correctly; e2e 23/23 against it. Actions warn that v4/v5 actions run on Node 20 (forced to 24) — bump the action versions later.
 
 - 2026-10-06 — Project started; plan approved. Settings (auto mode + context-guard Stop hook), git repo, Astro scaffold.
 - 2026-10-06 — Energy Profile engine verified against 52 Excel-computed scenarios; four deviations registered.
