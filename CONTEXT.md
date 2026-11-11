@@ -172,7 +172,7 @@ Names of the four activity groups (the PDF's tree has icons only); plain-English
 
 ## 7. Open items for partners (none block the build)
 
-- **Hosting** and who holds it for 10 years. Recommendation: no custom domain; static host under an institutional account, linked (not iframed — storage is partitioned inside an iframe) from circus.nweurope.eu; Zenodo deposit per release.
+- **Hosting** and who holds it for 10 years. Recommendation: no custom domain; static host under an institutional account, linked (not iframed — storage is partitioned inside an iframe) from circus.nweurope.eu; Zenodo deposit per release. A **test** site runs on GitHub Pages under the user's personal account (section 10) — usable for partner review and the test runs, not as the 10-year host.
 - **LG:** official logo files and funding-statement rule.
 - **EU visibility check:** with the funding block gone from the footer, only About carries the Interreg logo, funding statement and disclaimer. Confirm with LG / the NWE programme that this meets the visibility rules for project outputs, or bring a compact funding line back.
 - **Home hero photo:** a CIRCUS event photo (with consent of the people shown) would be better than the Australian Hepburn Wind photo; it is a one-file swap (`credits.ts` + `public/home/`).
@@ -187,6 +187,14 @@ Names of the four activity groups (the PDF's tree has icons only); plain-English
 FR/NL/DE content; bundling partner files; offline service worker and portable build; public hosting and Zenodo deposit; automated accessibility tests; in-app methodology pages; facilitator track from the D.3.1.1 handbook; compact print layout for the profile.
 
 ## 10. Resuming the next session
+
+**Current state (end of the 2026-11-11 session, F: machine) — read this first; the bullets further down are older history:**
+- **App:** redesign (M9) finished and approved; no app work pending from the user. Gates green: 24 tests, check clean, 36 pages, e2e 23/23 (local preview and live site).
+- **Git:** branch `master`, remote **`origin` = https://github.com/Nasheor/circus-online-training (public)**, everything committed and pushed. Branch `redesign/site-starter-kit` is local only (already merged; not pushed). **Never commit or push** `webapp/site-starter-kit/` (the user's kit) or `.idea/` — the repo is public.
+- **Test site (M10):** https://nasheor.github.io/circus-online-training/ — every push to `master` redeploys via `.github/workflows/pages.yml` (latest action majors as of 2026-11-11), `noindex` on all pages. It publishes the partner downloads and source folders by the user's choice; to withdraw: `gh repo edit Nasheor/circus-online-training --visibility private` or delete the repo. The `github-pages` environment allows branches `main` and `master`.
+- **Check the live site:** `SITE_ORIGIN=https://nasheor.github.io SITE_BASE=/circus-online-training/ npm run e2e` (in `webapp/`).
+- **Next options offered to the user:** axe accessibility audit + screen-reader pass; hero photo original (still pending from the user); home headline 3 lines at 390 px; print re-check of dossier and profile; pause the village animation off-screen; partner logos on About?; the final 10-year host and Zenodo deposit (section 7); FR/NL/DE (section 8). Partner open items in section 7 unchanged.
+- **Servers:** none left running. Preview for checks: `npx astro preview --port 4400` (takes a few seconds to listen; kill the process on 4400 after TaskStop).
 
 **State at the end of the 2026-11-10 session (redesign, M9, F: machine):**
 - **Done this session (user requests):** (1) home hero rebuilt: Hepburn Wind photo (cheering members under their turbine, Flickr CC BY 2.0, credited on the photo; `src/content/credits.ts`, `public/home/hero-hepburn.webp`) with a navy fade, and the animated energy village `src/components/EnergyVillage.astro` instead of the card fan; `.theme-dark` scope in `tokens.css` keeps the hero dark in the light theme. (2) Footer reduced to five links. (3) Facilitator-notes block removed from the journey pages. Details: section 2 and the changelog.
@@ -222,6 +230,7 @@ FR/NL/DE content; bundling partner files; offline service worker and portable bu
 ## 9. Changelog
 
 - 2026-11-11 — Test deployment set up at the user's request: `.github/workflows/pages.yml`, `NOINDEX=1` switch in `Base.astro` and `pages/index.astro`, public repo `Nasheor/circus-online-training` with remote `origin`. Locally: 24 tests, check clean, 36 pages (sub-path + noindex build verified: no unprefixed links, 10 downloads; normal build has no noindex), e2e 23/23 against preview on 4400. First deploy was refused: the auto-created `github-pages` environment only allowed branch `main`; `master` added as a deployment branch policy, rerun green. Live site: pages, downloads and noindex return correctly; e2e 23/23 against it. Actions warn that v4/v5 actions run on Node 20 (forced to 24) — bump the action versions later.
+- 2026-11-11 — Session closed; section 10 starts with a "Current state" block (remote, test site, how to withdraw it, next options); section 7 notes the test site. No app changes.
 - 2026-11-11 — Workflow actions updated to their latest majors (checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5).
 
 - 2026-10-06 — Project started; plan approved. Settings (auto mode + context-guard Stop hook), git repo, Astro scaffold.
