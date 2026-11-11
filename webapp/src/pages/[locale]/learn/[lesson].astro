@@ -37,13 +37,22 @@ const anchor = (position: number) => `part-${position + 1}`;
       { label: s.nav.learn, href: href(locale, 'learn') },
       { label: text.title },
     ]}
-  />
-  <div class="container section split split--aside">
-    <article class="stack-lg">
+  >
+    <div class="cluster">
+      <a class="btn btn--accent" href={href(locale, lesson.toolPath)}>{text.tryLabel}</a>
+      <a class="btn" href="#check">{t.checkTitle}</a>
+    </div>
+  </PageHero>
+
+  <div class="container section lesson">
+    <article class="lesson__body">
       {
         text.sections.map((section, position) => (
-          <section id={anchor(position)}>
-            <h2>{section.title}</h2>
+          <section id={anchor(position)} class="lesson__part">
+            <h2>
+              <span class="lesson__num" aria-hidden="true">{String(position + 1).padStart(2, '0')}</span>
+              {section.title}
+            </h2>
             {section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
             {section.steps && (
               <ol class="steps">
@@ -62,45 +71,229 @@ const anchor = (position: number) => `part-${position + 1}`;
           </section>
         ))
       }
-      <section class="panel" id="check">
-        <h2>{t.checkTitle}</h2>
+      <section class="lesson__check" id="check" aria-labelledby="check-title">
+        <h2 id="check-title">{t.checkTitle}</h2>
         <p>{t.checkLead}</p>
         <Quiz client:visible locale={locale} lessonId={lesson.id} />
       </section>
-      <div class="cluster">
-        <a class="btn btn--primary" href={href(locale, lesson.toolPath)}>{text.tryLabel}</a>
-        {
-          next ? (
-            <a class="btn" href={href(locale, `learn/${next.id}`)}>
-              {fill(t.next, { title: t.lessons[next.id].title })} →
-            </a>
-          ) : (
-            <a class="btn" href={href(locale, 'learn')}>{t.allLessons}</a>
-          )
-        }
-      </div>
     </article>
-    <aside class="stack-lg lesson-aside">
-      <nav class="panel panel--flat" aria-label={t.inThisLesson}>
-        <h2>{t.inThisLesson}</h2>
-        <ol>
-          {text.sections.map((section, position) => <li><a href={`#${anchor(position)}`}>{section.title}</a></li>)}
-          <li><a href="#check">{t.checkTitle}</a></li>
+
+    <aside class="lesson__aside">
+      <nav aria-labelledby="toc-title">
+        <h2 id="toc-title">{t.inThisLesson}</h2>
+        <ol class="toc">
+          {
+            text.sections.map((section, position) => (
+              <li>
+                <a href={`#${anchor(position)}`}>
+                  <span aria-hidden="true">{String(position + 1).padStart(2, '0')}</span>
+                  {section.title}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href="#check">
+              <span aria-hidden="true">✓</span>
+              {t.checkTitle}
+            </a>
+          </li>
         </ol>
       </nav>
-      <div class="panel panel--soft stack">
+      <div class="lesson__tool">
         <a class="btn btn--primary" href={href(locale, lesson.toolPath)}>{text.tryLabel}</a>
         <p class="small"><ResourceLink locale={locale} id={lesson.manual} label={t.manualLabel} /></p>
       </div>
     </aside>
   </div>
+
+  <nav class="container lesson-nav" aria-label={s.nav.learn}>
+    <a class="lesson-nav__link" href={href(locale, 'learn')}>
+      <span class="lesson-nav__dir">←</span>
+      <span class="lesson-nav__name">{t.allLessons}</span>
+    </a>
+    {
+      next && (
+        <a class="lesson-nav__link lesson-nav__link--next" data-phase={next.phase} href={href(locale, `learn/${next.id}`)}>
+          <span class="lesson-nav__dir">{fill(t.lessonLabel, { n: index + 2 })} →</span>
+          <span class="lesson-nav__name">{t.lessons[next.id].title}</span>
+        </a>
+      )
+    }
+  </nav>
 </Base>
 
 <style>
-  .lesson-aside h2 {
-    font-size: var(--text-lg);
+  /* Lesson page (2026-11-11 page pass). */
+  .lesson {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem);
+    gap: var(--s-72);
+    align-items: start;
   }
-  article section {
-    scroll-margin-top: var(--space-4);
+  .lesson__part {
+    scroll-margin-top: calc(var(--bar) + var(--s-16));
+    padding-block: var(--s-32);
+  }
+  .lesson__part:first-child {
+    padding-top: 0;
+  }
+  .lesson__part + .lesson__part {
+    border-top: 1px solid var(--border);
+  }
+  .lesson__part h2 {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-12);
+  }
+  .lesson__num {
+    font-size: var(--t-22);
+    font-weight: 750;
+    color: var(--phase-strong);
+    flex: none;
+  }
+  .lesson__check {
+    scroll-margin-top: calc(var(--bar) + var(--s-16));
+    margin-top: var(--s-32);
+    padding: var(--s-32);
+    border-radius: var(--r-14);
+    background: var(--phase-soft);
+    border-top: 6px solid var(--phase);
+  }
+  .lesson__check h2 {
+    font-size: var(--t-40);
+  }
+  .lesson__check :global(legend) {
+    font-size: var(--t-22);
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: var(--s-12);
+  }
+  .lesson__check :global(fieldset) {
+    border: 0;
+    padding: 0;
+    margin-inline: 0;
+  }
+  .lesson__check :global(fieldset + fieldset) {
+    margin-top: var(--s-32);
+  }
+  .lesson__check :global(.choice) {
+    font-size: var(--t-18);
+  }
+
+  .lesson__aside {
+    display: grid;
+    gap: var(--s-24);
+  }
+  @media (min-width: 62rem) {
+    .lesson__aside {
+      position: sticky;
+      top: calc(var(--bar) + var(--s-24));
+    }
+  }
+  .lesson__aside h2 {
+    font-size: var(--t-18);
+    color: var(--muted);
+    padding-top: var(--s-12);
+    border-top: 4px solid var(--phase);
+  }
+  .toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .toc li {
+    margin: 0;
+  }
+  .toc a {
+    display: flex;
+    gap: var(--s-12);
+    padding-block: var(--s-8);
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .toc a span {
+    color: var(--phase-strong);
+    font-weight: 750;
+    min-width: 1.6rem;
+  }
+  .toc a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .lesson__tool {
+    display: grid;
+    gap: var(--s-8);
+    justify-items: start;
+  }
+
+  /* back to all lessons / next lesson, the next one in its own colour */
+  .lesson-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-24);
+  }
+  .lesson-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-24) var(--s-32);
+    border: 1px solid var(--border);
+    border-radius: var(--r-14);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .lesson-nav__link:hover {
+    transform: translateY(-3px);
+    border-color: var(--phase);
+  }
+  .lesson-nav__link--next {
+    grid-column: 2;
+    text-align: right;
+    background: var(--phase);
+    border-color: var(--phase);
+    color: var(--phase-ink);
+    --focus: var(--phase-ink);
+  }
+  .lesson-nav__dir {
+    font-size: var(--t-14);
+    font-weight: 700;
+  }
+  .lesson-nav__name {
+    font-size: var(--t-22);
+    font-weight: 700;
+  }
+
+  @media (max-width: 62rem) {
+    .lesson {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+    .lesson__aside {
+      order: -1;
+    }
+  }
+  @media (max-width: 40rem) {
+    .lesson__check {
+      padding: var(--s-24) var(--s-16);
+    }
+    .lesson-nav {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lesson-nav__link--next {
+      grid-column: 1;
+      text-align: left;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lesson-nav__link {
+      transition: none;
+    }
+    .lesson-nav__link:hover {
+      transform: none;
+    }
   }
 </style>

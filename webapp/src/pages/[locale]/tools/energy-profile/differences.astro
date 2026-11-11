@@ -1,5 +1,6 @@
 ---
 import golden from '../../../../../tests/fixtures/energy-profile/golden.json';
+import AboutNav from '../../../../components/AboutNav.astro';
 import PageHero from '../../../../components/PageHero.astro';
 import { DEVIATIONS } from '../../../../engine/energy-profile/deviations';
 import { localePaths } from '../../../../i18n/config';
@@ -31,31 +32,36 @@ const scenarioCount = golden.manifest.scenarioCount;
       { label: t.title },
     ]}
   />
-  <section class="section">
-    <div class="container stack-lg">
-      <p class="notice notice--warn">{t.pending}</p>
+  <div class="container section about-layout">
+    <AboutNav locale={locale} current="differences" />
+    <div>
+      <p class="pending">{t.pending}</p>
       <ol class="differences">
         {
-          DEVIATIONS.map((deviation) => (
-            <li class="panel stack">
-              <h2>{t.items[deviation.id].title}</h2>
-              <div class="split">
-                <div>
-                  <h3>{t.excel}</h3>
-                  <p>{t.items[deviation.id].excel}</p>
+          DEVIATIONS.map((deviation, index) => (
+            <li>
+              <span class="differences__number" aria-hidden="true">{index + 1}</span>
+              <div>
+                <h2>{t.items[deviation.id].title}</h2>
+                <div class="compare">
+                  <div class="compare__excel">
+                    <h3>{t.excel}</h3>
+                    <p>{t.items[deviation.id].excel}</p>
+                  </div>
+                  <div class="compare__web">
+                    <h3>{t.web}</h3>
+                    <p>{t.items[deviation.id].web}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3>{t.web}</h3>
-                  <p>{t.items[deviation.id].web}</p>
-                </div>
+                <p class="small muted">{fill(t.cells, { cells: deviation.workbookCells.join(', ') })}</p>
               </div>
-              <p class="small muted">{fill(t.cells, { cells: deviation.workbookCells.join(', ') })}</p>
             </li>
           ))
         }
       </ol>
-      <div class="split">
+      <div class="checked">
         <div>
+          <p class="checked__number">{scenarioCount}</p>
           <h2>{t.verifiedTitle}</h2>
           <p>{fill(t.verified, { n: scenarioCount })}</p>
         </div>
@@ -66,31 +72,109 @@ const scenarioCount = golden.manifest.scenarioCount;
       </div>
       <p><a class="btn btn--primary" href={href(locale, 'tools/energy-profile')}>← {t.back}</a></p>
     </div>
-  </section>
+  </div>
 </Base>
 
 <style>
+  /* Differences (2026-11-11 page pass): part of the About menu; each change a numbered row, Excel beside the calculator. */
+  .about-layout {
+    display: grid;
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
+    gap: var(--s-72);
+    align-items: start;
+  }
+  .pending {
+    font-size: var(--t-18);
+    font-weight: 600;
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--warn);
+    margin-bottom: var(--s-32);
+  }
   .differences {
+    list-style: none;
     padding: 0;
     margin: 0;
-    list-style: none;
-    display: grid;
-    gap: var(--space-5);
-    counter-reset: difference;
   }
   .differences > li {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: var(--s-24);
     max-width: none;
     margin: 0;
-    counter-increment: difference;
+    padding-block: var(--s-32);
+    border-top: 1px solid var(--border);
+  }
+  .differences__number {
+    font-size: var(--t-big);
+    font-weight: 750;
+    line-height: 1;
+    color: var(--p1-strong);
   }
   .differences h2 {
-    font-size: var(--text-xl);
+    font-size: var(--t-28);
   }
-  .differences h2::before {
-    content: counter(difference) '. ';
+  .compare {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-16);
+    margin-block: var(--s-16);
   }
-  .differences h3 {
-    font-size: var(--text-base);
+  .compare > div {
+    padding: var(--s-16) var(--s-24);
+    border-radius: var(--r-10);
+  }
+  .compare p {
+    margin: 0;
+  }
+  .compare h3 {
+    font-size: var(--t-14);
+    font-weight: 700;
+    margin-bottom: var(--s-8);
+  }
+  .compare__excel {
+    border: 1px dashed var(--border-strong);
+  }
+  .compare__excel h3 {
+    color: var(--muted);
+  }
+  .compare__web {
+    background: var(--p1-soft);
+    border-left: 4px solid var(--p1);
+  }
+  .compare__web h3 {
     color: var(--p1-strong);
+  }
+  .checked {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-48);
+    padding-block: var(--s-32);
+    border-top: 1px solid var(--border);
+  }
+  .checked h2 {
+    font-size: var(--t-22);
+  }
+  .checked__number {
+    font-size: var(--t-big);
+    font-weight: 750;
+    line-height: 1;
+    color: var(--p1-strong);
+    margin-bottom: var(--s-8);
+  }
+  @media (max-width: 62rem) {
+    .about-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+  }
+  @media (max-width: 40rem) {
+    .differences > li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-8);
+    }
+    .compare,
+    .checked {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

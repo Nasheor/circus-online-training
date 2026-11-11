@@ -12,6 +12,14 @@ const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.glossary;
 const terms = [...t.terms].sort((a, b) => a.term.localeCompare(b.term, locale));
+// group the terms by their first letter, in alphabetical order
+const groups: { letter: string; terms: typeof terms }[] = [];
+for (const entry of terms) {
+  const letter = entry.term.charAt(0).toLocaleUpperCase(locale);
+  const last = groups[groups.length - 1];
+  if (last && last.letter === letter) last.terms.push(entry);
+  else groups.push({ letter, terms: [entry] });
+}
 ---
 
 <Base locale={locale} title={t.title} section="library" path="library/glossary">
@@ -24,35 +32,97 @@ const terms = [...t.terms].sort((a, b) => a.term.localeCompare(b.term, locale));
       { label: s.nav.library, href: href(locale, 'library') },
       { label: t.title },
     ]}
-  />
+  >
+    <nav class="letters" aria-label={t.lettersLabel}>
+      <ul>
+        {groups.map((group) => <li><a href={`#letter-${group.letter}`}>{group.letter}</a></li>)}
+      </ul>
+    </nav>
+  </PageHero>
+
   <div class="container section">
-    <dl class="glossary">
-      {
-        terms.map((entry) => (
-          <div>
-            <dt>{entry.term}</dt>
-            <dd>{entry.definition}</dd>
-          </div>
-        ))
-      }
-    </dl>
+    {
+      groups.map((group) => (
+        <section class="letter-group" id={`letter-${group.letter}`} aria-labelledby={`letter-title-${group.letter}`}>
+          <h2 id={`letter-title-${group.letter}`}>{group.letter}</h2>
+          <dl>
+            {group.terms.map((entry) => (
+              <div>
+                <dt>{entry.term}</dt>
+                <dd>{entry.definition}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))
+    }
   </div>
 </Base>
 
 <style>
-  .glossary {
-    max-width: 52rem;
+  /* Glossary (2026-11-11 page pass): an A–Z bar in the header, terms grouped under large letters, two columns. */
+  .letters ul {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-16) 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-8);
+  }
+  .letters li {
     margin: 0;
   }
-  .glossary > div {
-    padding-block: var(--space-3);
-    border-bottom: 1px solid var(--border);
+  .letters a {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .letters a:hover {
+    background: var(--phase-ink);
+    color: var(--phase);
+  }
+  .letter-group {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: var(--s-32);
+    padding-block: var(--s-32);
+    border-top: 1px solid var(--border);
+    scroll-margin-top: calc(var(--bar) + var(--s-16));
+  }
+  .letter-group:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .letter-group h2 {
+    font-size: var(--t-big);
+    line-height: 1;
+    color: var(--accent);
+    margin: 0;
+  }
+  .letter-group dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: var(--s-24) var(--s-48);
   }
   dt {
-    font-weight: 800;
-    color: var(--navy-deep);
+    font-size: var(--t-22);
+    font-weight: 700;
+    color: var(--ink);
   }
   dd {
-    margin: var(--space-1) 0 0;
+    margin: var(--s-4) 0 0;
+    max-width: 52ch;
+  }
+  @media (max-width: 40rem) {
+    .letter-group {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-12);
+    }
   }
 </style>

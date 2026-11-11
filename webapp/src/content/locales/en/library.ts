@@ -66,6 +66,7 @@ export const library = {
 export const glossary = {
   title: 'Glossary',
   lead: 'Words used in the tools and cards, in plain language.',
+  lettersLabel: 'Jump to a letter',
   terms: [
     { term: 'Agrivoltaics (Agri-PV)', definition: 'Solar panels and farming on the same land, for example panels above or between crops or pasture.' },
     { term: 'All-electric heat pump', definition: 'A heat pump that provides all the heating of a home using electricity, without a gas boiler.' },

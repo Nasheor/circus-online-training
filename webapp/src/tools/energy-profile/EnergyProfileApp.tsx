@@ -29,15 +29,19 @@ export default function EnergyProfileApp({ locale }: { locale: Locale }) {
     <div className="stack-lg" data-phase="p1">
       {!storageAvailable && <p className="notice notice--warn">{s.common.storageOff}</p>}
       {loadProblem && <p className="notice notice--warn">{s.common.loadProblem}</p>}
+      {/* the inputs beside the headline figures, which stay in view; then the chart band; then scenarios and assumptions */}
       <div className="profile">
         <div className="stack-lg">
           <Inputs s={s} inputs={inputs} change={changeInputs} />
-          <Scenarios locale={locale} s={s} workspace={workspace} results={results} />
-          <Assumptions locale={locale} s={s} assumptions={assumptions} overrides={assumptionOverrides} />
         </div>
         <div className="profile__results">
-          <Results locale={locale} s={s} results={results} />
+          <Results locale={locale} s={s} results={results} part="summary" />
         </div>
+      </div>
+      <Results locale={locale} s={s} results={results} part="detail" />
+      <div className="profile__more no-print">
+        <Scenarios locale={locale} s={s} workspace={workspace} results={results} />
+        <Assumptions locale={locale} s={s} assumptions={assumptions} overrides={assumptionOverrides} />
       </div>
     </div>
   );

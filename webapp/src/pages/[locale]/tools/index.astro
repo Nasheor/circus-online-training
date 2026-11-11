@@ -4,7 +4,7 @@ import { PHASES, TOOL_PATHS } from '../../../content/structure';
 import { localePaths } from '../../../i18n/config';
 import type { Locale } from '../../../i18n/config';
 import { fill } from '../../../i18n/format';
-import { href } from '../../../i18n/href';
+import { asset, href } from '../../../i18n/href';
 import { getStrings } from '../../../i18n/strings';
 import Base from '../../../layouts/Base.astro';
 
@@ -33,28 +33,51 @@ const tools = [
   />
   <section class="section">
     <div class="container">
-      <ul class="grid grid--wide tool-list">
+      <ul class="tool-rows">
         {
           tools.map((tool) => (
-            <li class="panel panel--phase stack" data-phase={tool.phase?.id}>
-              <p class="eyebrow">{s.tools[tool.id].number}</p>
-              <h2>{s.tools[tool.id].name}</h2>
-              <p>{s.tools[tool.id].summary}</p>
-              <p class="small muted">
-                {tool.phase
-                  ? fill(t.usedIn, { n: tool.phase.order, name: s.phases[tool.phase.id].name })
-                  : t.usedThroughout}
-              </p>
-              <div class="cluster">
-                <a class="btn btn--primary" href={href(locale, tool.path)}>
-                  {t.open}
-                  <span class="visually-hidden">: {s.tools[tool.id].name}</span>
-                </a>
-                <a class="btn" href={href(locale, tool.lesson)}>
-                  {t.learn}
-                  <span class="visually-hidden">: {s.tools[tool.id].name}</span>
-                </a>
+            <li class="tool-row" data-phase={tool.phase?.id}>
+              <div class="tool-row__text">
+                <p class="tool-row__number">{s.tools[tool.id].number}</p>
+                <h2>
+                  <a href={href(locale, tool.path)}>{s.tools[tool.id].name}</a>
+                </h2>
+                <p class="tool-row__summary">{s.tools[tool.id].summary}</p>
+                <p class="tool-row__phase">
+                  <span class="tool-row__dot" aria-hidden="true" />
+                  {tool.phase
+                    ? fill(t.usedIn, { n: tool.phase.order, name: s.phases[tool.phase.id].name })
+                    : t.usedThroughout}
+                </p>
+                <div class="cluster">
+                  <a class="btn btn--primary tool-row__open" href={href(locale, tool.path)}>
+                    {t.open}
+                    <span class="visually-hidden">: {s.tools[tool.id].name}</span>
+                  </a>
+                  <a class="btn" href={href(locale, tool.lesson)}>
+                    {t.learn}
+                    <span class="visually-hidden">: {s.tools[tool.id].name}</span>
+                  </a>
+                </div>
               </div>
+              <a class="tool-row__shot" href={href(locale, tool.path)} tabindex="-1" aria-hidden="true">
+                <img
+                  class="shot shot--dark"
+                  src={asset(`home/${tool.id}-dark.webp`)}
+                  alt=""
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                />
+                <img
+                  class="shot shot--light"
+                  src={asset(`home/${tool.id}-light.webp`)}
+                  alt=""
+                  width="1200"
+                  height="800"
+                  loading="lazy"
+                />
+              </a>
             </li>
           ))
         }
@@ -64,16 +87,125 @@ const tools = [
 </Base>
 
 <style>
-  .tool-list {
+  /* Tools overview (2026-11-10 page pass): one row per tool, text beside a real screenshot of the tool, the rows
+     alternate sides; each tool carries the colour of the phase it belongs to (the cards: the CIRCUS navy). */
+  .tool-rows {
     list-style: none;
     padding: 0;
     margin: 0;
   }
-  .tool-list li {
-    margin: 0;
+  .tool-row {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--s-72);
+    align-items: center;
     max-width: none;
+    margin: 0;
+    padding-block: var(--s-72);
   }
-  .tool-list h2 {
-    font-size: var(--text-xl);
+  .tool-row:first-child {
+    padding-top: 0;
+  }
+  .tool-row + .tool-row {
+    border-top: 1px solid var(--border);
+  }
+  .tool-row:nth-child(even) .tool-row__text {
+    order: 2;
+  }
+  .tool-row__number {
+    font-size: var(--t-16);
+    font-weight: 600;
+    color: var(--phase-strong);
+    margin-bottom: var(--s-8);
+  }
+  .tool-row h2 {
+    font-size: var(--t-40);
+    letter-spacing: -0.02em;
+  }
+  .tool-row h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .tool-row h2 a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.15em;
+  }
+  .tool-row__summary {
+    font-size: var(--t-22);
+    line-height: 1.45;
+    max-width: 34ch;
+  }
+  .tool-row__phase {
+    display: flex;
+    align-items: center;
+    gap: var(--s-8);
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: var(--s-24);
+  }
+  .tool-row__dot {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: var(--phase);
+    flex: none;
+  }
+  .tool-row[data-phase] .tool-row__open {
+    background: var(--phase);
+    border-color: var(--phase);
+    color: var(--phase-ink);
+  }
+  /* the screenshot sits on a block of the phase colour, offset like a card on a table */
+  .tool-row__shot {
+    display: block;
+    position: relative;
+    border-radius: var(--r-14);
+    background: var(--phase);
+    padding: var(--s-16);
+    transform: rotate(-1.2deg);
+    transition: transform 0.3s ease;
+  }
+  .tool-row:nth-child(even) .tool-row__shot {
+    transform: rotate(1.2deg);
+  }
+  .tool-row__shot:hover,
+  .tool-row:nth-child(even) .tool-row__shot:hover {
+    transform: rotate(0deg) translateY(-4px);
+  }
+  .shot {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--r-10);
+  }
+  .shot--light,
+  :global([data-theme='light']) .shot--dark {
+    display: none;
+  }
+  :global([data-theme='light']) .shot--light {
+    display: block;
+  }
+
+  @media (max-width: 62rem) {
+    .tool-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+      padding-block: var(--s-48);
+    }
+    .tool-row:nth-child(even) .tool-row__text {
+      order: 0;
+    }
+    .tool-row__shot {
+      padding: var(--s-8);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tool-row__shot,
+    .tool-row:nth-child(even) .tool-row__shot,
+    .tool-row__shot:hover {
+      transform: none;
+      transition: none;
+    }
   }
 </style>

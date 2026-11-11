@@ -1,4 +1,5 @@
 ---
+import AboutNav from '../../../components/AboutNav.astro';
 import PageHero from '../../../components/PageHero.astro';
 import ResourceLink from '../../../components/ResourceLink.astro';
 import { localePaths } from '../../../i18n/config';
@@ -20,58 +21,120 @@ const t = s.about;
     lead={t.lead}
     breadcrumbLabel={s.common.breadcrumb}
     crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.about }]}
-  />
-  <div class="container section split split--aside">
-    <div class="stack-lg">
+  >
+    <div><ResourceLink locale={locale} id="circus-website" label={t.projectSite} class="btn btn--accent" /></div>
+  </PageHero>
+
+  <div class="container section about-layout">
+    <AboutNav locale={locale} current="about" />
+    <div>
       {
-        t.sections.map((section) => (
-          <section>
+        t.sections.map((section, index) => (
+          <section class="about-part">
             <h2>{section.title}</h2>
-            {section.paragraphs.map((paragraph) => (
-              <p>{paragraph}</p>
+            {section.paragraphs.map((paragraph, position) => (
+              <p class:list={[index === 0 && position === 0 && 'about-first']}>{paragraph}</p>
             ))}
           </section>
         ))
       }
-      <section>
+      <section class="about-part">
         <h2>{t.licenceTitle}</h2>
         <p>{t.licence}</p>
       </section>
-      <ul>
-        <li><a href={href(locale, 'tools/energy-profile/differences')}>{t.differences}</a></li>
-        <li><a href={href(locale, 'about/privacy')}>{t.links.privacy}</a></li>
-        <li><a href={href(locale, 'about/accessibility')}>{t.links.accessibility}</a></li>
-        <li><a href={href(locale, 'about/feedback')}>{t.links.feedback}</a></li>
-        <li><ResourceLink locale={locale} id="circus-website" label={t.projectSite} /></li>
-      </ul>
     </div>
-    <aside class="stack-lg">
-      <div class="panel funding">
-        <h2>{t.fundingTitle}</h2>
+  </div>
+
+  <!-- Funding and partners: a band below the text. The funding block keeps the Interreg logo on white. -->
+  <section class="section funding-band" aria-labelledby="partners-title">
+    <div class="container funding-grid">
+      <div class="funding" aria-labelledby="funding-title">
+        <h2 id="funding-title">{t.fundingTitle}</h2>
         <img src={asset('brand/interreg.png')} alt={s.site.logoAlt.interreg} width="459" height="176" />
-        <p>{s.site.fundingLong}</p>
+        <p class="funding__statement">{s.site.fundingLong}</p>
         <p class="small muted">{s.site.disclaimer}</p>
       </div>
-      <div class="panel panel--flat">
-        <h2>{t.partnersTitle}</h2>
-        <ul>
+      <div>
+        <h2 id="partners-title">{t.partnersTitle}</h2>
+        <ul class="partners">
           {t.partners.map((partner) => <li>{partner}</li>)}
         </ul>
       </div>
-    </aside>
-  </div>
+    </div>
+  </section>
 </Base>
 
 <style>
-  aside h2 {
-    font-size: var(--text-lg);
+  /* About (2026-11-11 page pass): side menu + text; funding and partners in a band below. */
+  .about-layout {
+    display: grid;
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
+    gap: var(--s-72);
+    align-items: start;
   }
-  .funding {
-    background: var(--teal-soft);
+  .about-part {
+    padding-block: var(--s-32);
+    border-top: 1px solid var(--border);
+  }
+  .about-part:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .about-first {
+    font-size: var(--t-22);
+    line-height: 1.45;
+  }
+  .funding-band {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+    margin-bottom: calc(var(--s-72) * -1);
+  }
+  .funding-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--s-72);
+    align-items: start;
+  }
+  .funding-band h2 {
+    font-size: var(--t-28);
+    padding-top: var(--s-12);
+    border-top: 4px solid var(--accent);
   }
   .funding img {
-    width: min(100%, 16rem);
+    width: min(100%, 18rem);
     display: block;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--s-16);
+    border-radius: var(--r-6);
+  }
+  .funding__statement {
+    font-size: var(--t-18);
+    font-weight: 500;
+  }
+  .partners {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    columns: 2;
+    column-gap: var(--s-48);
+  }
+  .partners li {
+    break-inside: avoid;
+    max-width: none;
+    margin: 0;
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  @media (max-width: 62rem) {
+    .about-layout,
+    .funding-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+  }
+  @media (max-width: 40rem) {
+    .partners {
+      columns: 1;
+    }
   }
 </style>

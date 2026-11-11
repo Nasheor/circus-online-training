@@ -1,7 +1,7 @@
 ---
 import PageHero from '../../../components/PageHero.astro';
 import ResourceLink from '../../../components/ResourceLink.astro';
-import { RESOURCES } from '../../../content/resources';
+import { RESOURCES, getResource } from '../../../content/resources';
 import { localePaths } from '../../../i18n/config';
 import type { Locale } from '../../../i18n/config';
 import { href } from '../../../i18n/href';
@@ -14,20 +14,22 @@ const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.library;
 
+// each group carries the colour of the tool it belongs to (WattWorks: the CIRCUS navy)
 const originals = [
-  { title: t.groups.cards, ids: ['manual-wattworks', 'cards-intro-outro', 'cards-phase-1-awareness', 'cards-phase-2-exploring', 'cards-phase-3-collaboration'] },
-  { title: t.groups.tool1, ids: ['energy-profile-tool-1a-v1.03', 'manual-energy-profile-tool'] },
-  { title: t.groups.tool2, ids: ['manual-gis-tool'] },
-  { title: t.groups.tool3, ids: ['business-tool', 'manual-business-tool'] },
+  { title: t.groups.cards, phase: undefined, ids: ['manual-wattworks', 'cards-intro-outro', 'cards-phase-1-awareness', 'cards-phase-2-exploring', 'cards-phase-3-collaboration'] },
+  { title: t.groups.tool1, phase: 'p1', ids: ['energy-profile-tool-1a-v1.03', 'manual-energy-profile-tool'] },
+  { title: t.groups.tool2, phase: 'p2', ids: ['manual-gis-tool'] },
+  { title: t.groups.tool3, phase: 'p3', ids: ['business-tool', 'manual-business-tool'] },
 ];
 const listed = new Set(originals.flatMap((group) => group.ids));
 // Everything not shipped with the site, grouped by where it is hosted, so a new manifest entry shows up here by itself.
 const external = RESOURCES.filter((resource) => !listed.has(resource.id) && !resource.local);
 const partner = [
-  { title: t.foldersTitle, items: external.filter((resource) => resource.kind === 'page' || resource.id.startsWith('drive-')) },
-  { title: t.mapsTitle, items: external.filter((resource) => resource.kind === 'map') },
-  { title: t.businessTitle, items: external.filter((resource) => resource.kind === 'folder' && !resource.id.startsWith('drive-')) },
+  { title: t.foldersTitle, phase: undefined, items: external.filter((resource) => resource.kind === 'page' || resource.id.startsWith('drive-')) },
+  { title: t.mapsTitle, phase: 'p2', items: external.filter((resource) => resource.kind === 'map') },
+  { title: t.businessTitle, phase: 'p3', items: external.filter((resource) => resource.kind === 'folder' && !resource.id.startsWith('drive-')) },
 ];
+const format = (id: string) => getResource(id).format?.toUpperCase() ?? '';
 ---
 
 <Base locale={locale} title={t.title} section="library" path="library">
@@ -37,54 +39,145 @@ const partner = [
     breadcrumbLabel={s.common.breadcrumb}
     crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.library }]}
   >
-    <div><a class="btn" href={href(locale, 'library/glossary')}>{t.glossaryLink}</a></div>
+    <div class="cluster">
+      <a class="btn btn--accent" href="#originals">{t.originalsTitle}</a>
+      <a class="btn" href={href(locale, 'library/glossary')}>{t.glossaryLink}</a>
+    </div>
   </PageHero>
-  <div class="container section stack-lg">
-    <section class="stack">
-      <h2>{t.originalsTitle}</h2>
-      <p>{t.originalsLead}</p>
-      <div class="grid grid--wide">
+
+  <!-- The files that come with the site: one column per tool, one row per file with its format -->
+  <section class="section" id="originals" aria-labelledby="originals-title">
+    <div class="container">
+      <h2 id="originals-title">{t.originalsTitle}</h2>
+      <p class="lead">{t.originalsLead}</p>
+      <div class="file-groups" data-rise>
         {
           originals.map((group) => (
-            <div class="panel panel--flat">
+            <section class="file-group" data-phase={group.phase}>
               <h3>{group.title}</h3>
               <ul>
                 {group.ids.map((id) => (
                   <li>
+                    <span class="file-format" aria-hidden="true">{format(id)}</span>
                     <ResourceLink locale={locale} id={id} label={t.items[id]} />
                   </li>
                 ))}
               </ul>
-            </div>
+            </section>
           ))
         }
       </div>
-    </section>
-    <section class="stack">
-      <h2>{t.partnerTitle}</h2>
-      <p>{t.partnerLead}</p>
-      <div class="grid grid--wide">
-        {
-          partner.map((group) => (
-            <div class="panel panel--flat">
-              <h3>{group.title}</h3>
-              <ul>
-                {group.items.map((resource) => (
-                  <li>
-                    <ResourceLink locale={locale} id={resource.id} label={t.items[resource.id] ?? resource.id} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
-      </div>
-    </section>
-  </div>
+    </div>
+  </section>
+
+  <!-- Partner-hosted materials: report rows, the group at the left, its links in columns -->
+  <section class="section partner" aria-labelledby="partner-title">
+    <div class="container">
+      <h2 id="partner-title">{t.partnerTitle}</h2>
+      <p class="lead">{t.partnerLead}</p>
+      {
+        partner.map((group) => (
+          <section class="partner-group" data-phase={group.phase}>
+            <h3>{group.title}</h3>
+            <ul>
+              {group.items.map((resource) => (
+                <li>
+                  <ResourceLink locale={locale} id={resource.id} label={t.items[resource.id] ?? resource.id} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+  </section>
 </Base>
 
 <style>
-  h3 {
-    font-size: var(--text-lg);
+  /* Library (2026-11-11 page pass). */
+  .file-groups {
+    margin-top: var(--s-32);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--s-32);
+    align-items: start;
+  }
+  .file-group h3,
+  .partner-group h3 {
+    font-size: var(--t-22);
+    padding-top: var(--s-12);
+    border-top: 4px solid var(--phase);
+    margin-bottom: var(--s-8);
+  }
+  .file-group ul,
+  .partner-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .file-group li {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 1fr);
+    gap: var(--s-12);
+    align-items: start;
+    max-width: none;
+    margin: 0;
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  /* the format label shows the format; the link's own "(PDF)" stays for screen readers only */
+  .file-group :global(.resource-meta) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .file-format {
+    display: grid;
+    place-items: center;
+    height: 2rem;
+    border-radius: var(--r-6);
+    background: var(--phase);
+    color: var(--phase-ink);
+    font-size: var(--t-12);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .partner {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+    margin-bottom: calc(var(--s-72) * -1);
+  }
+  .partner-group {
+    display: grid;
+    grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+    gap: var(--s-48);
+    align-items: start;
+    margin-top: var(--s-48);
+  }
+  .partner-group ul {
+    columns: 2;
+    column-gap: var(--s-48);
+  }
+  .partner-group li {
+    break-inside: avoid;
+    max-width: none;
+    margin: 0;
+    padding-block: var(--s-8);
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 62rem) {
+    .partner-group {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-8);
+    }
+  }
+  @media (max-width: 48rem) {
+    .partner-group ul {
+      columns: 1;
+    }
   }
 </style>

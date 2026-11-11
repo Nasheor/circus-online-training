@@ -56,7 +56,7 @@ export function DataChecklist({ s, workspace }: { s: Strings; workspace: Workspa
         {fill(t.progress, { done: countCollected(workspace), total: DATA_ITEM_COUNT })}
       </p>
       {DATA_CATEGORIES.map((category) => (
-        <section key={category.id} className="panel stack" aria-labelledby={`${id}-${category.id}`}>
+        <section key={category.id} className="data-category stack" aria-labelledby={`${id}-${category.id}`}>
           <div>
             <h2 id={`${id}-${category.id}`} style={{ fontSize: 'var(--text-xl)' }}>
               {t.categories[category.id].name}
@@ -113,11 +113,11 @@ export function GoFurther({ locale, s, workspace }: { locale: Locale; s: Strings
 
   return (
     <div className="stack-lg">
-      <div className="grid grid--wide">
+      <div className="further-grid">
         {GO_FURTHER.map((item) => {
           const text = t.items[item.id];
           return (
-            <section key={item.id} className="panel stack" aria-labelledby={`${id}-${item.id}`}>
+            <section key={item.id} className="further stack" aria-labelledby={`${id}-${item.id}`}>
               <h2 id={`${id}-${item.id}`} style={{ fontSize: 'var(--text-xl)' }}>
                 {text.name}
               </h2>

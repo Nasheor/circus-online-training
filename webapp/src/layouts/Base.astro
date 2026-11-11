@@ -1,5 +1,5 @@
 ---
-import '@fontsource-variable/montserrat';
+import '@fontsource-variable/inter';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import '../styles/components.css';
@@ -31,13 +31,14 @@ const partlyTranslated = translationCoverage(locale) < 1;
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html lang={locale} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · {s.site.name}</title>
     <meta name="description" content={description ?? s.site.description} />
     <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
+    <script is:inline src={asset('theme.js')}></script>
   </head>
   <body data-phase={phase}>
     <a class="skip-link" href="#main">{s.site.skip}</a>
@@ -55,6 +56,10 @@ const partlyTranslated = translationCoverage(locale) < 1;
     <Footer locale={locale} />
   </body>
 </html>
+
+<script>
+  import '../scripts/motion';
+</script>
 
 <style is:global>
   main:focus {

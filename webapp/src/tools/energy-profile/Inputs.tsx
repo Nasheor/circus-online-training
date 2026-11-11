@@ -13,15 +13,15 @@ interface Props {
   change: (mutate: (inputs: ProfileInputs) => void) => void;
 }
 
-function Step({ number, title, lead, children }: { number: number; title: string; lead: string; children: React.ReactNode }) {
+function Step({ id, number, title, lead, children }: { id: string; number: number; title: string; lead: string; children: React.ReactNode }) {
   return (
-    <section className="panel profile__step stack">
-      <h3>
+    <section className="profile__step stack" id={`step-${id}`}>
+      <h2>
         <span className="profile__step-number" aria-hidden="true">
           {number}
         </span>
         {title}
-      </h3>
+      </h2>
       <p>{lead}</p>
       {children}
     </section>
@@ -39,7 +39,7 @@ export function Inputs({ s, inputs, change }: Props) {
 
   return (
     <div className="stack-lg">
-      <Step number={1} title={t.steps.homes.title} lead={t.steps.homes.lead}>
+      <Step id="homes" number={1} title={t.steps.homes.title} lead={t.steps.homes.lead}>
         <div className="table-wrap">
           <table className="table homes-table">
             <caption className="visually-hidden">{t.homes.caption}</caption>
@@ -89,7 +89,7 @@ export function Inputs({ s, inputs, change }: Props) {
         <p className="small muted">{t.homes.heatingHelp}</p>
       </Step>
 
-      <Step number={2} title={t.steps.transport.title} lead={t.steps.transport.lead}>
+      <Step id="transport" number={2} title={t.steps.transport.title} lead={t.steps.transport.lead}>
         <div className="field field-row">
           <label htmlFor={`${id}-cars`}>{t.fields.carsPerHousehold.label}</label>
           <NumberField
@@ -120,7 +120,7 @@ export function Inputs({ s, inputs, change }: Props) {
         />
       </Step>
 
-      <Step number={3} title={t.steps.production.title} lead={t.steps.production.lead}>
+      <Step id="production" number={3} title={t.steps.production.title} lead={t.steps.production.lead}>
         <div className="field field-row">
           <label htmlFor={`${id}-panels`}>{t.fields.solarPanels.label}</label>
           <NumberField
@@ -222,7 +222,7 @@ export function Inputs({ s, inputs, change }: Props) {
         </fieldset>
       </Step>
 
-      <Step number={4} title={t.steps.targets.title} lead={t.steps.targets.lead}>
+      <Step id="targets" number={4} title={t.steps.targets.title} lead={t.steps.targets.lead}>
         <PercentField
           label={t.fields.reduceElectricity.label}
           hint={t.fields.reduceElectricity.hint}

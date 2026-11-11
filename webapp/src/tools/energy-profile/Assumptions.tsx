@@ -82,7 +82,7 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
         </div>
 
         <div>
-          <h4>{t.housesTitle}</h4>
+          <h3>{t.housesTitle}</h3>
           <div className="table-wrap">
             <table className="table small">
               <caption className="visually-hidden">{t.housesCaption}</caption>
@@ -107,7 +107,7 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
         </div>
 
         <div>
-          <h4>{t.otherTitle}</h4>
+          <h3>{t.otherTitle}</h3>
           <div className="assumption-grid">
             {SCALARS.map((key) => (
               <label key={key} className="field">
@@ -119,7 +119,7 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
         </div>
 
         <div className="stack">
-          <h4>{t.seasonalityTitle}</h4>
+          <h3>{t.seasonalityTitle}</h3>
           <p>{t.seasonalityLead}</p>
           {unbalanced && (
             <p className="notice notice--warn" role="status">

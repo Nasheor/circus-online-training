@@ -20,8 +20,8 @@ function BuildUp({ s, workspace }: { s: Strings; workspace: Workspace }) {
   return (
     <div className="stack-lg">
       <div className="split">
-        <div className="panel panel--soft stack">
-          <h2 style={{ fontSize: 'var(--text-xl)' }}>{t.ownTitle}</h2>
+        <div className="build-own stack">
+          <h2>{t.ownTitle}</h2>
           {t.own.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
@@ -29,7 +29,7 @@ function BuildUp({ s, workspace }: { s: Strings; workspace: Workspace }) {
         </div>
         <div className="stack">
           {t.resources.map((resource) => (
-            <div key={resource.id} className="panel panel--flat">
+            <div key={resource.id} className="build-link">
               <h2 style={{ fontSize: 'var(--text-lg)' }}>{resource.title}</h2>
               <p>{resource.text}</p>
               <p>

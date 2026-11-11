@@ -1,5 +1,6 @@
 ---
 import PageHero from '../../../../components/PageHero.astro';
+import RegionTiles from '../../../../components/RegionTiles.astro';
 import { REGIONS, REGION_BY_ID } from '../../../../content/regions';
 import { getResource } from '../../../../content/resources';
 import { PUBLISHED_LOCALES } from '../../../../i18n/config';
@@ -49,99 +50,212 @@ const prompts = [...s.cards['p2-6'].lines.slice(1), ...s.cards['p2-7'].lines];
     <p class="small">{r.openMapNote}</p>
   </PageHero>
 
-  <section class="section">
-    <div class="container stack-lg">
-      <div class="split">
-        <div>
-          <h2>{r.stepsTitle}</h2>
-          <ol class="steps">
-            {
-              r.steps.map((step) => (
-                <li>
-                  <strong>{step.title}</strong>
-                  <br />
-                  {step.text}
-                </li>
-              ))
-            }
-          </ol>
-        </div>
-        <div class="stack-lg">
-          <div class="panel panel--soft">
-            <h2>{r.promptsTitle}</h2>
-            <ul>
-              {prompts.map((prompt) => <li>{prompt}</li>)}
-            </ul>
-            <p class="small muted">{r.promptsSource}</p>
-          </div>
-          {
-            region.hasFeedback && (
-              <div class="notice">
-                <h2 class="notice-title">{r.feedbackTitle}</h2>
-                <p>{r.feedback}</p>
-              </div>
-            )
-          }
-        </div>
-      </div>
-
-      <div>
-        <h2>{r.layersTitle}</h2>
-        <p>{r.layersLead}</p>
-        <div class="table-wrap">
-          <table class="table">
-            <tbody>
-              {
-                region.layers.map((layer) => (
-                  <tr>
-                    <th scope="row"><code>{layer.name}</code></th>
-                    <td class={layer.kind === 'other' ? 'muted' : undefined}>{r.layerKinds[layer.kind]}</td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="stack no-print">
-        <h2>{r.embedTitle}</h2>
-        <MapEmbed client:only="react" locale={locale} url={mapUrl} regionName={text.name} />
-      </div>
-
-      <SiteNotebook client:only="react" locale={locale} regionId={region.id} />
-
-      <nav aria-label={r.otherRegions} class="no-print">
-        <h2>{r.otherRegions}</h2>
-        <ul class="tabs">
-          {
-            REGIONS.map((other) => (
-              <li>
-                <a
-                  href={href(locale, `tools/map/${other.id}`)}
-                  aria-current={other.id === region.id ? 'page' : undefined}
-                >
-                  {t.regions[other.id as keyof typeof t.regions].name}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </nav>
+  <!-- How to use the map: four numbered columns -->
+  <section class="section" aria-labelledby="steps-title">
+    <div class="container">
+      <h2 id="steps-title">{r.stepsTitle}</h2>
+      <ol class="map-steps" data-rise>
+        {
+          r.steps.map((step) => (
+            <li>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
+
+  <!-- Questions to discuss: the WattWorks prompts on the phase colour -->
+  <section class="prompts" data-phase="p2" aria-labelledby="prompts-title">
+    <div class="container prompts__grid">
+      <div>
+        <h2 id="prompts-title">{r.promptsTitle}</h2>
+        <p class="prompts__source">{r.promptsSource}</p>
+      </div>
+      <ul class="prompts__list">
+        {prompts.map((prompt) => <li>{prompt}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="layers-title">
+    <div class="container layers">
+      <div>
+        <h2 id="layers-title">{r.layersTitle}</h2>
+        <p>{r.layersLead}</p>
+        {
+          region.hasFeedback && (
+            <div class="feedback">
+              <h3>{r.feedbackTitle}</h3>
+              <p>{r.feedback}</p>
+            </div>
+          )
+        }
+      </div>
+      <dl class="layer-list">
+        {
+          region.layers.map((layer) => (
+            <div>
+              <dt><code>{layer.name}</code></dt>
+              <dd class={layer.kind === 'other' ? 'muted' : undefined}>{r.layerKinds[layer.kind]}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="section no-print embed" aria-labelledby="embed-title">
+    <div class="container stack">
+      <h2 id="embed-title">{r.embedTitle}</h2>
+      <MapEmbed client:only="react" locale={locale} url={mapUrl} regionName={text.name} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SiteNotebook client:only="react" locale={locale} regionId={region.id} />
+    </div>
+  </section>
+
+  <nav class="section others no-print" aria-labelledby="others-title">
+    <div class="container">
+      <h2 id="others-title">{r.otherRegions}</h2>
+      <RegionTiles locale={locale} current={region.id} compact />
+    </div>
+  </nav>
 </Base>
 
 <style>
-  .notice-title {
-    font-size: var(--text-lg);
+  /* Region guide (2026-11-11 page pass). */
+  .map-steps {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-32) 0 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-32);
+    counter-reset: mapstep;
   }
-  code {
-    font-size: 0.92em;
+  .map-steps li {
+    counter-increment: mapstep;
+    margin: 0;
+    max-width: none;
+    border-top: 1px solid var(--border);
+    padding-top: var(--s-16);
+  }
+  .map-steps li::before {
+    content: counter(mapstep);
+    display: block;
+    font-size: var(--t-40);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--p2-strong);
+    margin-bottom: var(--s-12);
+  }
+  .map-steps h3 {
+    font-size: var(--t-22);
+    margin-bottom: var(--s-8);
+  }
+  .map-steps p {
+    margin: 0;
+  }
+
+  .prompts {
+    background: var(--phase);
+    color: var(--phase-ink);
+    padding-block: var(--s-72);
+  }
+  .prompts__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+    gap: var(--s-48);
+    align-items: start;
+  }
+  .prompts h2 {
+    color: inherit;
+    font-size: var(--t-40);
+  }
+  .prompts__source {
+    font-weight: 600;
+    opacity: 0.85;
+  }
+  .prompts__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .prompts__list li {
+    max-width: none;
+    margin: 0;
+    padding-block: var(--s-16);
+    font-size: var(--t-22);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .prompts__list li + li {
+    border-top: 1.5px solid rgb(29 18 6 / 0.25);
+  }
+
+  .layers {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--s-48);
+    align-items: start;
+  }
+  .feedback {
+    margin-top: var(--s-24);
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--accent);
+  }
+  .feedback h3 {
+    font-size: var(--t-18);
+  }
+  .layer-list {
+    margin: 0;
+  }
+  .layer-list > div {
+    padding-block: var(--s-16);
+    border-bottom: 1px solid var(--border);
+  }
+  .layer-list > div:first-child {
+    border-top: 1px solid var(--border);
+  }
+  .layer-list dt code {
+    font-size: var(--t-16);
+    font-weight: 700;
+    color: var(--p2-strong);
     word-break: break-word;
   }
-  th[scope='row'] {
-    width: 45%;
-    font-weight: 600;
+  .layer-list dd {
+    margin: var(--s-4) 0 0;
+  }
+  .embed {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+  }
+  .others {
+    border-top: 1px solid var(--border);
+  }
+  .others h2 {
+    margin-bottom: var(--s-24);
+  }
+
+  @media (max-width: 62rem) {
+    .map-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .prompts__grid,
+    .layers {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-24);
+    }
+  }
+  @media (max-width: 40rem) {
+    .map-steps {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 </style>

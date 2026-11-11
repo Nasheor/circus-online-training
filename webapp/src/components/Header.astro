@@ -59,53 +59,71 @@ const items = [
         </nav>
       )
     }
-    <img
-      class="site-header__funding"
-      src={asset('brand/interreg.png')}
-      alt={s.site.logoAlt.interreg}
-      width="459"
-      height="176"
-    />
+    <button
+      type="button"
+      class="theme-toggle"
+      data-theme-toggle
+      data-to-light={s.site.theme.toLight}
+      data-to-dark={s.site.theme.toDark}
+      aria-label={s.site.theme.toLight}
+    >
+      <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="4.5"></circle>
+        <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"></path>
+      </svg>
+      <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path>
+      </svg>
+    </button>
   </div>
 </header>
 
 <style>
+  /* The kit's top bar: opaque, one hairline, no glass. Sticky where it fits on one row. */
   .site-header {
-    background: var(--surface);
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
+    z-index: 20;
+  }
+  @media (min-width: 64rem) {
+    .site-header {
+      position: sticky;
+      top: 0;
+    }
   }
   .site-header__bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-3) var(--space-5);
-    padding-block: var(--space-3);
+    gap: var(--s-8) var(--s-16);
+    min-height: var(--bar);
+    padding-block: var(--s-8);
   }
   .site-header__brand {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 10px;
     text-decoration: none;
-    color: var(--navy-deep);
+    color: var(--ink);
     line-height: 1.15;
   }
   .site-header__brand img {
-    height: 3.25rem;
+    height: 44px;
     width: auto;
-    border-radius: var(--radius);
+    border-radius: 50%;
   }
   .site-header__brand span {
     display: grid;
   }
   .site-header__brand strong {
-    font-size: var(--text-xl);
-    font-weight: 900;
-    letter-spacing: 0.04em;
+    font-size: var(--t-22);
+    font-weight: 650;
+    letter-spacing: -0.01em;
   }
   .site-header__brand span span {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--teal);
+    font-size: var(--t-14);
+    font-weight: 500;
+    color: var(--muted);
   }
   nav {
     flex: 1 1 auto;
@@ -116,46 +134,108 @@ const items = [
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
+    justify-content: center;
+    gap: var(--s-4);
   }
   nav li {
     margin: 0;
   }
+  /* menu: larger, bolder, full-contrast ink (user, 2026-11-10: the kit's 14px grey labels were hard to read) */
   nav a {
     display: inline-flex;
     align-items: center;
-    min-height: 2.75rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: 999px;
+    min-height: 48px;
+    padding: 0 var(--s-16);
+    border-radius: var(--r-pill);
     text-decoration: none;
-    font-weight: 700;
+    font-size: clamp(16px, 9.5px + 0.75vw, 20px);
+    font-weight: 600;
     color: var(--ink);
+    transition: color 0.15s, background 0.15s;
+  }
+  /* small laptops (1024–1200px): tighter items so the menu stays on one row beside the name */
+  @media (max-width: 75rem) {
+    nav ul {
+      gap: 0;
+    }
+    nav a {
+      padding: 0 var(--s-8);
+    }
   }
   nav a:hover {
-    background: var(--lilac-soft);
+    color: var(--ink);
+    background: var(--surface);
   }
   nav a[aria-current] {
-    background: var(--navy);
-    color: #fff;
+    color: var(--ink);
+    background: var(--inset);
+    box-shadow: inset 0 -3px 0 var(--accent);
   }
   .site-header__languages {
     flex: 0 0 auto;
   }
-  .site-header__funding {
-    height: 4.6rem;
-    width: auto;
-    border-radius: var(--radius);
+  .theme-toggle {
     flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    display: inline-grid;
+    place-items: center;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
   }
-  @media (max-width: 40rem) {
-    .site-header__funding {
-      height: 3.6rem;
-      order: 2;
-      margin-left: auto;
+  .theme-toggle:hover {
+    border-color: var(--line2);
+  }
+  .theme-toggle:active {
+    transform: scale(0.94);
+  }
+  .theme-toggle svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  /* the icon shows the theme you would switch to */
+  .theme-toggle__moon,
+  :global([data-theme='light']) .theme-toggle__sun {
+    display: none;
+  }
+  :global([data-theme='light']) .theme-toggle__moon {
+    display: block;
+  }
+  .theme-toggle {
+    display: none;
+  }
+  :global(.js) .theme-toggle {
+    display: inline-grid;
+  }
+  @media (max-width: 63.99rem) {
+    .site-header__brand {
+      margin-right: auto;
     }
     nav {
       order: 3;
       flex-basis: 100%;
+      overflow-x: auto;
+    }
+    nav ul {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+    }
+    nav a {
+      white-space: nowrap;
+    }
+  }
+  @media (max-width: 30rem) {
+    .site-header__brand span {
+      display: none;
     }
   }
 </style>

@@ -1,0 +1,399 @@
+---
+/**
+ * The home hero's animated energy village (user request 2026-11-10, replaces the card fan): homes with solar
+ * roofs, a village hall, a heat pump, an EV charger and wind turbines on one local grid, with energy pulses in
+ * the three phase colours running along it. Decorative (aria-hidden); still under prefers-reduced-motion.
+ * Drawn on a 1440 × 170 canvas, ground at y = 150; the middle (x 430–1010) is what a phone shows.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+
+const GROUND = 150;
+
+/** A gabled building; `solar` puts panels on the right-hand slope. */
+type House = { x: number; w: number; h: number; roof: number; solar?: boolean; windows?: number };
+const houses: House[] = [
+  { x: 214, w: 64, h: 34, roof: 22, solar: true, windows: 2 },
+  { x: 372, w: 46, h: 40, roof: 20, solar: true, windows: 1 },
+  { x: 418, w: 46, h: 40, roof: 20, windows: 1 },
+  { x: 520, w: 128, h: 46, roof: 28, solar: true, windows: 4 }, // village hall
+  { x: 690, w: 60, h: 36, roof: 22, windows: 2 }, // the heat-pump house
+  { x: 980, w: 62, h: 34, roof: 22, solar: true, windows: 2 },
+  { x: 1130, w: 104, h: 38, roof: 26, solar: true, windows: 0 }, // farm barn
+];
+
+const gable = (b: House) => {
+  const top = GROUND - b.h;
+  return `M${b.x} ${GROUND}V${top}L${b.x + b.w / 2} ${top - b.roof}L${b.x + b.w} ${top}V${GROUND}Z`;
+};
+/** Panels along the right slope, from 18 % to 86 % of its length, 6 units deep. */
+const panel = (b: House) => {
+  const top = GROUND - b.h;
+  const ax = b.x + b.w / 2;
+  const ay = top - b.roof;
+  const at = (t: number) => [ax + (b.w / 2) * t, ay + b.roof * t] as const;
+  const [x1, y1] = at(0.18);
+  const [x2, y2] = at(0.86);
+  return `M${x1} ${y1 + 2}L${x2} ${y2 + 2}L${x2} ${y2 + 8}L${x1} ${y1 + 8}Z`;
+};
+const panelLines = (b: House) => {
+  const top = GROUND - b.h;
+  const ax = b.x + b.w / 2;
+  const ay = top - b.roof;
+  return [0.35, 0.52, 0.69].map((t) => {
+    const x = ax + (b.w / 2) * t;
+    const y = ay + b.roof * t;
+    return `M${x} ${y + 2}V${y + 8}`;
+  });
+};
+const windows = (b: House) => {
+  const n = b.windows ?? 0;
+  const gap = b.w / (n + 1);
+  return Array.from({ length: n }, (_, i) => ({ x: b.x + gap * (i + 1) - 5, y: GROUND - b.h + 10 }));
+};
+
+/** Wind turbines: hub position and blade length. */
+const turbines = [
+  { x: 150, hub: 30, r: 34, speed: 'a' },
+  { x: 900, hub: 44, r: 30, speed: 'b' },
+  { x: 1300, hub: 70, r: 20, speed: 'c' },
+  { x: 1370, hub: 80, r: 16, speed: 'a' },
+];
+const blade = (r: number) => `M-2.2 0Q-1.6 ${-r * 0.55} 0 ${-r}Q1.4 ${-r * 0.5} 2.2 0Z`;
+
+const trees = [
+  { x: 60, h: 26 },
+  { x: 90, h: 18 },
+  { x: 318, h: 24 },
+  { x: 344, h: 16 },
+  { x: 488, h: 20 },
+  { x: 1080, h: 26 },
+  { x: 1104, h: 18 },
+  { x: 1420, h: 22 },
+];
+
+/** Where things meet the local grid line: producers feed it (turbines, solar roofs), users draw from it. */
+const feeds = [150, 246, 395, 584, 900, 1011, 1182, 1300, 1370];
+const draws = [441, 720, 765, 812];
+const WIRE = 160;
+---
+
+<svg
+  class:list={['village', className]}
+  viewBox="0 0 1440 170"
+  preserveAspectRatio="xMidYMax slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  <!-- far hills -->
+  <path class="hill hill--far" d="M0 128C180 108 320 120 480 116S820 100 1000 112 1300 104 1440 118V170H0Z"></path>
+  <path class="hill" d="M0 146C220 136 420 148 720 142S1180 134 1440 146V170H0Z"></path>
+
+  <!-- trees -->
+  {
+    trees.map((t) => (
+      <g class="tree">
+        <path class="trunk" d={`M${t.x} ${GROUND}V${GROUND - t.h * 0.45}`} />
+        <circle cx={t.x} cy={GROUND - t.h * 0.7} r={t.h * 0.38} />
+      </g>
+    ))
+  }
+
+  <!-- wind turbines -->
+  {
+    turbines.map((t) => (
+      <g class="turbine">
+        <path class="tower" d={`M${t.x - 2.2} ${GROUND}L${t.x - 1} ${t.hub}H${t.x + 1}L${t.x + 2.2} ${GROUND}Z`} />
+        <g transform={`translate(${t.x} ${t.hub})`}>
+          <g class={`blades blades--${t.speed}`}>
+            <circle class="sweep" r={t.r} />
+            <path d={blade(t.r)} />
+            <path d={blade(t.r)} transform="rotate(120)" />
+            <path d={blade(t.r)} transform="rotate(240)" />
+            <circle class="hub" r="2.6" />
+          </g>
+        </g>
+      </g>
+    ))
+  }
+
+  <!-- homes, hall and barn -->
+  {
+    houses.map((b, i) => (
+      <g class="house">
+        <path d={gable(b)} />
+        {b.solar && <path class="panel" d={panel(b)} />}
+        {b.solar && panelLines(b).map((d) => <path class="panel-line" d={d} />)}
+        {windows(b).map((w, j) => (
+          <rect class={`win win--${(i + j) % 4}`} x={w.x} y={w.y} width="10" height="9" rx="1.5" />
+        ))}
+        {b.w > 100 && <rect class="door" x={b.x + b.w / 2 - 7} y={GROUND - 18} width="14" height="18" rx="2" />}
+      </g>
+    ))
+  }
+
+  <!-- heat pump beside the house at x 690 -->
+  <g class="heatpump">
+    <rect x="754" y="132" width="22" height="18" rx="2"></rect>
+    <g transform="translate(765 141)">
+      <g class="fan">
+        <circle class="sweep" r="6"></circle>
+        <path d="M0 0L0 -5.5M0 0L4.8 2.8M0 0L-4.8 2.8"></path>
+      </g>
+    </g>
+  </g>
+
+  <!-- EV charger and car -->
+  <g class="charger">
+    <rect x="808" y="124" width="8" height="26" rx="2"></rect>
+    <rect class="charge" x="810" y="128" width="4" height="6" rx="1"></rect>
+    <path class="cable" d="M816 136C826 136 828 142 834 142"></path>
+    <path class="car" d="M832 150V140Q834 132 842 131L852 124H872L882 131Q890 132 890 140V150Z"></path>
+    <circle class="wheel" cx="844" cy="150" r="5"></circle>
+    <circle class="wheel" cx="878" cy="150" r="5"></circle>
+  </g>
+
+  <!-- the local grid: a wire under the village, a tap from everything, pulses running along it -->
+  <path class="ground" d="M0 150H1440V170H0Z"></path>
+  {feeds.map((x) => <path class="tap" d={`M${x} ${GROUND}V${WIRE}`} />)}
+  {draws.map((x) => <path class="tap" d={`M${x} ${GROUND}V${WIRE}`} />)}
+  {feeds.map((x, i) => <path class={`spark spark--feed spark--${i % 3}`} d={`M${x} ${GROUND - 2}V${WIRE}`} />)}
+  {draws.map((x, i) => <path class={`spark spark--draw spark--${i % 3}`} d={`M${x} ${WIRE}V${GROUND - 2}`} />)}
+  <path class="wire" d={`M0 ${WIRE}H1440`}></path>
+  <path class="pulse pulse--p1" d={`M0 ${WIRE}H1440`}></path>
+  <path class="pulse pulse--p2" d={`M1440 ${WIRE}H0`}></path>
+  <path class="pulse pulse--p3" d={`M0 ${WIRE}H1440`}></path>
+</svg>
+
+<style>
+  .village {
+    display: block;
+    width: 100%;
+    overflow: visible;
+  }
+  .hill {
+    fill: var(--bg);
+  }
+  .hill--far {
+    fill: var(--surface);
+    opacity: 0.85;
+  }
+  .ground {
+    fill: var(--bg);
+  }
+  .tree circle {
+    fill: #1f4a3a;
+  }
+  .trunk,
+  .tower {
+    stroke: var(--line2);
+  }
+  .trunk {
+    stroke-width: 2;
+    fill: none;
+  }
+  .tower {
+    fill: #dfe7f5;
+    stroke-width: 0.5;
+  }
+  .blades path,
+  .hub {
+    fill: #f2f6fc;
+  }
+  .sweep {
+    fill: transparent;
+  }
+  .house path:first-child {
+    fill: var(--inset);
+    stroke: var(--line2);
+    stroke-width: 1;
+  }
+  .panel {
+    fill: var(--accent-deep);
+    stroke: var(--accent);
+    stroke-width: 0.6;
+  }
+  .panel-line {
+    stroke: var(--accent);
+    stroke-width: 0.6;
+  }
+  .win {
+    fill: #ffd27a;
+  }
+  .door {
+    fill: var(--inset);
+  }
+  .heatpump > rect {
+    fill: var(--inset);
+    stroke: var(--line2);
+  }
+  .fan path {
+    stroke: var(--muted);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+  }
+  .charger > rect:first-child {
+    fill: var(--inset);
+    stroke: var(--line2);
+  }
+  .charge {
+    fill: var(--p3);
+  }
+  .cable {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.2;
+  }
+  .car {
+    fill: var(--accent-deep);
+  }
+  .wheel {
+    fill: var(--bg);
+    stroke: var(--muted);
+    stroke-width: 1.5;
+  }
+  .tap,
+  .wire {
+    stroke: var(--line2);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .pulse {
+    fill: none;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-dasharray: 16 224;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  .pulse--p1 {
+    color: var(--p1);
+  }
+  .pulse--p2 {
+    color: var(--p2);
+  }
+  .pulse--p3 {
+    color: var(--p3);
+  }
+  .spark {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 3 7;
+  }
+  .spark--feed {
+    stroke: #ffd27a;
+  }
+  .spark--draw {
+    stroke: var(--p3);
+  }
+  .pulse--p1 {
+    stroke: var(--p1);
+  }
+  .pulse--p2 {
+    stroke: var(--p2);
+    stroke-dashoffset: 80;
+  }
+  .pulse--p3 {
+    stroke: var(--p3);
+    stroke-dashoffset: 160;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .blades,
+    .fan {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: village-spin 7s linear infinite;
+    }
+    .blades--b {
+      animation-duration: 9s;
+    }
+    .blades--c {
+      animation-duration: 5.5s;
+    }
+    .fan {
+      animation-duration: 1.4s;
+    }
+    .pulse {
+      animation: village-flow 4s linear infinite;
+    }
+    .pulse--p2 {
+      animation-duration: 5s;
+    }
+    .pulse--p3 {
+      animation-duration: 6s;
+    }
+    .win {
+      animation: village-glow 5s ease-in-out infinite;
+    }
+    .win--1 {
+      animation-delay: 1.2s;
+    }
+    .win--2 {
+      animation-delay: 2.5s;
+    }
+    .win--3 {
+      animation-delay: 3.7s;
+    }
+    .charge {
+      animation: village-charge 1.6s ease-in-out infinite;
+    }
+    .spark {
+      animation: village-drop 0.9s linear infinite;
+    }
+    .spark--1 {
+      animation-delay: -0.3s;
+    }
+    .spark--2 {
+      animation-delay: -0.6s;
+    }
+    .panel {
+      animation: village-glint 6s ease-in-out infinite;
+    }
+  }
+  @keyframes village-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  @keyframes village-flow {
+    to {
+      stroke-dashoffset: -240;
+    }
+  }
+  @keyframes village-glow {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+  @keyframes village-drop {
+    to {
+      stroke-dashoffset: -10;
+    }
+  }
+  @keyframes village-glint {
+    0%,
+    80%,
+    100% {
+      fill: var(--accent-deep);
+    }
+    88% {
+      fill: var(--accent);
+    }
+  }
+  @keyframes village-charge {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+</style>

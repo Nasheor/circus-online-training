@@ -30,62 +30,190 @@ const t = s.business;
       { label: t.title },
     ]}
   >
-    <div>
+    <div class="cluster">
       <a class="btn btn--accent" href={href(locale, `tools/business-model/${BUSINESS_STEPS[0]}`)}>
         {fill(t.openStep, { n: 1 })}: {t.steps[BUSINESS_STEPS[0]].name}
       </a>
+      <a class="btn" href={href(locale, 'learn/business-model')}>{s.toolsPage.learn}</a>
     </div>
   </PageHero>
 
   <section class="section">
-    <div class="container stack-lg">
-      <div>{t.intro.map((paragraph) => <p>{paragraph}</p>)}</div>
-      <ol class="step-list">
+    <div class="container biz-intro">
+      <div>
+        {t.intro.map((paragraph, index) => <p class:list={[index === 0 && 'biz-intro__first']}>{paragraph}</p>)}
+      </div>
+      <ul class="biz-links">
+        <li><ResourceLink locale={locale} id="business-tool" label={t.original} /></li>
+        <li><ResourceLink locale={locale} id="manual-business-tool" label={t.manual} /></li>
+        <li><ResourceLink locale={locale} id="drive-business-tool" label={t.partnerFolder} /></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- The five steps as one route: a large number, the step, what it is for, joined by a line in the phase colour -->
+  <section class="section route-band" aria-label={t.stepsLabel}>
+    <div class="container">
+      <ol class="biz-route" data-rise>
         {
           BUSINESS_STEPS.map((step, index) => (
             <li>
-              <a class="panel panel--phase" href={href(locale, `tools/business-model/${step}`)}>
-                <p class="eyebrow">{fill(t.step, { n: index + 1 })}</p>
-                <h2>{t.steps[step].name}</h2>
-                <p>{t.steps[step].summary}</p>
+              <a href={href(locale, `tools/business-model/${step}`)}>
+                <span class="biz-route__number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <span class="biz-route__text">
+                  <span class="biz-route__label">{fill(t.step, { n: index + 1 })}</span>
+                  <span class="biz-route__name">{t.steps[step].name}</span>
+                  <span class="biz-route__summary">{t.steps[step].summary}</span>
+                </span>
+                <span class="biz-route__go" aria-hidden="true">→</span>
               </a>
             </li>
           ))
         }
       </ol>
-      <div class="panel panel--flat">
-        <ul>
-          <li><a href={href(locale, 'learn/business-model')}>{s.toolsPage.learn}</a></li>
-          <li><ResourceLink locale={locale} id="business-tool" label={t.original} /></li>
-          <li><ResourceLink locale={locale} id="manual-business-tool" label={t.manual} /></li>
-          <li><ResourceLink locale={locale} id="drive-business-tool" label={t.partnerFolder} /></li>
-        </ul>
-      </div>
     </div>
   </section>
 </Base>
 
 <style>
-  .step-list {
+  /* Business Model Tool overview (2026-11-11 page pass). */
+  .biz-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
+    gap: var(--s-72);
+    align-items: start;
+  }
+  .biz-intro__first {
+    font-size: var(--t-22);
+    line-height: 1.45;
+  }
+  .biz-links {
     list-style: none;
     padding: 0;
     margin: 0;
-    display: grid;
-    gap: var(--space-4);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    border-top: 4px solid var(--p3);
   }
-  .step-list li {
+  .biz-links li {
+    margin: 0;
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .route-band {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+  }
+  .biz-route {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  .biz-route::before {
+    content: '';
+    position: absolute;
+    left: 2.6rem;
+    top: var(--s-32);
+    bottom: var(--s-32);
+    width: 2px;
+    background: var(--phase);
+    opacity: 0.5;
+  }
+  .biz-route li {
     margin: 0;
     max-width: none;
-    display: flex;
   }
-  .step-list a {
-    flex: 1;
+  .biz-route a {
+    position: relative;
+    display: grid;
+    grid-template-columns: 5.2rem minmax(0, 1fr) auto;
+    gap: var(--s-24);
+    align-items: center;
+    padding-block: var(--s-24);
+    color: var(--ink);
+    text-decoration: none;
   }
-  .step-list h2 {
-    font-size: var(--text-xl);
+  .biz-route li + li a {
+    border-top: 1px solid var(--border);
+  }
+  .biz-route__number {
+    width: 5.2rem;
+    height: 5.2rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--phase);
+    color: var(--phase-ink);
+    font-size: var(--t-28);
+    font-weight: 750;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.25s ease;
+  }
+  .biz-route__text {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .biz-route__label {
+    font-size: var(--t-14);
+    font-weight: 600;
+    color: var(--phase-strong);
+  }
+  .biz-route__name {
+    font-size: var(--t-28);
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .biz-route__summary {
+    color: var(--muted);
+    max-width: 60ch;
+  }
+  .biz-route__go {
+    font-size: var(--t-28);
+    color: var(--phase-strong);
+    transition: transform 0.25s ease;
+  }
+  .biz-route a:hover .biz-route__name {
     text-decoration: underline;
-    text-decoration-thickness: 0.08em;
-    text-underline-offset: 0.18em;
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.15em;
+  }
+  .biz-route a:hover .biz-route__go {
+    transform: translateX(4px);
+  }
+  .biz-route a:hover .biz-route__number {
+    transform: scale(1.05);
+  }
+  @media (max-width: 62rem) {
+    .biz-intro {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+  }
+  @media (max-width: 40rem) {
+    .biz-route::before {
+      left: 1.75rem;
+    }
+    .biz-route a {
+      grid-template-columns: 3.5rem minmax(0, 1fr);
+      gap: var(--s-16);
+    }
+    .biz-route__number {
+      width: 3.5rem;
+      height: 3.5rem;
+      font-size: var(--t-18);
+    }
+    .biz-route__name {
+      font-size: var(--t-22);
+    }
+    .biz-route__go {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .biz-route__number,
+    .biz-route__go {
+      transition: none;
+    }
   }
 </style>

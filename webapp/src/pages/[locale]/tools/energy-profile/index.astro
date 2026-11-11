@@ -14,6 +14,7 @@ export const getStaticPaths = localePaths;
 const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.profile;
+const steps = ['homes', 'transport', 'production', 'targets'] as const;
 ---
 
 <Base locale={locale} title={t.title} section="tools" phase="p1" path="tools/energy-profile">
@@ -29,34 +30,49 @@ const t = s.profile;
         { label: s.nav.tools, href: href(locale, 'tools') },
         { label: t.title },
       ]}
-    />
+    >
+      <nav class="step-links no-print" aria-label={t.stepsNav}>
+        <ol>
+          {
+            steps.map((step, index) => (
+              <li>
+                <a href={`#step-${step}`}>
+                  <span class="step-links__number" aria-hidden="true">{index + 1}</span>
+                  {t.steps[step].title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+    </PageHero>
   </div>
 
-  <section class="section--tight">
+  <section class="section--tight profile-section">
     <div class="container">
       <EnergyProfileApp client:only="react" locale={locale} />
       <noscript><p class="notice notice--warn">{s.site.noscript}</p></noscript>
     </div>
   </section>
 
-  <section class="section no-print">
-    <div class="container grid grid--wide">
-      <div class="panel panel--flat stack">
+  <section class="section no-print more">
+    <div class="container more__grid">
+      <div>
         <h2>{t.about.title}</h2>
-        <ul>
+        <ul class="more__links">
           <li><a href={href(locale, 'learn/energy-profile')}>{t.about.lesson}</a></li>
           <li><a href={href(locale, 'tools/energy-profile/differences')}>{t.about.differences}</a></li>
           <li><ResourceLink locale={locale} id="energy-profile-tool-1a-v1.03" label={t.about.original} /></li>
           <li><ResourceLink locale={locale} id="manual-energy-profile-tool" label={t.about.manual} /></li>
         </ul>
       </div>
-      <div class="panel panel--flat stack">
+      <div>
         <h2>{t.otherParts.title}</h2>
         <p>{t.otherParts.lead}</p>
         <dl>
-          <dt><strong>{t.otherParts.b.name}</strong></dt>
+          <dt>{t.otherParts.b.name}</dt>
           <dd>{t.otherParts.b.text}</dd>
-          <dt><strong>{t.otherParts.c.name}</strong></dt>
+          <dt>{t.otherParts.c.name}</dt>
           <dd>{t.otherParts.c.text}</dd>
         </dl>
         <p><ResourceLink locale={locale} id="drive-energy-profile" label={t.otherParts.link} /></p>
@@ -66,10 +82,83 @@ const t = s.profile;
 </Base>
 
 <style>
-  h2 {
-    font-size: var(--text-xl);
+  /* Energy Profile page (2026-11-11 page pass): step links in the hero, the calculator, then two open columns. */
+  .step-links ol {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-16) 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-8);
   }
-  dd {
-    margin: 0 0 var(--space-3);
+  .step-links li {
+    margin: 0;
+  }
+  .step-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-8);
+    min-height: 44px;
+    padding: 0.3rem 1rem 0.3rem 0.35rem;
+    border-radius: var(--r-pill);
+    border: 1.5px solid currentColor;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .step-links a:hover {
+    background: rgb(255 255 255 / 0.14);
+  }
+  .step-links__number {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--phase-ink);
+    color: var(--phase);
+    font-weight: 700;
+  }
+  .profile-section {
+    padding-top: var(--s-48);
+  }
+
+  .more {
+    border-top: 1px solid var(--border);
+    margin-top: var(--s-48);
+  }
+  .more__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-72);
+  }
+  .more h2 {
+    font-size: var(--t-28);
+  }
+  .more__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .more__links li {
+    margin: 0;
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .more dt {
+    font-weight: 700;
+    margin-top: var(--s-16);
+  }
+  .more dd {
+    margin: var(--s-4) 0 0;
+  }
+  .more dl {
+    margin-bottom: var(--s-24);
+  }
+  @media (max-width: 62rem) {
+    .more__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-48);
+    }
   }
 </style>

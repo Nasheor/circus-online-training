@@ -1,8 +1,9 @@
 ---
 import PageHero from '../../../components/PageHero.astro';
-import PhaseCards from '../../../components/PhaseCards.astro';
+import { PHASES, cardsOfDeck } from '../../../content/structure';
 import { localePaths } from '../../../i18n/config';
 import type { Locale } from '../../../i18n/config';
+import { fill } from '../../../i18n/format';
 import { href } from '../../../i18n/href';
 import { getStrings } from '../../../i18n/strings';
 import Base from '../../../layouts/Base.astro';
@@ -21,34 +22,199 @@ const t = s.journey;
     breadcrumbLabel={s.common.breadcrumb}
     crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.journey }]}
   />
-  <section class="section">
-    <div class="container stack-lg">
-      <PhaseCards locale={locale} />
-      <div>
-        <h2>{t.rhythmTitle}</h2>
-        <ol class="steps grid">
-          {
-            t.rhythm.map((step) => (
-              <li>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </li>
-            ))
-          }
-        </ol>
-      </div>
-      <div class="panel panel--soft">
-        <h2>{t.facilitator}</h2>
-        <ul>
-          {t.facilitatorNotes.map((note) => <li>{note}</li>)}
-        </ul>
-      </div>
+
+  <section class="section" aria-labelledby="route-title">
+    <div class="container">
+      <h2 id="route-title" class="visually-hidden">{t.routeTitle}</h2>
+      <ol class="route" data-rise>
+        {
+          PHASES.map((phase) => (
+            <li class="route__stop" data-phase={phase.id}>
+              <a class="route__field" href={href(locale, `journey/${phase.slug}`)}>
+                <span class="route__number" aria-hidden="true">{phase.order}</span>
+                <span class="route__label">{fill(t.phaseLabel, { n: phase.order })}</span>
+                <span class="route__name">{s.phases[phase.id].name}</span>
+                <span class="route__audience">{s.phases[phase.id].audience}</span>
+                <span class="route__meta">
+                  {fill(s.common.cards, { n: cardsOfDeck(phase.id).length })} · {s.tools[phase.toolId].name}
+                </span>
+                <span class="route__go">{fill(t.openPhase, { n: phase.order })} →</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section rhythm" aria-labelledby="rhythm-title">
+    <div class="container">
+      <h2 id="rhythm-title">{t.rhythmTitle}</h2>
+      <ol class="rhythm__list" data-rise>
+        {
+          t.rhythm.map((step) => (
+            <li>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </section>
 </Base>
 
 <style>
-  .steps.grid > li {
-    margin-top: 0;
+  /* The three phases as one route: three deck-colour fields joined by arrows (2026-11-10 page pass). */
+  .route {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-48);
+  }
+  .route__stop {
+    margin: 0;
+    max-width: none;
+    display: flex;
+    position: relative;
+  }
+  /* the arrow between two stops */
+  .route__stop + .route__stop::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--s-48) / -2 - 9px);
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    border-top: 3px solid var(--muted);
+    border-right: 3px solid var(--muted);
+    transform: translateY(-50%) rotate(45deg);
+  }
+  .route__field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-8);
+    min-height: 26rem;
+    padding: var(--s-32);
+    border-radius: var(--r-14);
+    background: var(--phase);
+    color: var(--phase-ink);
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease;
+    --focus: var(--phase-ink);
+  }
+  .route__field:hover {
+    transform: translateY(-4px);
+  }
+  .route__number {
+    font-size: clamp(56px, 5vw, 80px);
+    font-weight: 750;
+    line-height: 0.9;
+    opacity: 0.45;
+    margin-bottom: var(--s-8);
+  }
+  .route__label {
+    font-size: var(--t-16);
+    font-weight: 600;
+    opacity: 0.92;
+  }
+  .route__name {
+    font-size: var(--t-40);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .route__audience {
+    font-size: var(--t-18);
+    line-height: 1.45;
+    margin-top: var(--s-8);
+    max-width: 30ch;
+  }
+  .route__meta {
+    font-size: var(--t-16);
+    font-weight: 600;
+    margin-top: auto;
+    padding-top: var(--s-24);
+  }
+  .route__go {
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
+  }
+
+  /* The rhythm: three large numbered columns divided by hairlines */
+  .rhythm {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+    margin-bottom: calc(var(--s-72) * -1);
+  }
+  .rhythm__list {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-32) 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    counter-reset: rhythm;
+  }
+  .rhythm__list li {
+    counter-increment: rhythm;
+    margin: 0;
+    max-width: none;
+    padding: var(--s-8) var(--s-32) var(--s-8) 0;
+  }
+  .rhythm__list li + li {
+    border-left: 1px solid var(--border);
+    padding-left: var(--s-32);
+  }
+  .rhythm__list li::before {
+    content: counter(rhythm);
+    display: block;
+    font-size: var(--t-big);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: var(--s-16);
+    color: var(--p1-strong);
+  }
+  .rhythm__list li:nth-child(2)::before {
+    color: var(--p2-strong);
+  }
+  .rhythm__list li:nth-child(3)::before {
+    color: var(--p3-strong);
+  }
+  .rhythm__list p {
+    margin: 0;
+  }
+
+  @media (max-width: 62rem) {
+    .route,
+    .rhythm__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .route {
+      gap: var(--s-32);
+    }
+    .route__field {
+      min-height: 0;
+    }
+    .route__stop + .route__stop::before {
+      left: 50%;
+      top: calc(var(--s-32) / -2 - 9px);
+      transform: translateX(-50%) rotate(135deg);
+    }
+    .rhythm__list li,
+    .rhythm__list li + li {
+      border-left: 0;
+      padding: var(--s-24) 0;
+    }
+    .rhythm__list li + li {
+      border-top: 1px solid var(--border);
+    }
   }
 </style>

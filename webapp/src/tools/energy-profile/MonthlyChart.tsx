@@ -55,7 +55,7 @@ export function MonthlyChart({ results, view, locale, s }: Props) {
         <defs>
           <pattern id="hatch-added" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <rect width="6" height="6" fill="var(--series-added)" />
-            <line x1="0" y1="0" x2="0" y2="6" stroke="#1d4a12" strokeWidth="2" />
+            <line x1="0" y1="0" x2="0" y2="6" stroke="var(--series-hatch)" strokeWidth="2" />
           </pattern>
         </defs>
         {ticks.map((tick) => (
@@ -95,7 +95,7 @@ export function MonthlyChart({ results, view, locale, s }: Props) {
         )}
         <polyline points={points(line)} fill="none" stroke="var(--series-usage)" strokeWidth="3" strokeLinejoin="round" />
         {line.map((value, month) => (
-          <circle key={month} cx={centre(month)} cy={y(value)} r="4" fill="#fff" stroke="var(--series-usage)" strokeWidth="2.5" />
+          <circle key={month} cx={centre(month)} cy={y(value)} r="4" fill="var(--surface)" stroke="var(--series-usage)" strokeWidth="2.5" />
         ))}
         <text x={12} y={MARGIN.top + PLOT_H / 2} textAnchor="middle" transform={`rotate(-90 12 ${MARGIN.top + PLOT_H / 2})`}>
           {t.chart.yAxis}
@@ -124,7 +124,7 @@ export function MonthlyChart({ results, view, locale, s }: Props) {
           <li>
             <span
               className="legend__swatch print-colour"
-              style={{ background: 'repeating-linear-gradient(45deg, var(--series-added) 0 3px, #1d4a12 3px 5px)' }}
+              style={{ background: 'repeating-linear-gradient(45deg, var(--series-added) 0 3px, var(--series-hatch) 3px 5px)' }}
             />
             {t.results.series.added}
           </li>

@@ -1,4 +1,5 @@
 ---
+import AboutNav from '../../../components/AboutNav.astro';
 import PageHero from '../../../components/PageHero.astro';
 import ResourceLink from '../../../components/ResourceLink.astro';
 import { PUBLISHED_LOCALES } from '../../../i18n/config';
@@ -33,53 +34,123 @@ const sections: { title: string; paragraphs?: string[]; bullets?: string[] }[] =
       { label: t.title },
     ]}
   />
-  <div class="container section stack-lg">
-    {page === 'accessibility' && <p class="notice">{s.accessibility.status}</p>}
-    {
-      sections.map((section) => (
-        <section>
-          <h2>{section.title}</h2>
-          {section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
-          {section.bullets && (
-            <ul>
-              {section.bullets.map((bullet) => (
-                <li>{bullet}</li>
-              ))}
-            </ul>
-          )}
-        </section>
-      ))
-    }
-    {
-      page === 'accessibility' && (
-        <>
-          <p><a class="btn" href={href(locale, 'about/feedback')}>{s.feedback.title}</a></p>
-          <p class="small muted">{s.accessibility.prepared}</p>
-        </>
-      )
-    }
-    {
-      page === 'privacy' && (
-        <p><a class="btn" href={href(locale, 'my-community')}>{s.nav.community}</a></p>
-      )
-    }
-    {
-      page === 'feedback' && (
-        <>
-          <section>
-            <h2>{s.feedback.howTitle}</h2>
-            <p>{s.feedback.how}</p>
-            <p><ResourceLink locale={locale} id="circus-website-contact" label={s.feedback.contact} class="btn btn--primary" /></p>
+  <div class="container section about-layout">
+    <AboutNav locale={locale} current={page} />
+    <div class="about-text">
+      {page === 'accessibility' && <p class="about-status">{s.accessibility.status}</p>}
+      {
+        sections.map((section) => (
+          <section class="about-part">
+            <h2>{section.title}</h2>
+            {section.paragraphs?.map((paragraph) => <p>{paragraph}</p>)}
+            {section.bullets && (
+              <ul>
+                {section.bullets.map((bullet) => (
+                  <li>{bullet}</li>
+                ))}
+              </ul>
+            )}
           </section>
-          <section>
-            <h2>{s.feedback.questionsTitle}</h2>
-            <ul>
-              {s.feedback.questions.map((question) => <li>{question}</li>)}
-            </ul>
-            <p class="small muted">{s.feedback.versionNote}</p>
+        ))
+      }
+      {
+        page === 'accessibility' && (
+          <section class="about-part">
+            <p><a class="btn btn--primary" href={href(locale, 'about/feedback')}>{s.feedback.title}</a></p>
+            <p class="small muted">{s.accessibility.prepared}</p>
           </section>
-        </>
-      )
-    }
+        )
+      }
+      {
+        page === 'privacy' && (
+          <section class="about-part">
+            <p><a class="btn btn--primary" href={href(locale, 'my-community')}>{s.nav.community}</a></p>
+          </section>
+        )
+      }
+      {
+        page === 'feedback' && (
+          <>
+            <section class="about-part feedback-how">
+              <h2>{s.feedback.howTitle}</h2>
+              <p>{s.feedback.how}</p>
+              <p><ResourceLink locale={locale} id="circus-website-contact" label={s.feedback.contact} class="btn btn--primary" /></p>
+            </section>
+            <section class="about-part">
+              <h2>{s.feedback.questionsTitle}</h2>
+              <ol class="questions">
+                {s.feedback.questions.map((question) => <li>{question}</li>)}
+              </ol>
+            </section>
+          </>
+        )
+      }
+    </div>
   </div>
 </Base>
+
+<style>
+  /* Privacy, accessibility, feedback (2026-11-11 page pass): side menu + text in hairline-divided parts. */
+  .about-layout {
+    display: grid;
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
+    gap: var(--s-72);
+    align-items: start;
+  }
+  .about-part {
+    padding-block: var(--s-32);
+    border-top: 1px solid var(--border);
+  }
+  .about-part:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .about-status {
+    font-size: var(--t-22);
+    font-weight: 500;
+    line-height: 1.45;
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--accent);
+    margin-bottom: var(--s-32);
+  }
+  .about-part.feedback-how {
+    padding: var(--s-32);
+    border: 0;
+    border-radius: var(--r-14);
+    background: var(--accent-bg);
+    border-top: 6px solid var(--accent);
+  }
+  /* the contact link carries its host note: one wrapped label, not two flex items */
+  .feedback-how :global(.btn) {
+    display: inline-block;
+    text-align: left;
+    line-height: 1.35;
+    padding-block: 0.7rem;
+  }
+  .questions {
+    list-style: none;
+    padding: 0;
+    counter-reset: question;
+  }
+  .questions li {
+    counter-increment: question;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--s-12);
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+    font-size: var(--t-18);
+    margin: 0;
+  }
+  .questions li::before {
+    content: counter(question);
+    font-weight: 750;
+    color: var(--accent);
+  }
+  @media (max-width: 62rem) {
+    .about-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+  }
+</style>

@@ -188,7 +188,11 @@ try {
   const badHeadings = [];
   for (const path of paths) {
     const response = await go(path);
-    if (!response?.ok()) failures.push(`${path} returned ${response?.status()}`);
+    // npm run preview answers a page visited earlier in the walkthrough with 304 Not Modified
+    if (!response?.ok() && response?.status() !== 304) {
+      failures.push(`${path} returned ${response?.status()}`);
+      console.log(`  FAIL   ${failures[failures.length - 1]}`);
+    }
     const { overflow, h1 } = await page.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - window.innerWidth,
       h1: document.querySelectorAll('h1').length,

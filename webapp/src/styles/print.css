@@ -1,5 +1,48 @@
 /* One print stylesheet for every printable view: dossier, session summary, profile, canvas. */
 @media print {
+  /* Paper is always light: the light token set from tokens.css (keep the two in sync). */
+  :root,
+  :root[data-theme] {
+    --bg: #eef0f3;
+    --surface: #ffffff;
+    --surface-2: #f6f7f9;
+    --inset: #eceef2;
+    --border: rgb(15 20 30 / 0.1);
+    --line2: rgb(15 20 30 / 0.2);
+    --border-strong: #858c99;
+    --ink: #0e1116;
+    --muted: #4f5663;
+    --faint: #626976;
+    --accent: #17428f;
+    --accent-deep: #17428f;
+    --accent-bg: rgb(23 66 143 / 0.08);
+    --on-accent: #ffffff;
+    --focus: #17428f;
+    --teal: #00704f;
+    --teal-soft: #e4f3ec;
+    --danger: #a51d22;
+    --danger-soft: #fbeaea;
+    --warn: #8a6700;
+    --warn-soft: #fff8d6;
+  
+    --p1-strong: #8a222a;
+    --p1-soft: #fbecec;
+    --p2-strong: #9c4420;
+    --p2-soft: #fef1e6;
+    --p3-strong: #266d36;
+    --p3-soft: #eef7e9;
+  
+    --series-usage: #16233f;
+    --series-electricity: #5b6fb5;
+    --series-heating: #c72126;
+    --series-mobility: #8a5fb0;
+    --series-solar: #e0a100;
+    --series-wind: #2a8fbd;
+    --series-added: #6bba45;
+    --series-hatch: #1d4a12;
+    color-scheme: light;
+  }
+
   @page {
     margin: 14mm;
   }
@@ -7,6 +50,7 @@
   html {
     font-size: 11pt;
   }
+  html,
   body {
     background: #fff;
     display: block;
@@ -14,6 +58,7 @@
   }
   .site-header nav,
   .site-header .menu,
+  .theme-toggle,
   .skip-link,
   .site-footer__links,
   .no-print,
@@ -24,14 +69,13 @@
     display: none !important;
   }
   .site-header {
+    position: static !important;
     border-bottom: 1px solid #999;
     margin-bottom: 6mm;
   }
+  /* the footer is links only (2026-11-10), so nothing of it belongs on paper */
   .site-footer {
-    border-top: 1px solid #999;
-    margin-top: 8mm;
-    background: none !important;
-    color: #000 !important;
+    display: none !important;
   }
   .hero {
     padding-block: 5mm;

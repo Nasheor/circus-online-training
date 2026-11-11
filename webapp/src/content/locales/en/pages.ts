@@ -2,11 +2,29 @@
 
 export const home = {
   title: 'Start an energy community in your village',
-  eyebrow: 'Free online training · no account needed',
+  /** The headline as two lines; the second sweeps in once. */
+  headline: ['Start an energy community', 'in your village'],
   lead:
     'The CIRCUS method takes a rural community from first conversations about energy to a plan it can act on. This training shows you how: three phases, a deck of conversation cards, and three tools you can use right here in your browser.',
   ctaStart: 'Find where to start',
   ctaJourney: 'See the three phases',
+  photo: {
+    alt: 'Members of Hepburn Wind, a community-owned wind farm, cheering with their arms in the air on a green field below their wind turbine.',
+    credit: 'Photo: launch of the Hepburn community wind farm, 2011, by {author} / {holder}',
+  },
+  chapter: {
+    meta: 'Phase {n} · {cards} · {tool}',
+    more: 'More about phase {n}',
+  },
+  showcase: {
+    open: 'Open the {tool}',
+    alt: {
+      cards: 'A WattWorks card on screen during a card session, with a box for the group’s notes.',
+      'energy-profile': 'The Energy Profile Tool: monthly electricity use against local production, shown as a bar chart.',
+      map: 'A region guide of the GIS Tool, with the button that opens the map.',
+      'business-model': 'The business model canvas of the Business Model Tool, partly filled in.',
+    },
+  },
   how: {
     title: 'How the method works',
     lead:
@@ -124,21 +142,29 @@ export const journey = {
     { title: 'Apply the tool', text: 'One card asks the group to apply the tool of that phase and discuss the results.' },
     { title: 'Decide what is next', text: 'The remaining cards turn what you saw into shared conclusions and next steps.' },
   ],
+  routeTitle: 'Three phases, one route',
+  openPhase: 'See phase {n}',
   phaseLabel: 'Phase {n}',
   goal: 'What this phase is for',
-  audience: 'Who it is for',
+  glance: {
+    title: 'At a glance',
+    cards: 'WattWorks cards',
+    tool: 'Tool',
+    lesson: 'Lesson',
+  },
   sequence: 'What you do',
+  toolCard: 'Tool card',
+  previous: 'Previous',
+  next: 'Next',
+  nextPhase: 'Next: phase {n} – {name}',
   sequenceCards: '{category} cards {range}',
   sequenceCard: '{category} card {range}',
   sequenceTool: 'Card {n}: apply the {tool}',
   carry: 'What you take with you',
-  facilitator: 'Notes for whoever leads the session',
   startSession: 'Start a card session for this phase',
   browseCards: 'Browse the {n} cards',
   openTool: 'Open the {tool}',
   lesson: 'How to use the {tool}',
-  nextPhase: 'Next: phase {n} – {name}',
-  previousPhase: 'Previous: phase {n} – {name}',
   markDone: 'We have completed this phase',
   done: 'Completed',
   phases: {
@@ -176,13 +202,6 @@ export const journey = {
       ],
     },
   },
-  facilitatorNotes: [
-    'Draw the cards in their numbered order, read each one aloud and discuss it. The cards work with or without a CIRCUS trainer.',
-    'Check the perspective you should answer from: it is written above the question (Me, Neighbourhood, We, and so on).',
-    'You do not need to go through every card. Choose the ones most relevant to your situation.',
-    'Write down your insights as you go — the session mode on this site keeps a note for each card.',
-    'The method does not set a duration. Take the time your group needs, over one meeting or several.',
-  ],
 };
 
 export const toolsPage = {

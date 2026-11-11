@@ -22,7 +22,10 @@ const t = s.journey;
 const text = t.phases[phase.id];
 const name = s.phases[phase.id].name;
 const tool = s.tools[phase.toolId];
+const toolPath = href(locale, TOOL_PATHS[phase.toolId]);
+const lessonPath = href(locale, `learn/${phase.toolId}`);
 const groups = groupedCards(phase.id);
+const cardCount = cardsOfDeck(phase.id).length;
 const previous = PHASES.find((item) => item.order === phase.order - 1);
 const next = PHASES.find((item) => item.order === phase.order + 1);
 const range = (cards: { number: number | null }[]) =>
@@ -43,81 +46,100 @@ const range = (cards: { number: number | null }[]) =>
   >
     <div class="cluster">
       <a class="btn btn--accent" href={href(locale, 'tools/cards/session', `?deck=${phase.id}`)}>{t.startSession}</a>
-      <a class="btn" href={href(locale, TOOL_PATHS[phase.toolId])}>{fill(t.openTool, { tool: tool.name })}</a>
+      <a class="btn" href={toolPath}>{fill(t.openTool, { tool: tool.name })}</a>
     </div>
   </PageHero>
 
-  <section class="section">
-    <div class="container split split--aside">
-      <div class="stack-lg">
-        <div>
-          <h2>{t.goal}</h2>
-          {text.goal.map((paragraph) => <p>{paragraph}</p>)}
-        </div>
-        <div>
-          <h2>{t.sequence}</h2>
-          <ol class="steps">
-            {
-              groups.map((group) =>
-                group.category === 'tool' ? (
-                  <li>
-                    <strong>{fill(t.sequenceTool, { n: group.cards[0].number ?? '', tool: tool.name })}</strong>
-                    <br />
-                    <span>{s.cards[group.cards[0].id].lines.slice(1).join(' ')}</span>
-                    <br />
-                    <a href={href(locale, TOOL_PATHS[phase.toolId])}>{fill(t.openTool, { tool: tool.name })}</a>
-                    {' · '}
-                    <a href={href(locale, `learn/${phase.toolId}`)}>{fill(t.lesson, { tool: tool.name })}</a>
-                  </li>
-                ) : (
-                  <li>
-                    <strong>
-                      {fill(group.cards.length === 1 ? t.sequenceCard : t.sequenceCards, {
-                        category: s.cardCategories[group.category],
-                        range: range(group.cards),
-                      })}
-                    </strong>
-                    <br />
-                    <span class="muted">{s.cards[group.cards[0].id].lines[0]}</span>
-                  </li>
-                ),
-              )
-            }
-          </ol>
-          <p>
-            <a href={href(locale, 'tools/cards', `#deck-${phase.id}`)}>
-              {fill(t.browseCards, { n: cardsOfDeck(phase.id).length })}
-            </a>
-          </p>
-        </div>
-        <div>
-          <h2>{t.carry}</h2>
-          <ul>
-            {text.carry.map((item) => <li>{item}</li>)}
-          </ul>
-        </div>
+  <section class="section" aria-labelledby="goal-title">
+    <div class="container intro">
+      <div>
+        <h2 id="goal-title">{t.goal}</h2>
+        {text.goal.map((paragraph, index) => <p class:list={[index === 0 && 'intro__first']}>{paragraph}</p>)}
       </div>
-      <aside class="stack-lg">
-        <div class="panel panel--soft">
-          <h2 class="aside-title">{t.audience}</h2>
-          <p>{s.phases[phase.id].audience}</p>
-        </div>
-        <div class="panel panel--flat">
-          <h2 class="aside-title">{t.facilitator}</h2>
-          <ul class="small">
-            {t.facilitatorNotes.map((note) => <li>{note}</li>)}
-          </ul>
-        </div>
+      <aside class="glance" aria-labelledby="glance-title">
+        <h2 id="glance-title" class="glance__title">{t.glance.title}</h2>
+        <dl class="glance__facts">
+          <div>
+            <dt>{t.glance.cards}</dt>
+            <dd class="glance__big">{cardCount}</dd>
+          </div>
+          <div>
+            <dt>{t.glance.tool}</dt>
+            <dd><a href={toolPath}>{tool.name}</a></dd>
+          </div>
+          <div>
+            <dt>{t.glance.lesson}</dt>
+            <dd><a href={lessonPath}>{fill(t.lesson, { tool: tool.name })}</a></dd>
+          </div>
+        </dl>
         <PhaseDone client:only="react" locale={locale} phaseId={phase.id} />
       </aside>
+    </div>
+  </section>
+
+  <section class="section track-section" aria-labelledby="sequence-title">
+    <div class="container">
+      <h2 id="sequence-title">{t.sequence}</h2>
+      <ol class="track" data-rise>
+        {
+          groups.map((group) =>
+            group.category === 'tool' ? (
+              <li class="track__item track__item--tool">
+                <div class="track__chip">
+                  <span class="track__range">{group.cards[0].number}</span>
+                  <span class="track__category">{t.toolCard}</span>
+                </div>
+                <div class="track__body">
+                  <h3>{fill(t.sequenceTool, { n: group.cards[0].number ?? '', tool: tool.name })}</h3>
+                  <p class="track__question">{s.cards[group.cards[0].id].lines.slice(1).join(' ')}</p>
+                  <div class="cluster">
+                    <a class="btn track__btn" href={toolPath}>{fill(t.openTool, { tool: tool.name })}</a>
+                    <a class="track__link" href={lessonPath}>{fill(t.lesson, { tool: tool.name })}</a>
+                  </div>
+                </div>
+              </li>
+            ) : (
+              <li class="track__item">
+                <div class="track__chip">
+                  <span class="track__range">{range(group.cards)}</span>
+                  <span class="track__category">{s.cardCategories[group.category]}</span>
+                </div>
+                <div class="track__body">
+                  <h3>
+                    {fill(group.cards.length === 1 ? t.sequenceCard : t.sequenceCards, {
+                      category: s.cardCategories[group.category],
+                      range: range(group.cards),
+                    })}
+                  </h3>
+                  <p class="track__question">{s.cards[group.cards[0].id].lines[0]}</p>
+                </div>
+              </li>
+            ),
+          )
+        }
+      </ol>
+      <p class="track__more">
+        <a href={href(locale, 'tools/cards', `#deck-${phase.id}`)}>{fill(t.browseCards, { n: cardCount })} →</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="carry-title">
+    <div class="container">
+      <h2 id="carry-title">{t.carry}</h2>
+      <ul class="carry" data-rise>
+        {text.carry.map((item) => <li>{item}</li>)}
+      </ul>
     </div>
   </section>
 
   <nav class="container phase-nav" aria-label={s.nav.journey}>
     {
       previous ? (
-        <a class="btn" href={href(locale, `journey/${previous.slug}`)}>
-          ← {fill(t.previousPhase, { n: previous.order, name: s.phases[previous.id].name })}
+        <a class="phase-nav__link" data-phase={previous.id} href={href(locale, `journey/${previous.slug}`)}>
+          <span class="phase-nav__dir">← {t.previous}</span>
+          <span class="phase-nav__label">{fill(t.phaseLabel, { n: previous.order })}</span>
+          <span class="phase-nav__name">{s.phases[previous.id].name}</span>
         </a>
       ) : (
         <span />
@@ -125,8 +147,10 @@ const range = (cards: { number: number | null }[]) =>
     }
     {
       next && (
-        <a class="btn btn--primary" href={href(locale, `journey/${next.slug}`)}>
-          {fill(t.nextPhase, { n: next.order, name: s.phases[next.id].name })} →
+        <a class="phase-nav__link phase-nav__link--next" data-phase={next.id} href={href(locale, `journey/${next.slug}`)}>
+          <span class="phase-nav__dir">{t.next} →</span>
+          <span class="phase-nav__label">{fill(t.phaseLabel, { n: next.order })}</span>
+          <span class="phase-nav__name">{s.phases[next.id].name}</span>
         </a>
       )
     }
@@ -134,13 +158,273 @@ const range = (cards: { number: number | null }[]) =>
 </Base>
 
 <style>
-  .aside-title {
-    font-size: var(--text-lg);
+  /* Phase page (2026-11-10 page pass): goal + at-a-glance, the card track, the take-aways, next/previous phase. */
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(17rem, 1fr);
+    gap: var(--s-72);
+    align-items: start;
   }
+  .intro p {
+    max-width: 62ch;
+  }
+  .intro__first {
+    font-size: var(--t-22);
+    line-height: 1.45;
+    color: var(--ink);
+  }
+  .glance {
+    border-top: 4px solid var(--phase);
+    padding-top: var(--s-24);
+  }
+  .glance__title {
+    font-size: var(--t-18);
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .glance__facts {
+    margin: 0 0 var(--s-24);
+  }
+  .glance__facts > div {
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+  }
+  .glance__facts dt {
+    font-size: var(--t-14);
+    color: var(--muted);
+  }
+  .glance__facts dd {
+    margin: var(--s-4) 0 0;
+    font-weight: 600;
+  }
+  .glance__big {
+    font-size: var(--t-big);
+    line-height: 1;
+    color: var(--phase-strong);
+  }
+
+  /* The card track: one row per group of cards, a vertical line in the phase colour joins them */
+  .track-section {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+  }
+  .track {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-32) 0 0;
+    position: relative;
+  }
+  .track::before {
+    content: '';
+    position: absolute;
+    left: calc(5.5rem - 1px);
+    top: var(--s-24);
+    bottom: var(--s-24);
+    width: 2px;
+    background: var(--phase);
+    opacity: 0.5;
+  }
+  .track__item {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--s-32);
+    align-items: center;
+    max-width: none;
+    margin: 0;
+    padding-block: var(--s-16);
+    position: relative;
+  }
+  .track__chip {
+    justify-self: center;
+    width: 9rem;
+    aspect-ratio: 5 / 6;
+    border-radius: var(--r-10);
+    border: 2px solid var(--phase);
+    background: var(--bg);
+    display: grid;
+    place-content: center;
+    text-align: center;
+    gap: var(--s-4);
+    position: relative;
+    z-index: 1;
+  }
+  .track__range {
+    font-size: var(--t-40);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--phase-strong);
+  }
+  .track__category {
+    font-size: var(--t-14);
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .track__body h3 {
+    font-size: var(--t-18);
+    margin-bottom: var(--s-8);
+  }
+  .track__question {
+    font-size: var(--t-22);
+    line-height: 1.4;
+    margin: 0;
+    max-width: 50ch;
+  }
+  /* the tool card: the moment the group applies the tool, in the full phase colour */
+  .track__item--tool {
+    margin-block: var(--s-16);
+    padding: var(--s-32) var(--s-32) var(--s-32) 0;
+    border-radius: var(--r-14);
+    background: var(--phase);
+    color: var(--phase-ink);
+    --focus: var(--phase-ink);
+  }
+  .track__item--tool .track__chip {
+    background: var(--phase-ink);
+    border-color: var(--phase-ink);
+  }
+  .track__item--tool .track__range {
+    color: var(--phase);
+  }
+  .track__item--tool .track__category {
+    color: var(--phase);
+    opacity: 0.85;
+  }
+  .track__item--tool h3,
+  .track__item--tool .track__question {
+    color: inherit;
+  }
+  .track__item--tool .track__question {
+    margin-bottom: var(--s-24);
+  }
+  .track__btn {
+    background: var(--phase-ink);
+    border-color: var(--phase-ink);
+    color: var(--phase);
+  }
+  .track__btn:hover {
+    background: var(--phase-ink);
+    color: var(--phase);
+    transform: translateY(-2px);
+  }
+  .track__link {
+    color: inherit;
+    font-weight: 600;
+    padding-inline: var(--s-8);
+  }
+  .track__more {
+    margin: var(--s-24) 0 0;
+    font-weight: 600;
+  }
+
+  /* What you take with you: tiles with a tick in the phase colour */
+  .carry {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-24) 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--s-24);
+  }
+  .carry li {
+    margin: 0;
+    max-width: none;
+    padding: var(--s-24);
+    border: 1px solid var(--border);
+    border-radius: var(--r-14);
+    font-size: var(--t-18);
+    line-height: 1.45;
+  }
+  .carry li::before {
+    content: '';
+    display: block;
+    width: 1.1rem;
+    height: 0.6rem;
+    border-left: 3px solid var(--phase-strong);
+    border-bottom: 3px solid var(--phase-strong);
+    transform: rotate(-45deg);
+    margin: 0.2rem 0 var(--s-16) 0.2rem;
+  }
+
+  /* Previous / next phase: large links in the colour of the phase they lead to */
   .phase-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-24);
+    margin-top: var(--s-24);
+  }
+  .phase-nav__link {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-3);
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-24) var(--s-32);
+    border-radius: var(--r-14);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .phase-nav__link:hover {
+    transform: translateY(-3px);
+    border-color: var(--phase);
+  }
+  .phase-nav__link--next {
+    grid-column: 2;
+    text-align: right;
+    background: var(--phase);
+    border-color: var(--phase);
+    color: var(--phase-ink);
+    --focus: var(--phase-ink);
+  }
+  .phase-nav__dir {
+    font-weight: 700;
+  }
+  .phase-nav__label {
+    font-size: var(--t-14);
+    opacity: 0.85;
+    margin-top: var(--s-8);
+  }
+  .phase-nav__name {
+    font-size: var(--t-22);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  @media (max-width: 62rem) {
+    .intro {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+  }
+  @media (max-width: 40rem) {
+    .track::before {
+      left: calc(2.75rem - 1px);
+    }
+    .track__item {
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: var(--s-16);
+      align-items: start;
+    }
+    .track__chip {
+      width: 4.75rem;
+    }
+    .track__range {
+      font-size: var(--t-22);
+    }
+    .track__category {
+      font-size: var(--t-12);
+    }
+    .track__item--tool {
+      padding: var(--s-24) var(--s-16) var(--s-24) 0;
+    }
+    .track__question {
+      font-size: var(--t-18);
+    }
+    .phase-nav {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .phase-nav__link--next {
+      grid-column: 1;
+      text-align: left;
+    }
   }
 </style>

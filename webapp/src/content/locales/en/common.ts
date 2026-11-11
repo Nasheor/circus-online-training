@@ -7,6 +7,10 @@ export const site = {
     'Free online training in the CIRCUS method: a three-phase journey with conversation cards and three tools that helps rural communities start their own energy community.',
   skip: 'Skip to main content',
   menu: 'Menu',
+  theme: {
+    toLight: 'Switch to the light theme',
+    toDark: 'Switch to the dark theme',
+  },
   language: 'Language',
   chooseLanguage: 'Choose your language',
   funding: 'Co-funded by the European Union',
@@ -14,7 +18,6 @@ export const site = {
     'CIRCUS (NWE0200304) is an Interreg North-West Europe project, co-funded by the European Union.',
   disclaimer:
     'The content of this site reflects the views of the CIRCUS partners only. The programme authorities are not responsible for any use that may be made of it.',
-  version: 'Version {version}',
   notTranslated: 'This page is not yet fully available in {language}. Untranslated parts are shown in English.',
   noscript:
     'This tool needs JavaScript, which is switched off in your browser. The explanations, the cards and the original files in the Library can still be read without it.',
@@ -22,8 +25,6 @@ export const site = {
     interreg: 'Interreg North-West Europe – Co-funded by the European Union – CIRCUS',
     circus: 'CIRCUS logo',
     wattworks: 'WattWorks',
-    partners:
-      'Project partners: Landelijke Gilden, MTU, RECIT, Rurant, Boerenbond, South Kerry Development Partnership, ZLTO, KIT, Énergies citoyennes en Pays de Vilaine, LochemEnergie, University of Twente',
   },
 };
 
@@ -44,8 +45,6 @@ export const footer = {
   accessibility: 'Accessibility',
   feedback: 'Feedback',
   projectSite: 'CIRCUS project website',
-  partners: 'Project partners',
-  dataNote: 'Everything you enter stays in this browser. No account, no cookies, no tracking.',
 };
 
 export const common = {

@@ -15,7 +15,9 @@ body {
   color: var(--ink);
   font-family: var(--font);
   font-size: var(--text-base);
-  line-height: 1.6;
+  line-height: 1.55;
+  font-feature-settings: 'tnum' 1, 'cv11' 1;
+  -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -29,26 +31,28 @@ h1,
 h2,
 h3,
 h4 {
-  color: var(--navy-deep);
-  line-height: 1.2;
+  color: var(--ink);
+  line-height: 1.12;
   margin: 0 0 var(--space-3);
-  font-weight: 800;
+  font-weight: 650;
   text-wrap: balance;
 }
 h1 {
   font-size: var(--text-3xl);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
 }
 h2 {
   font-size: var(--text-2xl);
+  letter-spacing: -0.02em;
 }
 h3 {
   font-size: var(--text-xl);
-  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-weight: 600;
 }
 h4 {
   font-size: var(--text-lg);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 p,
@@ -73,20 +77,23 @@ li + li {
 }
 
 a {
-  color: var(--navy);
-  text-underline-offset: 0.18em;
-  text-decoration-thickness: 0.08em;
+  color: var(--accent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
 }
 a:hover {
-  color: var(--navy-deep);
-  text-decoration-thickness: 0.14em;
+  text-decoration-thickness: 2px;
 }
 
-/* Navy ring with a yellow halo: visible on light, dark and coloured backgrounds. */
+/* One ring that reads on the ground, on cards and on the phase fields (which set their own --focus). */
 :focus-visible {
-  outline: 3px solid var(--navy);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 7px var(--yellow);
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent-deep);
+  color: #fff;
 }
 
 img,
@@ -102,6 +109,12 @@ textarea {
   font: inherit;
   color: inherit;
 }
+/* the browser's own dark field colours do not match the tokens */
+input,
+select,
+textarea {
+  background-color: var(--surface);
+}
 
 table {
   border-collapse: collapse;
@@ -112,6 +125,10 @@ hr {
   border: 0;
   border-top: 1px solid var(--border);
   margin: var(--space-6) 0;
+}
+
+html {
+  background: var(--bg);
 }
 
 .visually-hidden {
@@ -131,11 +148,11 @@ hr {
   left: var(--space-4);
   top: -4rem;
   z-index: 10;
-  background: var(--yellow);
-  color: var(--ink);
+  background: var(--accent-deep);
+  color: var(--on-accent);
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius);
-  font-weight: 700;
+  border-radius: var(--r-pill);
+  font-weight: 600;
 }
 .skip-link:focus {
   top: var(--space-3);

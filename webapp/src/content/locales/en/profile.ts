@@ -4,6 +4,7 @@ export const profile = {
   eyebrow: 'Tool 1 · Phase 1 – Awareness',
   lead:
     'Estimate how much electricity your community uses through the year, and what it would take to produce it locally. It is a conversation starter: no measured data and no technical knowledge needed.',
+  stepsNav: 'The four steps',
   steps: {
     homes: {
       title: 'Homes and heating',

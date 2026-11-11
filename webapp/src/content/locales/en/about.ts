@@ -56,7 +56,7 @@ export const privacy = {
       title: 'What stays on your device',
       paragraphs: [
         'Everything you type into the tools — your community’s details, energy profile, card notes, candidate sites and business model — is stored in your own browser (in its local storage) and nowhere else. It is not sent to us or to anyone.',
-        'You can save your work as a file, open it again, or erase it, on the My community page. Clearing your browser’s site data also erases it. If several people use the same browser profile, they will see the same work.',
+        'You can save your work as a file, open it again, or erase it, on the My community page. Clearing your browser’s site data also erases it. If several people use the same browser profile, they will see the same work. Your choice of the light or dark theme is kept in the same place.',
       ],
     },
     {
@@ -126,5 +126,4 @@ export const feedback = {
     'Which language would you need it in?',
     'Would you use it again with a community? What would make that easier?',
   ],
-  versionNote: 'Please mention the version shown at the bottom of every page.',
 };

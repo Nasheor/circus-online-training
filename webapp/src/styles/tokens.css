@@ -1,44 +1,147 @@
-/* Design tokens. Colours follow the CIRCUS / WattWorks print material. */
+/* Design tokens, after the site starter kit (webapp/site-starter-kit/design/DESIGN.md), with the CIRCUS colours.
+   Dark is the default; [data-theme='light'] (set by public/theme.js) switches. The light block is repeated in
+   print.css so printouts are always light: change both together. .theme-light scopes the light set to one element
+   (the printed-card look of a WattWorks card on a dark page); .theme-dark keeps one element dark in the light
+   theme (the home hero, where text sits on a photograph). */
 :root {
-  --navy: #17428f;
-  --navy-deep: #0f2c63;
-  --ink: #16233f;
-  --muted: #4d5872;
-  --yellow: #fce817;
-  --lilac: #a3abd6;
-  --lilac-soft: #eef0f9;
-  --teal: #008061;
-  --teal-soft: #e4f3ec;
+  /* type scale. The text sizes grow with the screen from about 760px up, so body text is 18px on a laptop
+     (user, 2026-11-10: the kit's fixed 16px was too small to read on their laptop). Phones keep the kit sizes. */
+  --t-12: clamp(12px, 11px + 0.13vw, 13px);
+  --t-13: clamp(13px, 11.5px + 0.18vw, 14px);
+  --t-14: clamp(14px, 12.5px + 0.25vw, 16px);
+  --t-16: clamp(16px, 13.5px + 0.33vw, 18px);
+  --t-18: clamp(18px, 15px + 0.4vw, 20px);
+  --t-22: clamp(22px, 18.5px + 0.45vw, 25px);
+  --t-28: clamp(28px, 23px + 0.6vw, 32px);
+  --t-40: clamp(30px, 3vw, 40px);
+  --t-big: clamp(36px, 3.6vw, 52px);
+  --t-hero: clamp(40px, 5.2vw, 76px);
+  /* radii */
+  --r-6: 6px;
+  --r-10: 10px;
+  --r-14: 14px;
+  --r-pill: 999px;
+  /* spacing */
+  --s-4: 4px;
+  --s-8: 8px;
+  --s-12: 12px;
+  --s-16: 16px;
+  --s-24: 24px;
+  --s-32: 32px;
+  --s-48: 48px;
+  --s-72: 72px;
+  --bar: 76px;
 
-  --bg: #faf9f5;
-  --surface: #ffffff;
-  --border: #d5d9e6;
-  --border-strong: #8b93ad;
-  --danger: #a51d22;
-  --danger-soft: #fbeaea;
-
-  /* Phase colours. Only red passes contrast with white text, so orange and
-     green carry dark text (--phase-ink) and use the -strong shade for text and
-     borders on white. */
+  /* Phase colours: the WattWorks decks. As fields: red takes white text, orange and green dark text. */
   --p1: #c72126;
-  --p1-strong: #8a222a;
-  --p1-soft: #fbecec;
   --p1-ink: #ffffff;
   --p2: #f47b20;
-  --p2-strong: #9c4420;
-  --p2-soft: #fef1e6;
   --p2-ink: #1d1206;
   --p3: #6bba45;
+  --p3-ink: #0e1f0a;
+  --yellow: #fce817;
+  --brand-navy: #17428f;
+
+  --font: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --text-sm: var(--t-14);
+  --text-base: var(--t-16);
+  --text-lg: var(--t-18);
+  --text-xl: var(--t-22);
+  --text-2xl: var(--t-28);
+  --text-3xl: var(--t-big);
+
+  --space-1: var(--s-4);
+  --space-2: var(--s-8);
+  --space-3: var(--s-12);
+  --space-4: var(--s-16);
+  --space-5: var(--s-24);
+  --space-6: var(--s-32);
+  --space-7: var(--s-48);
+  --space-8: var(--s-72);
+
+  --radius: var(--r-10);
+  --radius-lg: var(--r-14);
+  --shadow: none;
+  --measure: 64ch; /* was 68ch; tightened 2026-11-11 when the fluid type made lines wider */
+  --page: 74rem;
+}
+
+:root,
+:root[data-theme='dark'],
+.theme-dark {
+  /* CIRCUS night: grounds drawn from the brand navy #17428f, not neutral grey */
+  --bg: #0a1428;
+  --surface: #0f1d38;
+  --surface-2: #142545;
+  --inset: #1a2d52;
+  --border: rgb(168 196 255 / 0.12);
+  --line2: rgb(168 196 255 / 0.2);
+  /* form fields and table heads need a visible edge (3:1) */
+  --border-strong: #6b7fa6;
+  --ink: #edf2fb;
+  --muted: #a9b6cf;
+  --faint: #93a1bd;
+  --accent: #9dbcff;
+  --accent-deep: #2f63d0;
+  --accent-bg: rgb(157 188 255 / 0.14);
+  --on-accent: #ffffff;
+  --focus: #c3d5ff;
+  --teal: #4fc495;
+  --teal-soft: #11283a;
+  --danger: #f27a7a;
+  --danger-soft: #2a1a30;
+  --warn: #d9b86f;
+  --warn-soft: #252630;
+
+  --p1-strong: #f4918f;
+  --p1-soft: #2a1a30;
+  --p2-strong: #f7a865;
+  --p2-soft: #2a2331;
+  --p3-strong: #93d470;
+  --p3-soft: #142c2c;
+
+  --series-usage: #edf2fb;
+  --series-electricity: #8b9ee0;
+  --series-heating: #f07272;
+  --series-mobility: #b48ad6;
+  --series-solar: #e0b13a;
+  --series-wind: #5ab3dc;
+  --series-added: #8fd16b;
+  --series-hatch: #0e1f0a;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'],
+.theme-light {
+  --bg: #eef0f3;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --inset: #eceef2;
+  --border: rgb(15 20 30 / 0.1);
+  --line2: rgb(15 20 30 / 0.2);
+  --border-strong: #858c99;
+  --ink: #0e1116;
+  --muted: #4f5663;
+  --faint: #626976;
+  --accent: #17428f;
+  --accent-deep: #17428f;
+  --accent-bg: rgb(23 66 143 / 0.08);
+  --on-accent: #ffffff;
+  --focus: #17428f;
+  --teal: #00704f;
+  --teal-soft: #e4f3ec;
+  --danger: #a51d22;
+  --danger-soft: #fbeaea;
+  --warn: #8a6700;
+  --warn-soft: #fff8d6;
+
+  --p1-strong: #8a222a;
+  --p1-soft: #fbecec;
+  --p2-strong: #9c4420;
+  --p2-soft: #fef1e6;
   --p3-strong: #266d36;
   --p3-soft: #eef7e9;
-  --p3-ink: #0e1f0a;
 
-  --phase: var(--navy);
-  --phase-strong: var(--navy);
-  --phase-soft: var(--lilac-soft);
-  --phase-ink: #ffffff;
-
-  /* Chart series: distinguishable without relying on hue alone (pattern + label in the charts). */
   --series-usage: #16233f;
   --series-electricity: #5b6fb5;
   --series-heating: #c72126;
@@ -46,29 +149,25 @@
   --series-solar: #e0a100;
   --series-wind: #2a8fbd;
   --series-added: #6bba45;
+  --series-hatch: #1d4a12;
+  color-scheme: light;
+}
+.theme-light,
+.theme-dark {
+  color: var(--ink);
+}
 
-  --font: 'Montserrat Variable', 'Montserrat', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-2xl: 1.75rem;
-  --text-3xl: clamp(2rem, 1.4rem + 2.6vw, 3rem);
-
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4.5rem;
-
-  --radius: 0.6rem;
-  --radius-lg: 1rem;
-  --shadow: 0 1px 2px rgb(22 35 63 / 0.06), 0 6px 20px rgb(22 35 63 / 0.07);
-  --measure: 68ch;
-  --page: 74rem;
+/* Names the components were written against, kept so every page follows the theme. */
+:root,
+.theme-light,
+.theme-dark {
+  --navy: var(--accent);
+  --navy-deep: var(--ink);
+  --lilac-soft: var(--accent-bg);
+  --phase: var(--accent-deep);
+  --phase-strong: var(--accent);
+  --phase-soft: var(--accent-bg);
+  --phase-ink: var(--on-accent);
 }
 
 [data-phase='p1'] {
@@ -91,8 +190,8 @@
 }
 [data-phase='intro'],
 [data-phase='boost'] {
-  --phase: var(--navy);
-  --phase-strong: var(--navy);
-  --phase-soft: var(--lilac-soft);
-  --phase-ink: #ffffff;
+  --phase: var(--accent-deep);
+  --phase-strong: var(--accent);
+  --phase-soft: var(--accent-bg);
+  --phase-ink: var(--on-accent);
 }

@@ -84,7 +84,7 @@ function KeepSafe({ locale, s, workspace }: { locale: Locale; s: Strings; worksp
   };
 
   return (
-    <section className="panel stack no-print" aria-labelledby={`${id}-keep`}>
+    <section className="dossier-top stack no-print" aria-labelledby={`${id}-keep`}>
       <h2 id={`${id}-keep`}>{t.keepTitle}</h2>
       <p>{t.keepLead}</p>
       <p className={changedSinceExport(workspace) && !isPristine(workspace) ? 'notice notice--warn' : 'notice notice--ok'}>
@@ -178,9 +178,7 @@ function KeepSafe({ locale, s, workspace }: { locale: Locale; s: Strings; worksp
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="stat">
-      <span className="stat__value" style={{ fontSize: 'var(--text-xl)' }}>
-        {value}
-      </span>
+      <span className="stat__value">{value}</span>
       <span className="stat__label">{label}</span>
     </div>
   );
@@ -224,7 +222,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
       </p>
 
       <div className="split">
-        <section className="panel stack" aria-labelledby={`${id}-details`}>
+        <section className="dossier-top stack" aria-labelledby={`${id}-details`}>
           <h2 id={`${id}-details`}>{t.detailsTitle}</h2>
           <div className="field">
             <label htmlFor={`${id}-name`}>{t.name}</label>
@@ -264,9 +262,9 @@ export default function DossierApp({ locale }: { locale: Locale }) {
 
       <section className="stack" aria-labelledby={`${id}-journey`}>
         <h2 id={`${id}-journey`}>{t.journeyTitle}</h2>
-        <ul className="grid" style={{ listStyle: 'none', padding: 0 }}>
+        <ul className="dossier-journey">
           {PHASES.map((phase) => (
-            <li key={phase.id} className="panel panel--flat panel--phase" data-phase={phase.id} style={{ margin: 0, maxWidth: 'none' }}>
+            <li key={phase.id} className={journey.phases[phase.id].done ? 'dossier-phase is-done' : 'dossier-phase'} data-phase={phase.id}>
               <a href={href(locale, `journey/${phase.slug}`)}>
                 <strong>
                   {fill(s.common.phase, { n: phase.order })} – {s.phases[phase.id].name}
@@ -286,7 +284,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
         )}
       </section>
 
-      <section className="panel stack keep-together" aria-labelledby={`${id}-profile`} data-phase="p1">
+      <section className="dossier__part keep-together" aria-labelledby={`${id}-profile`} data-phase="p1">
         <h2 id={`${id}-profile`}>{t.profileTitle}</h2>
         {results.households === 0 ? (
           <p className="muted">{t.profileEmpty}</p>
@@ -329,7 +327,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
         </p>
       </section>
 
-      <section className="panel stack" aria-labelledby={`${id}-sessions`}>
+      <section className="dossier__part" aria-labelledby={`${id}-sessions`}>
         <h2 id={`${id}-sessions`}>{t.sessionsTitle}</h2>
         {cards.sessions.length === 0 && <p className="muted">{t.sessionsEmpty}</p>}
         {cards.sessions.map((session) => {
@@ -372,7 +370,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
         </p>
       </section>
 
-      <section className="panel stack" aria-labelledby={`${id}-sites`} data-phase="p2">
+      <section className="dossier__part" aria-labelledby={`${id}-sites`} data-phase="p2">
         <h2 id={`${id}-sites`}>{t.sitesTitle}</h2>
         {sites.length === 0 ? (
           <p className="muted">{t.sitesEmpty}</p>
@@ -408,7 +406,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
         </p>
       </section>
 
-      <section className="panel stack" aria-labelledby={`${id}-business`} data-phase="p3">
+      <section className="dossier__part" aria-labelledby={`${id}-business`} data-phase="p3">
         <h2 id={`${id}-business`}>{t.businessTitle}</h2>
         {businessEmpty && <p className="muted">{t.businessEmpty}</p>}
         {activities.length > 0 && (

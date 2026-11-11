@@ -16,7 +16,7 @@ export function BusinessContext({ locale, s, workspace }: { locale: Locale; s: S
   const results = compute(inputs, resolveAssumptions(assumptionOverrides));
 
   return (
-    <aside className="panel panel--soft stack">
+    <aside className="panel biz-context stack">
       <div>
         <h2 style={{ fontSize: 'var(--text-lg)' }}>{t.title}</h2>
         <p className="small muted">{t.lead}</p>

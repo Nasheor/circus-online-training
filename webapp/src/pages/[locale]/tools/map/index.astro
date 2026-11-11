@@ -1,7 +1,7 @@
 ---
 import PageHero from '../../../../components/PageHero.astro';
+import RegionTiles from '../../../../components/RegionTiles.astro';
 import ResourceLink from '../../../../components/ResourceLink.astro';
-import { REGIONS } from '../../../../content/regions';
 import { localePaths } from '../../../../i18n/config';
 import type { Locale } from '../../../../i18n/config';
 import { href } from '../../../../i18n/href';
@@ -15,7 +15,6 @@ export const getStaticPaths = localePaths;
 const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.map;
-const regionText = (id: string) => t.regions[id as keyof typeof t.regions];
 ---
 
 <Base locale={locale} title={t.title} section="tools" phase="p2" path="tools/map">
@@ -30,62 +29,95 @@ const regionText = (id: string) => t.regions[id as keyof typeof t.regions];
       { label: s.nav.tools, href: href(locale, 'tools') },
       { label: t.title },
     ]}
-  />
+  >
+    <div class="cluster">
+      <a class="btn btn--accent" href="#regions">{t.chooseTitle}</a>
+      <a class="btn" href={href(locale, 'learn/map')}>{s.toolsPage.learn}</a>
+    </div>
+  </PageHero>
 
-  <section class="section">
-    <div class="container stack-lg">
-      <div class="split split--aside">
-        <div>
-          <h2>{t.what.title}</h2>
-          {t.what.text.map((paragraph) => <p>{paragraph}</p>)}
-          <ul>
-            <li><a href={href(locale, 'learn/map')}>{s.toolsPage.learn}</a></li>
-            <li><ResourceLink locale={locale} id="manual-gis-tool" label={s.library.items['manual-gis-tool']} /></li>
-          </ul>
-        </div>
-        <p class="notice">{t.scope}</p>
-      </div>
-
+  <!-- What the maps show, with the scope as a pull line -->
+  <section class="section" aria-labelledby="what-title">
+    <div class="container intro">
       <div>
-        <h2>{t.chooseTitle}</h2>
-        <ul class="grid region-list">
-          {
-            REGIONS.map((region) => (
-              <li>
-                <a class="panel panel--phase" href={href(locale, `tools/map/${region.id}`)}>
-                  <h3>{regionText(region.id).name}</h3>
-                  <p>{regionText(region.id).area}</p>
-                  <p class="small muted">{t.openRegion}</p>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+        <h2 id="what-title">{t.what.title}</h2>
+        {t.what.text.map((paragraph, index) => <p class:list={[index === 0 && 'intro__first']}>{paragraph}</p>)}
+        <p><ResourceLink locale={locale} id="manual-gis-tool" label={s.library.items['manual-gis-tool']} /></p>
       </div>
+      <p class="intro__scope">{t.scope}</p>
+    </div>
+  </section>
 
-      <div class="panel panel--soft">
-        <h2>{t.elsewhere.title}</h2>
+  <section class="section band" id="regions" aria-labelledby="regions-title">
+    <div class="container">
+      <h2 id="regions-title">{t.chooseTitle}</h2>
+      <div data-rise>
+        <RegionTiles locale={locale} />
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="elsewhere-title">
+    <div class="container elsewhere">
+      <h2 id="elsewhere-title">{t.elsewhere.title}</h2>
+      <div>
         {t.elsewhere.text.map((paragraph) => <p>{paragraph}</p>)}
         <p><ResourceLink locale={locale} id="circus-website" label={s.footer.projectSite} /></p>
       </div>
+    </div>
+  </section>
 
+  <section class="section sites">
+    <div class="container">
       <SiteNotebook client:only="react" locale={locale} />
     </div>
   </section>
 </Base>
 
 <style>
-  .region-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  /* GIS Tool overview (2026-11-11 page pass). */
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
+    gap: var(--s-72);
+    align-items: start;
   }
-  .region-list li {
-    margin: 0;
-    max-width: none;
-    display: flex;
+  .intro__first {
+    font-size: var(--t-22);
+    line-height: 1.45;
   }
-  .region-list a {
-    flex: 1;
+  .intro__scope {
+    font-size: var(--t-22);
+    font-weight: 500;
+    line-height: 1.45;
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--p2);
+    margin-top: var(--s-48);
+  }
+  .band {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+  }
+  .band h2 {
+    margin-bottom: var(--s-24);
+  }
+  .elsewhere {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--s-48);
+    align-items: start;
+  }
+  .sites {
+    border-top: 1px solid var(--border);
+  }
+  @media (max-width: 62rem) {
+    .intro,
+    .elsewhere {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-24);
+    }
+    .intro__scope {
+      margin-top: 0;
+    }
   }
 </style>

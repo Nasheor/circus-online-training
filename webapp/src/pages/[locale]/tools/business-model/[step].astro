@@ -1,5 +1,6 @@
 ---
 import BusinessSteps from '../../../../components/BusinessSteps.astro';
+import PageHero from '../../../../components/PageHero.astro';
 import { BUSINESS_STEPS } from '../../../../content/business';
 import type { BusinessStep } from '../../../../content/business';
 import { PUBLISHED_LOCALES } from '../../../../i18n/config';
@@ -27,40 +28,47 @@ const next = BUSINESS_STEPS[index + 1];
 
 <Base locale={locale} title={`${t.title}: ${t.steps[step].name}`} section="tools" phase="p3" path={`tools/business-model/${step}`}>
   <ReturnBar client:only="react" locale={locale} toolId="business-model" />
-  <nav class="breadcrumb container" aria-label={s.common.breadcrumb}>
-    <ol>
-      <li><a href={href(locale)}>{s.nav.home}</a></li>
-      <li><a href={href(locale, 'tools')}>{s.nav.tools}</a></li>
-      <li><a href={href(locale, 'tools/business-model')}>{t.title}</a></li>
-      <li><span aria-current="page">{t.steps[step].name}</span></li>
-    </ol>
-  </nav>
+  <!-- the header is not printed: the canvas prints as one landscape sheet, the other steps as their content -->
+  <div class="no-print">
+    <PageHero
+      eyebrow={`${fill(t.step, { n: index + 1 })} · ${t.steps[step].name}`}
+      title={page.title}
+      lead={page.lead}
+      breadcrumbLabel={s.common.breadcrumb}
+      crumbs={[
+        { label: s.nav.home, href: href(locale) },
+        { label: s.nav.tools, href: href(locale, 'tools') },
+        { label: t.title, href: href(locale, 'tools/business-model') },
+        { label: t.steps[step].name },
+      ]}
+    >
+      <BusinessSteps locale={locale} current={step} />
+    </PageHero>
+  </div>
 
-  <div class="container section--tight stack-lg">
-    <BusinessSteps locale={locale} current={step} />
-    <header class="no-print">
-      <p class="eyebrow">{fill(t.step, { n: index + 1 })} · {t.steps[step].name}</p>
-      <h1>{page.title}</h1>
-      <p class="lead">{page.lead}</p>
-    </header>
-
+  <div class="container section--tight step-body stack-lg">
     <BusinessStepApp client:only="react" locale={locale} step={step} />
     <noscript><p class="notice notice--warn">{s.site.noscript}</p></noscript>
 
     <nav class="step-nav no-print" aria-label={t.stepsLabel}>
       {
         previous ? (
-          <a class="btn" href={href(locale, `tools/business-model/${previous}`)}>
-            ← {fill(t.previousStep, { name: t.steps[previous].name })}
+          <a class="step-nav__link" href={href(locale, `tools/business-model/${previous}`)}>
+            <span class="step-nav__dir">← {fill(t.step, { n: index })}</span>
+            <span class="step-nav__name">{t.steps[previous].name}</span>
           </a>
         ) : (
-          <a class="btn" href={href(locale, 'tools/business-model')}>← {t.title}</a>
+          <a class="step-nav__link" href={href(locale, 'tools/business-model')}>
+            <span class="step-nav__dir">←</span>
+            <span class="step-nav__name">{t.title}</span>
+          </a>
         )
       }
       {
         next && (
-          <a class="btn btn--primary" href={href(locale, `tools/business-model/${next}`)}>
-            {fill(t.nextStep, { name: t.steps[next].name })} →
+          <a class="step-nav__link step-nav__link--next" href={href(locale, `tools/business-model/${next}`)}>
+            <span class="step-nav__dir">{fill(t.step, { n: index + 2 })} →</span>
+            <span class="step-nav__name">{t.steps[next].name}</span>
           </a>
         )
       }
@@ -69,13 +77,62 @@ const next = BUSINESS_STEPS[index + 1];
 </Base>
 
 <style>
-  h1 {
-    font-size: var(--text-2xl);
+  .step-body {
+    padding-top: var(--s-48);
   }
+  /* previous / next step: large links, next in the phase colour */
   .step-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-24);
+    margin-top: var(--s-48);
+  }
+  .step-nav__link {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-3);
+    flex-direction: column;
+    gap: var(--s-4);
+    padding: var(--s-24) var(--s-32);
+    border: 1px solid var(--border);
+    border-radius: var(--r-14);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+  }
+  .step-nav__link:hover {
+    transform: translateY(-3px);
+    border-color: var(--phase);
+  }
+  .step-nav__link--next {
+    grid-column: 2;
+    text-align: right;
+    background: var(--phase);
+    border-color: var(--phase);
+    color: var(--phase-ink);
+    --focus: var(--phase-ink);
+  }
+  .step-nav__dir {
+    font-size: var(--t-14);
+    font-weight: 700;
+  }
+  .step-nav__name {
+    font-size: var(--t-22);
+    font-weight: 700;
+  }
+  @media (max-width: 40rem) {
+    .step-nav {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .step-nav__link--next {
+      grid-column: 1;
+      text-align: left;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .step-nav__link {
+      transition: none;
+    }
+    .step-nav__link:hover {
+      transform: none;
+    }
   }
 </style>

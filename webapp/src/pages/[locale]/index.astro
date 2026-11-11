@@ -1,10 +1,12 @@
 ---
-import Bolt from '../../components/Bolt.astro';
-import PhaseCards from '../../components/PhaseCards.astro';
-import ToolCards from '../../components/ToolCards.astro';
+import CardFace from '../../components/CardFace.astro';
+import EnergyVillage from '../../components/EnergyVillage.astro';
+import { PHOTOS } from '../../content/credits';
+import { CARDS, PHASES, TOOL_PATHS, cardsOfDeck } from '../../content/structure';
 import { localePaths } from '../../i18n/config';
 import type { Locale } from '../../i18n/config';
-import { href } from '../../i18n/href';
+import { fill } from '../../i18n/format';
+import { asset, href } from '../../i18n/href';
 import { getStrings } from '../../i18n/strings';
 import Base from '../../layouts/Base.astro';
 import Resume from '../../tools/home/Resume';
@@ -15,118 +17,729 @@ export const getStaticPaths = localePaths;
 const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.home;
+const card = (id: string) => CARDS.find((item) => item.id === id)!;
+
+// The hero (user request 2026-11-10): a community energy photograph and the animated energy village.
+const photo = PHOTOS.heroHepburn;
+const showcase = [
+  { id: 'cards', path: 'tools/cards/session' },
+  ...PHASES.map((phase) => ({ id: phase.toolId, path: TOOL_PATHS[phase.toolId] })),
+] as const;
 ---
 
 <Base locale={locale} title={t.title} section="home">
-  <section class="hero home-hero">
-    <Bolt />
-    <div class="container stack">
-      <p class="eyebrow">{t.eyebrow}</p>
-      <h1>{t.title}</h1>
-      <p class="lead">{t.lead}</p>
-      <div class="cluster">
-        <a class="btn btn--accent" href="#where">{t.ctaStart}</a>
-        <a class="btn" href={href(locale, 'journey')}>{t.ctaJourney}</a>
+  <div class="home">
+    <section class="screen hero-home theme-dark">
+      <div class="hero-home__photo">
+        <img
+          src={asset(photo.file)}
+          alt={t.photo.alt}
+          width={photo.width}
+          height={photo.height}
+          fetchpriority="high"
+          decoding="async"
+        />
+        <p class="hero-home__credit">
+          <a href={photo.source} rel="noopener">{fill(t.photo.credit, { author: photo.author, holder: photo.holder })}</a>,
+          <a href={photo.licenceUrl} rel="license noopener">{photo.licence}</a>
+        </p>
       </div>
-    </div>
-  </section>
-
-  <Resume client:only="react" locale={locale} />
-
-  <section class="section">
-    <div class="container stack-lg">
-      <div>
-        <h2>{t.how.title}</h2>
-        <p class="lead">{t.how.lead}</p>
+      <div class="wrap hero-home__grid">
+        <h1 class="hero-home__h">
+          <span class="ln">{t.headline[0]}</span>
+          <span class="ln ln--sweep"><span>{t.headline[1]}</span></span>
+        </h1>
+        <div class="hero-home__body">
+          <p class="hero-home__lead">{t.lead}</p>
+          <div class="cluster">
+            <a class="btn btn--primary" href="#where">{t.ctaStart}</a>
+            <a class="btn" href="#phase-1">{t.ctaJourney}</a>
+          </div>
+        </div>
       </div>
-      <PhaseCards locale={locale} />
-    </div>
-  </section>
+      <EnergyVillage class="hero-home__village" />
+    </section>
 
-  <section class="section band" id="where">
-    <div class="container stack-lg">
-      <div>
-        <h2>{s.selfCheck.title}</h2>
-        <p class="lead">{s.selfCheck.lead}</p>
+    <Resume client:only="react" locale={locale} />
+
+    <section class="rhythm">
+      <div class="wrap rhythm__grid" data-rise>
+        <div>
+          <h2>{t.how.title}</h2>
+          <p class="rhythm__lead">{t.how.lead}</p>
+        </div>
+        <ol class="rhythm__list">
+          {
+            s.journey.rhythm.map((step) => (
+              <li>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </li>
+            ))
+          }
+        </ol>
       </div>
-      <SelfCheck client:only="react" locale={locale} />
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <div class="container stack-lg">
-      <h2>{t.different.title}</h2>
-      <div class="grid">
-        {
-          t.different.items.map((item) => (
-            <div class="panel panel--flat">
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
+    {
+      PHASES.map((phase) => (
+        <section class="screen chapter" data-phase={phase.id} id={`phase-${phase.order}`}>
+          <div class="wrap chapter__grid">
+            <div class="chapter__text" data-rise>
+              <h2>{s.phases[phase.id].name}</h2>
+              <p class="chapter__meta">
+                {fill(t.chapter.meta, {
+                  n: phase.order,
+                  cards: fill(s.common.cards, { n: cardsOfDeck(phase.id).length }),
+                  tool: s.tools[phase.toolId].name,
+                })}
+              </p>
+              <p class="chapter__audience">{s.phases[phase.id].audience}</p>
+              <p>{s.journey.phases[phase.id].goal[0]}</p>
+              <div class="cluster">
+                <a class="btn chapter__btn" href={href(locale, 'tools/cards/session', `?deck=${phase.id}`)}>
+                  {s.journey.startSession}
+                </a>
+                <a class="chapter__link" href={href(locale, `journey/${phase.slug}`)}>
+                  {fill(t.chapter.more, { n: phase.order })}
+                </a>
+              </div>
             </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section band">
-    <div class="container stack-lg">
-      <h2>{t.toolsTitle}</h2>
-      <ToolCards locale={locale} />
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container split">
-      <div class="stack">
-        <h2>{t.audience.title}</h2>
-        {
-          t.audience.items.map((item) => (
-            <div>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
+            <div class="chapter__card theme-light">
+              <CardFace locale={locale} card={card(phase.toolCardId)} />
             </div>
-          ))
-        }
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="screen check" id="where">
+      <div class="wrap">
+        <div class="check__head" data-rise>
+          <h2>{s.selfCheck.title}</h2>
+          <p class="check__lead">{s.selfCheck.lead}</p>
+        </div>
+        <SelfCheck client:only="react" locale={locale} />
       </div>
-      <figure class="panel panel--soft definition">
-        <h2>{t.definition.title}</h2>
-        <blockquote>{t.definition.quote}</blockquote>
-        <figcaption class="small muted">{t.definition.source}</figcaption>
-      </figure>
-    </div>
-  </section>
+    </section>
+
+    <section class="screen showcase" id="tools" data-showcase>
+      <div class="wrap showcase__grid">
+        <div class="showcase__index">
+          <h2>{t.toolsTitle}</h2>
+          <ul>
+            {
+              showcase.map((tool, index) => (
+                <li>
+                  <a
+                    class="showcase__name"
+                    href={`#show-${tool.id}`}
+                    data-show={tool.id}
+                    aria-current={index === 0 ? 'true' : undefined}
+                  >
+                    {s.tools[tool.id].name}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div class="showcase__stage">
+          {
+            showcase.map((tool) => (
+              <figure class="showcase__item" id={`show-${tool.id}`} data-item={tool.id}>
+                <div class="showcase__disc">
+                  <img
+                    class="shot shot--dark"
+                    src={asset(`home/${tool.id}-dark.webp`)}
+                    alt={t.showcase.alt[tool.id]}
+                    width="1200"
+                    height="800"
+                    loading="lazy"
+                  />
+                  <img
+                    class="shot shot--light"
+                    src={asset(`home/${tool.id}-light.webp`)}
+                    alt={t.showcase.alt[tool.id]}
+                    width="1200"
+                    height="800"
+                    loading="lazy"
+                  />
+                </div>
+                <figcaption>
+                  <strong>{s.tools[tool.id].number}</strong>
+                  <span>{s.tools[tool.id].summary}</span>
+                  <a href={href(locale, tool.path)}>{fill(t.showcase.open, { tool: s.tools[tool.id].name })}</a>
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="made">
+      <div class="wrap made__grid" data-rise>
+        <h2>{t.different.title}</h2>
+        <ul class="made__list">
+          {
+            t.different.items.map((item) => (
+              <li>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="who">
+      <div class="wrap who__grid">
+        <div class="who__audience" data-rise>
+          <h2>{t.audience.title}</h2>
+          {
+            t.audience.items.map((item) => (
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </div>
+            ))
+          }
+        </div>
+        <figure class="who__definition" data-rise>
+          <h2 class="who__definition-title">{t.definition.title}</h2>
+          <blockquote>{t.definition.quote}</blockquote>
+          <figcaption>{t.definition.source}</figcaption>
+        </figure>
+      </div>
+    </section>
+  </div>
 </Base>
 
+<script>
+  // The tools index: picking a name shows that tool. Without JavaScript every tool is shown in turn.
+  const root = document.querySelector<HTMLElement>('[data-showcase]');
+  if (root) {
+    const names = [...root.querySelectorAll<HTMLAnchorElement>('[data-show]')];
+    const items = [...root.querySelectorAll<HTMLElement>('[data-item]')];
+    const show = (id: string) => {
+      names.forEach((name) =>
+        name.dataset.show === id ? name.setAttribute('aria-current', 'true') : name.removeAttribute('aria-current'),
+      );
+      items.forEach((item) => (item.hidden = item.dataset.item !== id));
+    };
+    root.classList.add('is-index');
+    show(names[0]?.dataset.show ?? '');
+    names.forEach((name) =>
+      name.addEventListener('click', (event) => {
+        event.preventDefault();
+        show(name.dataset.show ?? '');
+      }),
+    );
+  }
+</script>
+
 <style>
-  .home-hero {
-    background: var(--navy);
-    color: #fff;
+  /* Home page (site-design brief 2026-10-18): the kit's column, one section per screen, and the three
+     WattWorks deck colours as full-bleed chapters. */
+  .wrap {
+    width: 80%;
+    margin-inline: auto;
   }
-  .home-hero .hero__bolt {
-    color: var(--yellow);
-    opacity: 0.22;
+  @media (max-width: 1100px) {
+    .wrap {
+      width: 100%;
+      padding-inline: var(--s-32);
+    }
   }
-  .home-hero .btn:not(.btn--accent) {
-    background: transparent;
-    border-color: #fff;
-    color: #fff;
+  @media (max-width: 600px) {
+    .wrap {
+      padding-inline: var(--s-16);
+    }
   }
-  .home-hero .btn:not(.btn--accent):hover {
-    background: rgb(255 255 255 / 0.14);
+  .screen {
+    min-height: calc(100svh - var(--bar));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: var(--s-72) var(--s-48);
+    scroll-margin-top: var(--bar);
+    position: relative;
+    overflow: hidden;
   }
-  .band {
-    background: var(--lilac-soft);
-  }
-  .definition blockquote {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-lg);
+  .home h2 {
+    font-size: var(--t-40);
     font-weight: 600;
-    color: var(--navy-deep);
-    border-left: 5px solid var(--teal);
-    padding-left: var(--space-4);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
-  .definition {
+
+  /* Hero (2026-11-10): a community energy photograph on the right, fading into the night ground behind the
+     text, and the animated energy village along the bottom (it replaces the card fan). The hero stays dark in
+     the light theme (.theme-dark): its text sits on the photograph. */
+  .hero-home {
+    /* the village scales with the page width (its canvas is 1440 × 170), never below 120px */
+    --village: max(120px, 11.8vw);
+    background: var(--bg);
+    padding-bottom: calc(var(--village) + var(--s-24));
+  }
+  .hero-home__photo {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: min(64%, calc((100svh - var(--bar)) * 0.95));
+  }
+  .hero-home__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 78%;
+  }
+  .hero-home__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, var(--bg) 0%, rgb(10 20 40 / 0.72) 32%, rgb(10 20 40 / 0) 62%),
+      linear-gradient(0deg, var(--bg) 0%, rgb(10 20 40 / 0) 24%);
+  }
+  .hero-home__grid {
+    position: relative;
+    z-index: 1;
+  }
+  .hero-home__h {
+    font-size: var(--t-hero);
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
     margin: 0;
+    max-width: 13em;
+    text-shadow: 0 2px 24px rgb(10 20 40 / 0.6);
+  }
+  .ln {
+    display: block;
+  }
+  .ln--sweep {
+    color: var(--accent);
+  }
+  .ln--sweep > span {
+    display: inline-block;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ln--sweep > span {
+      animation: home-sweep 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 0.25s both;
+    }
+  }
+  @keyframes home-sweep {
+    from {
+      clip-path: inset(0 100% 0 0);
+      transform: translateX(-24px);
+    }
+    to {
+      clip-path: inset(0 -2% 0 0);
+      transform: none;
+    }
+  }
+  .hero-home__body {
+    margin-top: var(--s-32);
+    max-width: min(36rem, 52vw);
+  }
+  .hero-home__lead {
+    font-size: var(--t-18);
+    line-height: 1.6;
+    margin-bottom: var(--s-24);
+    text-shadow: 0 1px 12px rgb(10 20 40 / 0.8);
+  }
+  .hero-home :global(.hero-home__village) {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--village);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero-home__credit {
+    position: absolute;
+    right: var(--s-16);
+    top: var(--s-8);
+    z-index: 2;
+    margin: 0;
+    max-width: calc(100% - 2 * var(--s-16));
+    padding: 2px var(--s-8);
+    border-radius: var(--r-6);
+    background: rgb(10 20 40 / 0.6);
+    font-size: var(--t-12);
+    color: var(--muted);
+    text-align: right;
+  }
+  .hero-home__credit a {
+    color: inherit;
+    text-decoration-color: transparent;
+  }
+  .hero-home__credit a:hover,
+  .hero-home__credit a:focus-visible {
+    text-decoration-color: currentColor;
+  }
+  @media (max-width: 900px) {
+    .hero-home {
+      justify-content: flex-start;
+      padding-bottom: 0;
+    }
+    .hero-home__photo {
+      position: relative;
+      order: 2;
+      width: 100%;
+      height: clamp(18rem, 52vh, 28rem);
+      margin-top: var(--s-32);
+    }
+    .hero-home__photo::after {
+      background:
+        linear-gradient(180deg, var(--bg) 0%, rgb(10 20 40 / 0) 22%),
+        linear-gradient(0deg, var(--bg) 0%, rgb(10 20 40 / 0) 30%);
+    }
+  }
+
+  /* How the method works */
+  .rhythm {
+    padding-block: var(--s-72);
+    background: var(--surface);
+  }
+  .rhythm__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--s-48);
+    align-items: start;
+  }
+  .rhythm__lead {
+    font-size: var(--t-18);
+    margin: var(--s-16) 0 0;
+  }
+  .rhythm__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: rhythm;
+  }
+  .rhythm__list li {
+    counter-increment: rhythm;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: var(--s-16);
+    padding-block: var(--s-24);
+    margin: 0;
+    max-width: none;
+  }
+  .rhythm__list li + li {
+    border-top: 1px solid var(--border);
+  }
+  .rhythm__list li::before {
+    content: counter(rhythm);
+    grid-row: span 2;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 650;
+    color: var(--on-accent);
+    background: var(--accent-deep);
+  }
+  .rhythm__list li:nth-child(2)::before {
+    background: var(--p2);
+    color: var(--p2-ink);
+  }
+  .rhythm__list li:nth-child(3)::before {
+    background: var(--p3);
+    color: var(--p3-ink);
+  }
+  .rhythm__list h3 {
+    margin: 0.35rem 0 var(--s-4);
+  }
+  .rhythm__list p {
+    margin: 0;
+  }
+
+  /* Phase chapters: the deck colour floor to ceiling */
+  .chapter {
+    background: var(--phase);
+    color: var(--phase-ink);
+    --focus: var(--phase-ink);
+  }
+  .chapter h2 {
+    color: inherit;
+    font-size: clamp(36px, 5vw, 76px);
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    max-width: 16ch;
+  }
+  .chapter__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: var(--s-48);
+    align-items: center;
+  }
+  .chapter__meta {
+    font-size: var(--t-18);
+    font-weight: 600;
+    margin: var(--s-16) 0 var(--s-32);
+  }
+  .chapter__audience {
+    font-size: var(--t-22);
+    font-weight: 500;
+    line-height: 1.4;
+    max-width: 40ch;
+  }
+  .chapter__text p {
+    max-width: 60ch;
+  }
+  .chapter__btn {
+    background: var(--phase-ink);
+    border-color: var(--phase-ink);
+    color: var(--phase);
+  }
+  .chapter__btn:hover {
+    background: var(--phase-ink);
+    color: var(--phase);
+    transform: translateY(-2px);
+  }
+  .chapter__link {
+    color: inherit;
+    font-weight: 600;
+    padding-inline: var(--s-8);
+  }
+  .chapter__card :global(.wcard) {
+    padding: var(--s-32);
+    min-height: 22rem;
+    border-width: 0.8rem;
+    transform: rotate(3deg);
+    transition: transform 0.3s ease;
+  }
+  .chapter__card :global(.wcard:hover) {
+    transform: rotate(0deg) translateY(-4px);
+  }
+  .chapter__card :global(.wcard__lines) {
+    font-size: var(--t-22);
+  }
+  .chapter[data-phase='p2'] .chapter__card :global(.wcard) {
+    transform: rotate(-3deg);
+  }
+  @media (max-width: 900px) {
+    .chapter__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .chapter__card :global(.wcard) {
+      min-height: 0;
+      max-width: 26rem;
+    }
+  }
+
+  /* Self-check */
+  .check__head {
+    margin-bottom: var(--s-32);
+  }
+  .check__lead {
+    font-size: var(--t-18);
+    margin-top: var(--s-12);
+    max-width: 60ch;
+  }
+
+  /* Tools index: one name chosen, its screen on a disc */
+  .showcase {
+    background: var(--surface);
+  }
+  .showcase__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--s-48);
+    align-items: center;
+  }
+  .showcase__index h2 {
+    color: var(--muted);
+    margin-bottom: var(--s-16);
+  }
+  .showcase__index ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .showcase__index li {
+    margin: 0;
+  }
+  .showcase__name {
+    display: inline-block;
+    font-size: var(--t-40);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .showcase__name:hover {
+    color: var(--ink);
+    transform: translateX(6px);
+  }
+  .showcase__name[aria-current] {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 8px;
+  }
+  .showcase__item {
+    margin: 0;
+  }
+  .showcase__item + .showcase__item {
+    margin-top: var(--s-48);
+  }
+  .is-index .showcase__item + .showcase__item {
+    margin-top: 0;
+  }
+  .showcase__disc {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    display: grid;
+    place-items: center;
+  }
+  .showcase__disc::before {
+    content: '';
+    position: absolute;
+    height: 108%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--accent-deep);
+  }
+  .showcase__item[data-item='energy-profile'] .showcase__disc::before {
+    background: var(--p1);
+  }
+  .showcase__item[data-item='map'] .showcase__disc::before {
+    background: var(--p2);
+  }
+  .showcase__item[data-item='business-model'] .showcase__disc::before {
+    background: var(--p3);
+  }
+  .shot {
+    position: relative;
+    width: 88%;
+    height: auto;
+    border-radius: var(--r-10);
+    border: 1px solid var(--line2);
+  }
+  .shot--light,
+  :global([data-theme='light']) .shot--dark {
+    display: none;
+  }
+  :global([data-theme='light']) .shot--light {
+    display: block;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .is-index .showcase__item:not([hidden]) .shot {
+      animation: home-shutter 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    }
+  }
+  @keyframes home-shutter {
+    from {
+      clip-path: inset(0 0 0 100%);
+      scale: 1.06;
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+      scale: 1;
+    }
+  }
+  .showcase__item figcaption {
+    display: grid;
+    gap: var(--s-4);
+    margin-top: var(--s-32);
+    max-width: 52ch;
+  }
+  .showcase__item figcaption strong {
+    font-weight: 600;
+  }
+  .showcase__item figcaption a {
+    font-weight: 600;
+    margin-top: var(--s-8);
+  }
+  @media (max-width: 900px) {
+    .showcase__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .showcase__name {
+      font-size: var(--t-28);
+    }
+  }
+
+  /* Made to be used */
+  .made {
+    padding-block: var(--s-72);
+  }
+  .made__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--s-48);
+  }
+  .made__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .made__list li {
+    margin: 0;
+    max-width: none;
+    padding-block: var(--s-24);
+  }
+  .made__list li:first-child {
+    padding-top: 0;
+  }
+  .made__list li + li {
+    border-top: 1px solid var(--border);
+  }
+  .made__list p {
+    margin: 0;
+  }
+
+  /* Who it is for */
+  .who {
+    padding-block: var(--s-72) var(--s-72);
+    background: var(--surface);
+  }
+  .who__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s-48);
+  }
+  .who__audience h3 {
+    margin-top: var(--s-24);
+  }
+  .who__definition {
+    margin: 0;
+    padding-left: var(--s-32);
+    border-left: 4px solid var(--p3);
+  }
+  .home .who__definition-title {
+    font-size: var(--t-22);
+    color: var(--muted);
+  }
+  .who__definition blockquote {
+    margin: var(--s-16) 0;
+    font-size: clamp(22px, 2.2vw, 32px);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .who__definition figcaption {
+    color: var(--muted);
+    font-size: var(--t-14);
+  }
+  @media (max-width: 900px) {
+    .rhythm__grid,
+    .made__grid,
+    .who__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+    .who__definition {
+      padding-left: var(--s-24);
+    }
   }
 </style>

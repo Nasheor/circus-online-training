@@ -77,8 +77,8 @@ export function Scenarios({ locale, s, workspace, results }: Props) {
   };
 
   return (
-    <section className="panel stack no-print" aria-labelledby={`${id}-title`}>
-      <h3 id={`${id}-title`}>{t.title}</h3>
+    <section className="profile__step stack no-print" aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`}>{t.title}</h2>
       <p>{t.lead}</p>
       <form
         className="stack"
@@ -134,7 +134,7 @@ export function Scenarios({ locale, s, workspace, results }: Props) {
         </p>
       </form>
 
-      <h4>{t.list}</h4>
+      <h3>{t.list}</h3>
       {scenarios.length === 0 ? (
         <p className="muted">{t.none}</p>
       ) : (

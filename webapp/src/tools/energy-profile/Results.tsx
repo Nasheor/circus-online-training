@@ -46,9 +46,11 @@ interface Props {
   locale: Locale;
   s: Strings;
   results: ProfileResults;
+  /** 'summary': the headline figures, kept in view beside the inputs. 'detail': chart, month matching, keep. */
+  part: 'summary' | 'detail';
 }
 
-export function Results({ locale, s, results }: Props) {
+export function Results({ locale, s, results, part }: Props) {
   const t = s.profile;
   const id = useId();
   const [view, setView] = useState<ChartView>('goals');
@@ -56,17 +58,18 @@ export function Results({ locale, s, results }: Props) {
   const { annual } = results;
 
   useEffect(() => {
+    if (part !== 'detail') return;
     document.body.classList.toggle('present-large', large);
     return () => document.body.classList.remove('present-large');
-  }, [large]);
+  }, [large, part]);
 
   if (results.households === 0) {
-    return (
-      <div className="panel panel--soft" data-phase="p1">
-        <h3>{t.results.title}</h3>
+    return part === 'summary' ? (
+      <div className="panel profile__card" data-phase="p1">
+        <h2>{t.results.title}</h2>
         <p>{t.results.empty}</p>
       </div>
-    );
+    ) : null;
   }
 
   const parts = [
@@ -90,10 +93,10 @@ export function Results({ locale, s, results }: Props) {
     URL.revokeObjectURL(link.href);
   };
 
-  return (
-    <div className="stack-lg">
-      <section className="panel stack" aria-labelledby={`${id}-title`}>
-        <h3 id={`${id}-title`}>{t.results.title}</h3>
+  if (part === 'summary') {
+    return (
+      <section className="panel profile__card profile__headline stack" aria-labelledby={`${id}-title`}>
+        <h2 id={`${id}-title`}>{t.results.title}</h2>
         {/* Announces the headline figures once typing pauses. */}
         <div className="stats" aria-live="polite" aria-atomic="true">
           <Stat value={formatMwh(locale, annual.usageTarget)} unit={s.common.unit.mwh} label={t.results.usageGoal} note={t.results.perYear} />
@@ -104,7 +107,11 @@ export function Results({ locale, s, results }: Props) {
             note={t.results.coverageNote}
           />
         </div>
-        <div className="stats">
+        {/* how much of the year's use local production covers, as a bar (the figure itself is in the stat above) */}
+        <div className="coverage-meter print-colour" aria-hidden="true">
+          <span style={{ width: `${Math.min(1, results.coverage ?? 0) * 100}%` }} />
+        </div>
+        <div className="stats stats--minor">
           <Stat value={formatMwh(locale, annual.usage)} unit={s.common.unit.mwh} label={t.results.usageToday} note={t.results.perYear} />
           <Stat value={formatNumber(locale, results.households)} label={t.results.homes} />
           <Stat
@@ -137,9 +144,14 @@ export function Results({ locale, s, results }: Props) {
           </p>
         </div>
       </section>
+    );
+  }
 
-      <section className="panel stack" aria-labelledby={`${id}-chart`}>
-        <h3 id={`${id}-chart`}>{t.chart.title}</h3>
+  // 'detail': a full-width band below the inputs, the chart beside the month matching and the keep buttons
+  return (
+    <div className="profile__detail">
+      <section className="panel profile__card stack" aria-labelledby={`${id}-chart`}>
+        <h2 id={`${id}-chart`}>{t.chart.title}</h2>
         <fieldset className="segmented no-print">
           <legend className="visually-hidden">{t.chart.viewLabel}</legend>
           {VIEWS.map((item) => (
@@ -161,28 +173,30 @@ export function Results({ locale, s, results }: Props) {
         </details>
       </section>
 
-      <section className="panel stack" aria-labelledby={`${id}-match`}>
-        <h3 id={`${id}-match`}>{t.match.title}</h3>
-        <p>{t.match.lead}</p>
-        <Match title={t.match.lowest} match={results.summerMatch} locale={locale} s={s} />
-        <Match title={t.match.highest} match={results.winterMatch} locale={locale} s={s} />
-        <p className="small muted">{t.match.explain}</p>
-      </section>
+      <div className="stack-lg">
+        <section className="panel profile__card stack" aria-labelledby={`${id}-match`}>
+          <h2 id={`${id}-match`}>{t.match.title}</h2>
+          <p>{t.match.lead}</p>
+          <Match title={t.match.lowest} match={results.summerMatch} locale={locale} s={s} />
+          <Match title={t.match.highest} match={results.winterMatch} locale={locale} s={s} />
+          <p className="small muted">{t.match.explain}</p>
+        </section>
 
-      <section className="panel panel--flat stack no-print" aria-labelledby={`${id}-keep`}>
-        <h3 id={`${id}-keep`}>{t.keep.title}</h3>
-        <div className="cluster">
-          <button type="button" className="btn" onClick={() => window.print()}>
-            {t.keep.print}
-          </button>
-          <button type="button" className="btn" onClick={downloadCsv}>
-            {t.keep.csv}
-          </button>
-          <button type="button" className="btn" aria-pressed={large} onClick={() => setLarge(!large)}>
-            {large ? t.keep.presentOff : t.keep.presentOn}
-          </button>
-        </div>
-      </section>
+        <section className="profile__keep stack no-print" aria-labelledby={`${id}-keep`}>
+          <h2 id={`${id}-keep`}>{t.keep.title}</h2>
+          <div className="cluster">
+            <button type="button" className="btn" onClick={() => window.print()}>
+              {t.keep.print}
+            </button>
+            <button type="button" className="btn" onClick={downloadCsv}>
+              {t.keep.csv}
+            </button>
+            <button type="button" className="btn" aria-pressed={large} onClick={() => setLarge(!large)}>
+              {large ? t.keep.presentOff : t.keep.presentOn}
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

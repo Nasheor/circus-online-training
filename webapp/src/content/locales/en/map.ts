@@ -13,6 +13,9 @@ export const map = {
   },
   chooseTitle: 'Choose a region',
   openRegion: 'Open the guide and map',
+  layerCount: '{n} map layers',
+  layerCountOne: '1 map layer',
+  feedbackTag: 'Feedback layers',
   scope:
     'Maps exist for the six CIRCUS pilot regions. If your community is somewhere else, they still show what this kind of analysis looks like and what questions it raises.',
   elsewhere: {

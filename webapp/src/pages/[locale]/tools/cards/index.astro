@@ -16,10 +16,11 @@ const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.wattworks;
 const printFiles = [
-  { id: 'cards-intro-outro', label: `${s.decks.intro} / ${s.decks.boost}` },
-  { id: 'cards-phase-1-awareness', label: s.decks.p1 },
-  { id: 'cards-phase-2-exploring', label: s.decks.p2 },
-  { id: 'cards-phase-3-collaboration', label: s.decks.p3 },
+  { id: 'cards-intro-outro', label: `${s.decks.intro} / ${s.decks.boost}`, deck: 'intro' },
+  { id: 'cards-phase-1-awareness', label: s.decks.p1, deck: 'p1' },
+  { id: 'cards-phase-2-exploring', label: s.decks.p2, deck: 'p2' },
+  { id: 'cards-phase-3-collaboration', label: s.decks.p3, deck: 'p3' },
+  { id: 'manual-wattworks', label: t.manual, deck: 'intro' },
 ];
 const methodologyCard = (id: string) => CARDS.find((card) => card.methodologyId === id)?.number;
 ---
@@ -42,92 +43,119 @@ const methodologyCard = (id: string) => CARDS.find((card) => card.methodologyId 
     </div>
   </PageHero>
 
-  <section class="section">
-    <div class="container split">
+  <!-- Run a session: the four decks as tiles in their own colour -->
+  <section class="section" aria-labelledby="session-title">
+    <div class="container session-intro">
       <div>
-        <h2>{t.howTitle}</h2>
-        <ol class="steps">
-          {
-            t.how.map((step) => (
-              <li>
-                <strong>{step.title}</strong>
-                <br />
-                {step.text}
-              </li>
-            ))
-          }
-        </ol>
-        <p class="notice">{t.note}</p>
+        <img class="wattworks-logo" src={asset('brand/wattworks.png')} alt={s.site.logoAlt.wattworks} width="740" height="273" />
+        <h2 id="session-title">{t.sessionTitle}</h2>
+        <p class="session-intro__lead">{t.sessionLead}</p>
       </div>
-      <div class="stack-lg">
-        <div class="panel stack">
-          <img class="wattworks-logo" src={asset('brand/wattworks.png')} alt={s.site.logoAlt.wattworks} width="740" height="273" />
-          <h2>{t.sessionTitle}</h2>
-          <p>{t.sessionLead}</p>
-          <ul class="deck-starts">
-            {
-              SESSION_DECKS.map((deck) => (
-                <li data-phase={deck}>
-                  <a class="btn" href={href(locale, 'tools/cards/session', `?deck=${deck}`)}>
-                    <span class="badge badge--solid">{cardsOfDeck(deck).length}</span>
-                    {s.decks[deck]}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </div>
-        <div class="panel panel--flat stack">
-          <h2>{t.printTitle}</h2>
-          <p>{t.printLead}</p>
-          <ul>
-            {printFiles.map((file) => <li><ResourceLink locale={locale} id={file.id} label={file.label} /></li>)}
-            <li><ResourceLink locale={locale} id="manual-wattworks" label={t.manual} /></li>
-          </ul>
-        </div>
-      </div>
+      <ul class="decks" data-rise>
+        {
+          SESSION_DECKS.map((deck) => (
+            <li data-phase={deck}>
+              <a class="deck-tile" href={href(locale, 'tools/cards/session', `?deck=${deck}`)}>
+                <span class="deck-tile__count">{cardsOfDeck(deck).length}</span>
+                <span class="deck-tile__name">{s.decks[deck]}</span>
+                <span class="deck-tile__go">{t.startDeck} →</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 
-  <section class="section band" id="all-cards">
-    <div class="container stack-lg">
-      <div>
-        <h2>{t.browseTitle}</h2>
-        <p class="lead">{t.browseLead}</p>
-        <ul class="tabs">
-          {DECK_IDS.map((deck) => <li><a href={`#deck-${deck}`}>{s.decks[deck]}</a></li>)}
-        </ul>
-      </div>
-      {
-        DECK_IDS.map((deck) => (
-          <section class="stack" id={`deck-${deck}`} data-phase={deck}>
-            <h3 class="deck-title">
-              {s.decks[deck]} <span class="badge">{fill(s.common.cards, { n: cardsOfDeck(deck).length })}</span>
-            </h3>
+  <!-- How to use the cards: six numbered columns -->
+  <section class="section how" aria-labelledby="how-title">
+    <div class="container">
+      <h2 id="how-title">{t.howTitle}</h2>
+      <ol class="how__list">
+        {
+          t.how.map((step) => (
+            <li>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="how__note">{t.note}</p>
+    </div>
+  </section>
+
+  <!-- Print the cards: the files as tiles -->
+  <section class="section section--print" aria-labelledby="print-title">
+    <div class="container">
+      <h2 id="print-title">{t.printTitle}</h2>
+      <p class="lead">{t.printLead}</p>
+      <ul class="files">
+        {
+          printFiles.map((file) => (
+            <li data-phase={file.deck}>
+              <ResourceLink locale={locale} id={file.id} label={file.label} class="file-tile" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- All 69 cards, deck by deck, with a deck bar that stays in view -->
+  <section class="all-cards" id="all-cards" aria-labelledby="all-title">
+    <div class="container">
+      <h2 id="all-title">{t.browseTitle}</h2>
+      <p class="lead">{t.browseLead}</p>
+    </div>
+    <nav class="deck-bar" aria-label={t.browseTitle}>
+      <ul class="container">
+        {
+          DECK_IDS.map((deck) => (
+            <li data-phase={deck}>
+              <a href={`#deck-${deck}`}>
+                <span class="deck-bar__dot" aria-hidden="true" />
+                {s.decks[deck]}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    {
+      DECK_IDS.map((deck) => (
+        <section class="deck" id={`deck-${deck}`} data-phase={deck} aria-labelledby={`deck-title-${deck}`}>
+          <div class="deck__head">
+            <div class="container">
+              <h3 id={`deck-title-${deck}`}>{s.decks[deck]}</h3>
+              <span>{fill(s.common.cards, { n: cardsOfDeck(deck).length })}</span>
+            </div>
+          </div>
+          <div class="container deck__body">
             {groupedCards(deck).map((group) => (
-              <div class="card-grid">
+              <div class="deck-grid">
                 {group.cards.map((card) => (
                   <CardFace locale={locale} card={card} />
                 ))}
               </div>
             ))}
-          </section>
-        ))
-      }
-    </div>
+          </div>
+        </section>
+      ))
+    }
   </section>
 
-  <section class="section" data-phase="p3">
-    <div class="container stack">
-      <h2>{t.methodologiesTitle}</h2>
+  <section class="section" data-phase="p3" aria-labelledby="methods-title">
+    <div class="container">
+      <h2 id="methods-title">{t.methodologiesTitle}</h2>
       <p class="lead">{t.methodologiesLead}</p>
-      <dl class="grid methodologies">
+      <dl class="methods">
         {
           METHODOLOGY_IDS.map((id) => (
-            <div class="panel panel--flat">
+            <div>
               <dt>
-                <strong>{s.methodologies[id]}</strong>{' '}
-                <span class="small muted">{fill(t.methodologyCard, { n: methodologyCard(id) ?? '' })}</span>
+                <span class="methods__card">{fill(t.methodologyCard, { n: methodologyCard(id) ?? '' })}</span>
+                <strong>{s.methodologies[id]}</strong>
               </dt>
               <dd>{t.methodologyDescriptions[id]}</dd>
             </div>
@@ -140,50 +168,307 @@ const methodologyCard = (id: string) => CARDS.find((card) => card.methodologyId 
 </Base>
 
 <style>
-  .band {
-    background: var(--lilac-soft);
+  /* WattWorks cards page (2026-11-10 page pass). */
+
+  /* Run a session */
+  .session-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--s-72);
+    align-items: center;
   }
   .wattworks-logo {
-    width: min(100%, 15rem);
+    width: min(100%, 13rem);
+    border-radius: var(--r-6);
+    margin-bottom: var(--s-24);
   }
-  .deck-starts {
+  .session-intro__lead {
+    font-size: var(--t-18);
+  }
+  .decks {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: var(--space-2);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-16);
   }
-  .deck-starts li {
+  .decks li {
     margin: 0;
     max-width: none;
-  }
-  .deck-starts .btn {
-    width: 100%;
-    justify-content: flex-start;
-    border-radius: var(--radius);
-    border-color: var(--phase-strong);
-    color: var(--ink);
-    text-align: left;
-  }
-  .deck-title {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
   }
-  .card-grid {
+  .deck-tile {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-4);
+    min-height: 12rem;
+    padding: var(--s-24);
+    border-radius: var(--r-14);
+    background: var(--phase);
+    color: var(--phase-ink);
+    text-decoration: none;
+    transition: transform 0.25s ease;
+    --focus: var(--phase-ink);
+  }
+  .deck-tile:hover {
+    transform: translateY(-4px);
+  }
+  .deck-tile__count {
+    font-size: var(--t-big);
+    font-weight: 700;
+    line-height: 1;
+  }
+  .deck-tile__name {
+    font-size: var(--t-18);
+    font-weight: 700;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+  .deck-tile__go {
+    margin-top: auto;
+    padding-top: var(--s-16);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.2em;
+  }
+
+  /* How to use the cards */
+  .how {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+  }
+  .how__list {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-32) 0 0;
     display: grid;
-    gap: var(--space-4);
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-48) var(--s-32);
+    counter-reset: how;
   }
-  .card-grid :global(.wcard--info) {
-    grid-column: 1 / -1;
+  .how__list li {
+    counter-increment: how;
+    margin: 0;
+    max-width: none;
+    border-top: 1px solid var(--border);
+    padding-top: var(--s-16);
   }
-  .methodologies {
+  .how__list li::before {
+    content: counter(how);
+    display: block;
+    font-size: var(--t-40);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: var(--s-12);
+  }
+  .how__list h3 {
+    font-size: var(--t-22);
+    margin-bottom: var(--s-8);
+  }
+  .how__list p {
     margin: 0;
   }
-  .methodologies dd {
-    margin: var(--space-2) 0 0;
+  .how__note {
+    margin: var(--s-48) 0 0;
+    font-size: var(--t-22);
+    font-weight: 500;
+    line-height: 1.4;
+    max-width: 44ch;
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--accent);
+  }
+
+  /* Print the cards */
+  .section--print {
+    padding-bottom: var(--s-72);
+  }
+  .files {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-24) 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--s-16);
+  }
+  .files li {
+    margin: 0;
+    max-width: none;
+    display: flex;
+  }
+  .files :global(.file-tile) {
+    flex: 1;
+    display: block;
+    padding: var(--s-16) var(--s-24) var(--s-16) var(--s-24);
+    border: 1px solid var(--border);
+    border-left: 6px solid var(--phase);
+    border-radius: var(--r-10);
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+  }
+  .files :global(.file-tile:hover) {
+    border-color: var(--phase);
+    text-decoration: underline;
+  }
+
+  /* All cards */
+  .all-cards {
+    padding-top: var(--s-72);
+    border-top: 1px solid var(--border);
+  }
+  .deck-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    border-block: 1px solid var(--border);
+    margin-top: var(--s-24);
+  }
+  @media (min-width: 64rem) {
+    .deck-bar {
+      top: var(--bar);
+    }
+  }
+  .deck-bar ul {
+    list-style: none;
+    padding: var(--s-8) 0;
+    margin-block: 0;
+    display: flex;
+    gap: var(--s-8);
+    overflow-x: auto;
+  }
+  .deck-bar li {
+    margin: 0;
+    flex: none;
+  }
+  /* wide screens: all five decks in view (wrapping if needed); phones scroll the row sideways, like the main nav */
+  @media (min-width: 62rem) {
+    .deck-bar ul {
+      flex-wrap: wrap;
+      overflow-x: visible;
+      gap: var(--s-4) var(--s-8);
+    }
+  }
+  .deck-bar a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-8);
+    min-height: 2.75rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--r-pill);
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .deck-bar a:hover {
+    background: var(--surface);
+  }
+  .deck-bar__dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: var(--phase);
+  }
+  .deck {
+    scroll-margin-top: 3.5rem;
+  }
+  @media (min-width: 64rem) {
+    .deck {
+      scroll-margin-top: calc(var(--bar) + 3.5rem);
+    }
+  }
+  .deck__head {
+    background: var(--phase);
+    color: var(--phase-ink);
+    margin-top: var(--s-48);
+  }
+  .deck__head .container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s-8) var(--s-24);
+    padding-block: var(--s-24);
+  }
+  .deck__head h3 {
+    color: inherit;
+    font-size: var(--t-28);
+    margin: 0;
+  }
+  .deck__head span {
+    font-weight: 600;
+  }
+  .deck__body {
+    padding-top: var(--s-32);
+    display: grid;
+    gap: var(--s-16);
+  }
+  .deck-grid {
+    display: grid;
+    gap: var(--s-16);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .deck-grid :global(.wcard--info) {
+    grid-column: 1 / -1;
+  }
+  /* the long info cards (introduction, packing, the end) read in two columns on wide screens */
+  @media (min-width: 62rem) {
+    .deck-grid :global(.wcard--info .wcard__lines) {
+      columns: 2;
+      column-gap: var(--s-48);
+    }
+    .deck-grid :global(.wcard--info .wcard__lines li) {
+      break-inside: avoid;
+    }
+  }
+
+  /* Methodologies */
+  .methods {
+    margin: var(--s-24) 0 var(--s-32);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: var(--s-24);
+  }
+  .methods > div {
+    border-top: 4px solid var(--phase);
+    padding-top: var(--s-16);
+  }
+  .methods dt strong {
+    display: block;
+    font-size: var(--t-22);
+    margin-top: var(--s-4);
+  }
+  .methods__card {
+    font-size: var(--t-14);
+    font-weight: 600;
+    color: var(--phase-strong);
+  }
+  .methods dd {
+    margin: var(--s-8) 0 0;
+  }
+
+  @media (max-width: 62rem) {
+    .session-intro {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+    .how__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 40rem) {
+    .decks,
+    .how__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .deck-tile {
+      min-height: 0;
+    }
   }
 </style>

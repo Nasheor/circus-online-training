@@ -1,0 +1,78 @@
+---
+import type { Locale } from '../i18n/config';
+import { href } from '../i18n/href';
+import { getStrings } from '../i18n/strings';
+
+interface Props {
+  locale: Locale;
+  /** The page being shown, marked as current. */
+  current: 'about' | 'privacy' | 'accessibility' | 'feedback' | 'differences';
+}
+
+const { locale, current } = Astro.props;
+const s = getStrings(locale);
+const t = s.about;
+const items = [
+  { id: 'about', label: t.title, path: 'about' },
+  { id: 'privacy', label: t.links.privacy, path: 'about/privacy' },
+  { id: 'accessibility', label: t.links.accessibility, path: 'about/accessibility' },
+  { id: 'feedback', label: t.links.feedback, path: 'about/feedback' },
+  { id: 'differences', label: t.differences, path: 'tools/energy-profile/differences' },
+] as const;
+---
+
+<!-- The pages about the site, as one side menu (2026-11-11 page pass); sticky beside the text on wide screens. -->
+<nav class="about-nav no-print" aria-labelledby="about-nav-title">
+  <h2 id="about-nav-title">{s.nav.about}</h2>
+  <ul>
+    {
+      items.map((item) => (
+        <li>
+          <a href={href(locale, item.path)} aria-current={item.id === current ? 'page' : undefined}>
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .about-nav h2 {
+    font-size: var(--t-18);
+    color: var(--muted);
+    padding-top: var(--s-12);
+    border-top: 4px solid var(--accent);
+  }
+  .about-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .about-nav li {
+    margin: 0;
+  }
+  .about-nav a {
+    display: block;
+    padding: var(--s-8) var(--s-12);
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .about-nav a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .about-nav a[aria-current] {
+    background: var(--accent-bg);
+    box-shadow: inset 4px 0 0 var(--accent);
+    color: var(--accent);
+  }
+  @media (min-width: 62rem) {
+    .about-nav {
+      position: sticky;
+      top: calc(var(--bar) + var(--s-24));
+    }
+  }
+</style>

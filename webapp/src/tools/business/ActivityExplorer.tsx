@@ -43,14 +43,14 @@ export function ActivityExplorer({ s, workspace }: { s: Strings; workspace: Work
       {ACTIVITY_GROUPS.map((group) => (
         <section key={group.id} className="activity-group stack" aria-labelledby={`${id}-${group.id}`}>
           <h2 id={`${id}-${group.id}`}>{t.groups[group.id]}</h2>
-          <div className="grid grid--wide">
+          <div className="activity-grid">
             {group.activities.map((activity) => {
               const name = t.activities[activity.id];
               const state = saved[activity.id];
               const resource = activity.resource;
               return (
-                <div key={activity.id} className="panel panel--flat activity">
-                  <h3 style={{ fontSize: 'var(--text-lg)', margin: 0 }}>{name}</h3>
+                <div key={activity.id} className="activity">
+                  <h3>{name}</h3>
                   <fieldset className="segmented">
                     <legend className="visually-hidden">{fill(t.interestLabel, { activity: name })}</legend>
                     <label>

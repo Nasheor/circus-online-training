@@ -13,6 +13,7 @@ export const getStaticPaths = localePaths;
 const locale = Astro.params.locale as Locale;
 const s = getStrings(locale);
 const t = s.learn;
+const [forWhom, certificate] = t.intro;
 ---
 
 <Base locale={locale} title={t.title} section="learn" path="learn">
@@ -21,19 +22,38 @@ const t = s.learn;
     lead={t.lead}
     breadcrumbLabel={s.common.breadcrumb}
     crumbs={[{ label: s.nav.home, href: href(locale) }, { label: s.nav.learn }]}
-  />
+  >
+    <div>
+      <a class="btn btn--accent" href={href(locale, `learn/${LESSONS[0].id}`)}>
+        {fill(t.lessonLabel, { n: 1 })}: {t.lessons[LESSONS[0].id].title}
+      </a>
+    </div>
+  </PageHero>
+
   <section class="section">
-    <div class="container stack-lg">
-      <div>{t.intro.map((paragraph) => <p>{paragraph}</p>)}</div>
-      <ol class="grid grid--wide lesson-list">
+    <div class="container learn-intro">
+      <p class="learn-intro__first">{forWhom}</p>
+      <p class="learn-intro__note">{certificate}</p>
+    </div>
+  </section>
+
+  <!-- The four lessons as tiles in the colour of what they teach (the cards: navy) -->
+  <section class="section lessons-band" aria-label={t.title}>
+    <div class="container">
+      <ol class="lessons" data-rise>
         {
           LESSONS.map((lesson, index) => (
             <li data-phase={lesson.phase}>
-              <a class="panel panel--phase" href={href(locale, `learn/${lesson.id}`)}>
-                <p class="eyebrow">{fill(t.lessonLabel, { n: index + 1 })}</p>
-                <h2>{t.lessons[lesson.id].title}</h2>
-                <p>{t.lessons[lesson.id].intro}</p>
-                <p class="small muted">{fill(s.common.minutes, { n: t.lessons[lesson.id].minutes })}</p>
+              <a class="lesson-tile" href={href(locale, `learn/${lesson.id}`)}>
+                <span class="lesson-tile__top">
+                  <span class="lesson-tile__number" aria-hidden="true">{index + 1}</span>
+                  <span class="lesson-tile__meta">
+                    {fill(t.lessonLabel, { n: index + 1 })} · {fill(s.common.minutes, { n: t.lessons[lesson.id].minutes })}
+                  </span>
+                </span>
+                <span class="lesson-tile__title">{t.lessons[lesson.id].title}</span>
+                <span class="lesson-tile__intro">{t.lessons[lesson.id].intro}</span>
+                <span class="lesson-tile__go">{t.start} →</span>
               </a>
             </li>
           ))
@@ -44,23 +64,114 @@ const t = s.learn;
 </Base>
 
 <style>
-  .lesson-list {
+  /* Learn overview (2026-11-11 page pass). */
+  .learn-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 1fr);
+    gap: var(--s-72);
+    align-items: start;
+  }
+  .learn-intro__first {
+    font-size: var(--t-22);
+    line-height: 1.45;
+    margin: 0;
+  }
+  .learn-intro__note {
+    font-size: var(--t-18);
+    font-weight: 500;
+    line-height: 1.5;
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--accent);
+    margin: 0;
+  }
+  .lessons-band {
+    background: var(--surface);
+    border-block: 1px solid var(--border);
+    margin-bottom: calc(var(--s-72) * -1);
+  }
+  .lessons {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-24);
   }
-  .lesson-list li {
+  .lessons li {
     margin: 0;
     max-width: none;
     display: flex;
   }
-  .lesson-list a {
+  .lesson-tile {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-12);
+    min-height: 19rem;
+    padding: var(--s-32);
+    border-radius: var(--r-14);
+    background: var(--phase);
+    color: var(--phase-ink);
+    text-decoration: none;
+    transition: transform 0.25s ease;
+    --focus: var(--phase-ink);
   }
-  .lesson-list h2 {
-    font-size: var(--text-xl);
+  .lesson-tile:hover {
+    transform: translateY(-4px);
+  }
+  .lesson-tile__top {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-16);
+  }
+  .lesson-tile__number {
+    font-size: clamp(48px, 4.5vw, 72px);
+    font-weight: 750;
+    line-height: 0.9;
+    opacity: 0.5;
+  }
+  .lesson-tile__meta {
+    font-weight: 600;
+  }
+  .lesson-tile__title {
+    font-size: var(--t-28);
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .lesson-tile__intro {
+    font-size: var(--t-18);
+    line-height: 1.45;
+    max-width: 46ch;
+  }
+  .lesson-tile__go {
+    margin-top: auto;
+    padding-top: var(--s-8);
+    font-weight: 700;
     text-decoration: underline;
     text-decoration-thickness: 0.08em;
-    text-underline-offset: 0.18em;
+    text-underline-offset: 0.2em;
+  }
+  @media (max-width: 62rem) {
+    .learn-intro {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-24);
+    }
+  }
+  @media (max-width: 40rem) {
+    .lessons {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lesson-tile {
+      min-height: 0;
+      padding: var(--s-24);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lesson-tile {
+      transition: none;
+    }
+    .lesson-tile:hover {
+      transform: none;
+    }
   }
 </style>

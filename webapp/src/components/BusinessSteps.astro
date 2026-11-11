@@ -12,19 +12,109 @@ interface Props {
 
 const { locale, current } = Astro.props;
 const s = getStrings(locale);
+const currentIndex = current ? BUSINESS_STEPS.indexOf(current) : -1;
 ---
 
-<nav aria-label={s.business.stepsLabel} class="no-print">
-  <ol class="tabs">
+<!-- The five steps as a progress track (2026-11-11 page pass): circles joined by a line, steps up to the current one
+     filled (position only: nothing here says a step is finished). Sits in the green page header, so it takes the header's ink. -->
+<nav aria-label={s.business.stepsLabel} class="no-print biz-track">
+  <ol>
     {
       BUSINESS_STEPS.map((step, index) => (
-        <li>
+        <li class:list={[index < currentIndex && 'is-done', index === currentIndex && 'is-current']}>
           <a href={href(locale, `tools/business-model/${step}`)} aria-current={step === current ? 'step' : undefined}>
-            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-            {s.business.steps[step].name}
+            <span class="biz-track__dot" aria-hidden="true">{index + 1}</span>
+            <span class="biz-track__name">{s.business.steps[step].name}</span>
           </a>
         </li>
       ))
     }
   </ol>
 </nav>
+
+<style>
+  .biz-track ol {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-24) 0 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    max-width: 52rem;
+  }
+  .biz-track li {
+    margin: 0;
+    max-width: none;
+    position: relative;
+  }
+  /* the line from this step to the next */
+  .biz-track li + li::before {
+    content: '';
+    position: absolute;
+    top: 1.25rem;
+    right: 50%;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.35;
+  }
+  .biz-track li.is-done + li::before,
+  .biz-track li.is-current::before {
+    opacity: 1;
+  }
+  .biz-track a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-8);
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    font-weight: 600;
+    padding-inline: var(--s-4);
+  }
+  .biz-track__dot {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 2px solid currentColor;
+    background: var(--phase);
+    font-weight: 700;
+  }
+  .is-done .biz-track__dot,
+  .is-current .biz-track__dot {
+    background: var(--phase-ink);
+    border-color: var(--phase-ink);
+    color: var(--phase);
+  }
+  .is-current .biz-track__dot {
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.45);
+  }
+  .biz-track__name {
+    font-size: var(--t-14);
+    line-height: 1.25;
+  }
+  .is-current .biz-track__name {
+    font-weight: 750;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.25em;
+  }
+  .biz-track a:hover .biz-track__name {
+    text-decoration: underline;
+  }
+  @media (max-width: 40rem) {
+    .biz-track__name {
+      font-size: var(--t-12);
+    }
+    .biz-track__dot {
+      width: 2.1rem;
+      height: 2.1rem;
+    }
+    .biz-track li + li::before {
+      top: 1.05rem;
+    }
+  }
+</style>

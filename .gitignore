@@ -8,3 +8,7 @@ __pycache__/
 .claude/settings.local.json
 # copied from the source folders by webapp/scripts/copy-originals.mjs
 webapp/public/downloads/
+
+# design tooling output
+webapp/audit/
+webapp/.taste-skill/

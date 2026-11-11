@@ -5,7 +5,7 @@
   margin-inline: auto;
 }
 .section {
-  padding-block: var(--space-7);
+  padding-block: var(--s-72) var(--s-48);
 }
 .section--tight {
   padding-block: var(--space-6);
@@ -57,11 +57,10 @@
 .small {
   font-size: var(--text-sm);
 }
+/* A short line that names where something sits (phase, step, lesson). Sentence case, never tracked caps. */
 .eyebrow {
   font-size: var(--text-sm);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 600;
   color: var(--phase-strong);
   margin: 0 0 var(--space-2);
 }
@@ -72,12 +71,13 @@
 }
 
 /* Surfaces */
+/* Flat cards: one hairline, no shadow. Groups inside a card are divided by hairlines, never boxed again. */
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  box-shadow: var(--shadow);
+  min-width: 0;
 }
 .panel--flat {
   box-shadow: none;
@@ -88,7 +88,7 @@
   box-shadow: none;
 }
 .panel--phase {
-  border-top: 6px solid var(--phase);
+  box-shadow: inset 0 4px 0 var(--phase);
 }
 .panel > :last-child,
 .notice > :last-child {
@@ -98,11 +98,11 @@ a.panel {
   display: block;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 a.panel:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgb(22 35 63 / 0.08), 0 12px 28px rgb(22 35 63 / 0.12);
+  transform: translateY(-3px);
+  border-color: var(--phase);
 }
 a.panel h3 {
   text-decoration: underline;
@@ -111,14 +111,14 @@ a.panel h3 {
 }
 
 .notice {
-  border-left: 5px solid var(--navy);
-  background: var(--lilac-soft);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-bg);
   padding: var(--space-4) var(--space-5);
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 .notice--warn {
-  border-color: #b98900;
-  background: #fff8d6;
+  border-color: var(--warn);
+  background: var(--warn-soft);
 }
 .notice--danger {
   border-color: var(--danger);
@@ -130,43 +130,43 @@ a.panel h3 {
 }
 
 /* Buttons */
+/* Buttons: pill, 44px. Plain = outline; primary/accent = the one filled action. */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 2.75rem;
-  padding: 0.55rem 1.15rem;
-  border: 2px solid var(--navy);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--navy);
-  font-weight: 700;
+  min-height: 44px;
+  padding: 0.5rem 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--t-16);
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   line-height: 1.2;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
 }
 .btn:hover {
-  background: var(--lilac-soft);
-  color: var(--navy-deep);
+  background: var(--inset);
+  color: var(--ink);
 }
-.btn--primary {
-  background: var(--navy);
-  color: #fff;
+.btn:active {
+  transform: translateY(1px);
 }
-.btn--primary:hover {
-  background: var(--navy-deep);
-  color: #fff;
-}
+.btn--primary,
 .btn--accent {
-  background: var(--yellow);
-  border-color: var(--yellow);
-  color: var(--ink);
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+  color: var(--on-accent);
 }
+.btn--primary:hover,
 .btn--accent:hover {
-  background: #ffd900;
-  border-color: #ffd900;
-  color: var(--ink);
+  background: color-mix(in srgb, var(--accent-deep) 86%, #fff);
+  border-color: color-mix(in srgb, var(--accent-deep) 86%, #fff);
+  color: var(--on-accent);
 }
 .btn--quiet {
   border-color: transparent;
@@ -180,8 +180,8 @@ a.panel h3 {
   color: var(--danger);
 }
 .btn--small {
-  min-height: 2.25rem;
-  padding: 0.3rem 0.8rem;
+  min-height: 40px;
+  padding: 0.3rem 16px;
   font-size: var(--text-sm);
 }
 .btn[disabled],
@@ -195,10 +195,10 @@ a.panel h3 {
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: 600;
   background: var(--phase-soft);
   color: var(--phase-strong);
-  border: 1px solid currentColor;
+  border: 1px solid var(--border);
 }
 .badge--solid {
   background: var(--phase);
@@ -260,7 +260,7 @@ fieldset {
   min-width: 0;
 }
 legend {
-  font-weight: 800;
+  font-weight: 650;
   font-size: var(--text-lg);
   color: var(--navy-deep);
   padding: 0;
@@ -352,7 +352,7 @@ input[type='radio'] {
   place-items: center;
   background: var(--phase);
   color: var(--phase-ink);
-  font-weight: 800;
+  font-weight: 650;
 }
 
 /* Key figures */
@@ -362,8 +362,9 @@ input[type='radio'] {
 }
 .stat__value {
   font-size: var(--text-2xl);
-  font-weight: 800;
-  color: var(--navy-deep);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
@@ -405,15 +406,16 @@ details.disclosure > .disclosure__body {
   align-items: baseline;
   gap: var(--space-3);
 }
+/* uppercase as on the printed card */
 .wcard__category {
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  font-weight: 650;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--phase-strong);
   font-size: var(--text-sm);
 }
 .wcard__number {
-  font-weight: 800;
+  font-weight: 650;
   color: var(--phase-strong);
   font-variant-numeric: tabular-nums;
 }
@@ -438,7 +440,7 @@ details.disclosure > .disclosure__body {
 }
 .wcard__tag {
   margin-top: auto;
-  font-weight: 800;
+  font-weight: 650;
   font-size: var(--text-sm);
   color: var(--phase-strong);
 }
@@ -469,6 +471,26 @@ details.disclosure > .disclosure__body {
 }
 .hero a:not(.btn) {
   color: inherit;
+}
+/* on the band, buttons take the band's ink: filled = ink ground, plain = ink outline */
+.hero {
+  --focus: var(--phase-ink);
+}
+.hero .btn {
+  color: inherit;
+  border-color: currentColor;
+}
+.hero .btn:hover {
+  background: rgb(255 255 255 / 0.14);
+  color: inherit;
+}
+.hero .btn--primary,
+.hero .btn--accent,
+.hero .btn--primary:hover,
+.hero .btn--accent:hover {
+  background: var(--phase-ink);
+  border-color: var(--phase-ink);
+  color: var(--phase);
 }
 .hero__bolt {
   position: absolute;
@@ -522,15 +544,31 @@ details.disclosure > .disclosure__body {
   min-height: 2.75rem;
   padding: 0.4rem 1rem;
   border-radius: 999px;
-  border: 2px solid var(--border-strong);
-  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  background: transparent;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink);
 }
 .tabs a[aria-current='page'],
 .tabs a[aria-current='step'] {
-  background: var(--navy);
-  border-color: var(--navy);
-  color: #fff;
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
+  color: var(--on-accent);
+}
+
+/* Motion (src/scripts/motion.ts): parts rise in once as they enter. Keyframe names are unique across the site. */
+@keyframes circus-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+.is-rising {
+  animation: circus-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) var(--rise-delay, 0ms) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-rising {
+    animation: none;
+  }
 }

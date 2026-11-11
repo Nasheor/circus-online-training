@@ -144,9 +144,9 @@ function Setup({ locale, s, workspace, deck: initialDeck, onOpen }: SetupProps) 
   const sessions = [...workspace.cards.sessions].sort((a, b) => b.startedAt.localeCompare(a.startedAt));
 
   return (
-    <div className="split">
+    <div className="split session-setup">
       <form
-        className="panel stack"
+        className="stack"
         onSubmit={(event) => {
           event.preventDefault();
           begin();
@@ -154,10 +154,10 @@ function Setup({ locale, s, workspace, deck: initialDeck, onOpen }: SetupProps) 
       >
         <h2>{t.setupTitle}</h2>
         <p>{t.setupLead}</p>
-        <fieldset className="stack">
+        <fieldset className="deck-choices">
           <legend>{t.chooseDeck}</legend>
           {SESSION_DECKS.map((id) => (
-            <label key={id} className="choice" data-phase={id}>
+            <label key={id} className="choice deck-choice" data-phase={id}>
               <input type="radio" name={`${formId}-deck`} checked={deck === id} onChange={() => setDeck(id)} />
               <span>
                 <strong>{s.decks[id]}</strong>
@@ -324,7 +324,9 @@ function Runner({ locale, s, session, workspace, onFinish, onLeave }: RunnerProp
 
       <div className={presenting ? 'session__stage session__stage--present' : 'session__stage'}>
         <div className="stack">
-          <CardView card={card} s={s} large />
+          <div className="theme-light session__card">
+            <CardView card={card} s={s} large />
+          </div>
           {card.kind === 'tool' && card.toolId && (
             <div className="panel panel--soft stack">
               <a className="btn btn--primary" href={href(locale, TOOL_PATHS[card.toolId])}>
