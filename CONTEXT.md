@@ -222,6 +222,7 @@ FR/NL/DE content; bundling partner files; offline service worker and portable bu
 ## 9. Changelog
 
 - 2026-11-11 — Test deployment set up at the user's request: `.github/workflows/pages.yml`, `NOINDEX=1` switch in `Base.astro` and `pages/index.astro`, public repo `Nasheor/circus-online-training` with remote `origin`. Locally: 24 tests, check clean, 36 pages (sub-path + noindex build verified: no unprefixed links, 10 downloads; normal build has no noindex), e2e 23/23 against preview on 4400. First deploy was refused: the auto-created `github-pages` environment only allowed branch `main`; `master` added as a deployment branch policy, rerun green. Live site: pages, downloads and noindex return correctly; e2e 23/23 against it. Actions warn that v4/v5 actions run on Node 20 (forced to 24) — bump the action versions later.
+- 2026-11-11 — Workflow actions updated to their latest majors (checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5).
 
 - 2026-10-06 — Project started; plan approved. Settings (auto mode + context-guard Stop hook), git repo, Astro scaffold.
 - 2026-10-06 — Energy Profile engine verified against 52 Excel-computed scenarios; four deviations registered.
