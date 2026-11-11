@@ -10,6 +10,8 @@ import { getStrings } from '../i18n/strings';
 // Language chooser. With a single published language it forwards straight to it.
 const s = getStrings(DEFAULT_LOCALE);
 const single = PUBLISHED_LOCALES.length === 1;
+// Preview builds (NOINDEX=1) ask search engines to stay away; see layouts/Base.astro.
+const noindex = process.env.NOINDEX === '1';
 ---
 
 <!doctype html>
@@ -19,6 +21,7 @@ const single = PUBLISHED_LOCALES.length === 1;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{s.site.name}</title>
     <meta name="description" content={s.site.description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
     {single && <meta http-equiv="refresh" content={`0; url=${href(PUBLISHED_LOCALES[0])}`} />}
   </head>

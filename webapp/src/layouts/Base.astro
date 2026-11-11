@@ -28,6 +28,8 @@ interface Props {
 const { locale, title, description, section, phase, path = '' } = Astro.props;
 const s = getStrings(locale);
 const partlyTranslated = translationCoverage(locale) < 1;
+// Preview builds (NOINDEX=1, e.g. the GitHub Pages test site) ask search engines to stay away.
+const noindex = process.env.NOINDEX === '1';
 ---
 
 <!doctype html>
@@ -37,6 +39,7 @@ const partlyTranslated = translationCoverage(locale) < 1;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · {s.site.name}</title>
     <meta name="description" content={description ?? s.site.description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" type="image/svg+xml" href={asset('favicon.svg')} />
     <script is:inline src={asset('theme.js')}></script>
   </head>

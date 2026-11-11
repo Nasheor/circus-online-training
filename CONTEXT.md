@@ -43,6 +43,7 @@ Companion file for Interreg reporting (separate purpose): `D:\Circus\CIRCUS_REPO
 | 2026-11-10 | **Journey pages approved**; tools overview, cards page and card session redesigned (see the site-design brief). |
 | 2026-11-10 | **Home page approved.** Text sizes made fluid site-wide (body 18px on laptops; user found 16px too small); footer links centred. Journey pages redesigned (route of three phase fields; phase page with At a glance + card track). |
 | 2026-10-06 | Static site, no backend, no login, no cookies or analytics; all user data stays in the browser (plan approved). |
+| 2026-11-11 | **Test deployment on GitHub Pages** from a **public** repo `Nasheor/circus-online-training` (whole repo, partner source folders and history included — user's choice, knowing rights are not yet signed off), partner downloads included, preview builds `noindex`. Not the final 10-year host (section 7). |
 
 ## 3. The method the app teaches
 
@@ -72,6 +73,8 @@ Five cards point to methodologies: p3-2 Persona, p3-8 SMART, p3-10 Peer to Peer,
 - **Originals:** `webapp/scripts/copy-originals.mjs` copies the source files into `webapp/public/downloads/` (git-ignored) under clean names before dev/build. **The source folders `energy_profile_tool/`, `watt_works/`, `business_tool/`, `gis_tool/` are never modified.**
 - **Brand assets:** `webapp/public/brand/*.png` are crops from the WattWorks manual PDF (interim, until LG supplies official files).
 
+- **Test deployment:** `.github/workflows/pages.yml` — on push to `master` (or manual run): `npm ci`, `npm test`, build with `BASE_PATH=/<repo name>/` and `NOINDEX=1`, deploy `webapp/dist` with `actions/deploy-pages`. Site: https://nasheor.github.io/circus-online-training/ . Downloads come from the tracked source folders via `copy-originals.mjs`. On a project sub-path a `robots.txt` has no effect, hence the meta tag.
+
 ### Directory map
 ```
 D:\Circus\Tools\
@@ -99,6 +102,7 @@ D:\Circus\Tools\
 | `npm run e2e` | Browser walkthrough of the whole journey + per-page checks; needs the dev server running and a build |
 | `npm run audit [-- <paths>]` | The kit's impeccable.style/slop audit (puppeteer-core): 8 pages × 1440/1024/390 × dark/light, report + screenshots in `audit/` (git-ignored) |
 | `node scripts/home-shots.mjs <seed.json>` | Regenerate the home page's tool screenshots (`public/home/`); seed from `KEEP_WORKSPACE=<file> npm run e2e` |
+| `NOINDEX=1 BASE_PATH=/x/ npm run build` | Preview build: adds `<meta name="robots" content="noindex, nofollow">` to every page (`Base.astro`, `pages/index.astro`) |
 | `npm run fixtures` | Regenerate the Excel fixtures (needs Excel + pywin32) |
 | `node scripts/shot.mjs en/ out.png` | Screenshot (pass paths without a leading slash in Git Bash) |
 
@@ -151,6 +155,7 @@ Names of the four activity groups (the PDF's tree has icons only); plain-English
 | M6 Map explorer | done |
 | M7 Business model | done |
 | M8 Join-up, About pages, accessibility and print pass | done, with the limits below |
+| M10 Test deployment (GitHub Pages) | see the changelog line of 2026-11-11 for its outcome |
 | M9 Redesign on the site starter kit (`webapp/site-starter-kit/`, brief in `.claude/skills/site-design/SKILL.md`) | **done** — every page redesigned and approved (2026-11-11); committed as `5b368c2` and merged into `master` (fast-forward; branch `redesign/site-starter-kit` kept; no remote) |
 
 **Verified (2026-10-06):** 24 unit tests; `astro check` clean; build of 36 pages; `npm run e2e` — 23 checks: full journey (self-check → phase 1 session → tool card → profile → return → summary → site → business steps → dossier → erase → open file → foreign file refused), no script errors on any page, no sideways scroll at 360 px, one h1 per page; print output of canvas (one landscape sheet), dossier and profile.
@@ -215,6 +220,8 @@ FR/NL/DE content; bundling partner files; offline service worker and portable bu
 - Not a question, a reminder: the Chrome extension was unavailable, so browser checks run headless through `scripts/e2e-smoke.mjs`, `shot.mjs` and `print-check.mjs` (`SEED=<workspace.json>` preloads a workspace).
 
 ## 9. Changelog
+
+- 2026-11-11 — Test deployment set up at the user's request: `.github/workflows/pages.yml`, `NOINDEX=1` switch in `Base.astro` and `pages/index.astro`, public repo `Nasheor/circus-online-training` with remote `origin`. Locally: 24 tests, check clean, 36 pages (sub-path + noindex build verified: no unprefixed links, 10 downloads; normal build has no noindex), e2e 23/23 against preview on 4400.
 
 - 2026-10-06 — Project started; plan approved. Settings (auto mode + context-guard Stop hook), git repo, Astro scaffold.
 - 2026-10-06 — Energy Profile engine verified against 52 Excel-computed scenarios; four deviations registered.
