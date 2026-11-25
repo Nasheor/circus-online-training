@@ -8,6 +8,18 @@ description: The design rules for CIRCUS online method training (webapp/). Use b
 Read `webapp/site-starter-kit/design/DESIGN.md` (the base design system, adapted) for the tokens and components; this file is the brief that must survive every redesign.
 
 ## Standing decisions
+- **2026-11-25 — top bar: Journey, Tools, Library, My community** (supervisor). Learn and About are not in the top
+  bar: About is in the footer, the lessons are linked from each phase page and tool page. Do not add them back.
+- **2026-11-23 — Energy Profile: country choice, sources, roof limit; "Where the numbers come from" page.**
+  - Step 1 starts with a "Country of your community" select (max 32rem) with a hint line naming where the values come
+    from and a link to the sources page. Step 3's hint states the roof limit; a capped value shows a warn notice.
+  - Assumptions panel: a small muted source line (`.source-tag`, `--t-12`) under every value and column heading;
+    "Dutch value, no local source yet" in `--warn` italic. New column "Most solar panels per home". Table number inputs
+    have `min-width: 4.75rem` so one decimal fits.
+  - Sources page: in the About menu after Differences, same layout (side menu + parts under hairlines, warn-ruled
+    pending line). Values table with countries as columns and group heading rows on a 2px red rule; month patterns as
+    tables that wrap two per row; EU figures table also with countries as columns, ratio rows in red-strong on a red
+    rule; sources as a term/definition list. Tables scroll sideways inside `.table-wrap` below about 1440px (accepted).
 - **2026-11-11 — Library and Glossary approved; About pages redesigned (last batch of the page pass).**
   - `components/AboutNav.astro`: one side menu for the five pages about the site (About, Privacy, Accessibility,
     Feedback, the Energy Profile differences page), accent rule, current page marked, sticky beside the text.
