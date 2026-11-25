@@ -5,6 +5,14 @@ export const profile = {
   lead:
     'Estimate how much electricity your community uses through the year, and what it would take to produce it locally. It is a conversation starter: no measured data and no technical knowledge needed.',
   stepsNav: 'The four steps',
+  country: {
+    label: 'Country of your community',
+    names: { nl: 'The Netherlands', be: 'Belgium', de: 'Germany', fr: 'France', ie: 'Ireland' },
+    nl: 'Reference values from the original Excel tool (Dutch averages).',
+    other:
+      'Reference values for {country}, estimated from EU statistics (Eurostat and PVGIS). Check them against local figures.',
+    sourcesLink: 'Where the numbers come from',
+  },
   steps: {
     homes: {
       title: 'Homes and heating',
@@ -47,8 +55,12 @@ export const profile = {
     carsPerHousehold: { label: 'Cars per household, on average', hint: 'For example 1.2' },
     evShare: { label: 'Cars that are fully electric today' },
     solarPanels: {
-      label: 'Solar panels in the community today',
+      label: 'Solar panels on homes in the community today',
       hint: 'Count panels, not installations.',
+      limit:
+        'The roofs of the {homes} homes you entered can take up to {max} panels. The limit per home is under “Assumptions behind the numbers”.',
+      noHomes: 'Enter the homes first: the number of panels is limited by the roof space of the homes.',
+      capped: 'You entered {entered} panels. The calculation uses {used}, the most the roofs can take.',
     },
     wind: {
       legend: 'Wind turbines nearby',
@@ -168,7 +180,11 @@ export const profile = {
   },
   assumptions: {
     title: 'Assumptions behind the numbers',
-    lead: 'These reference values come from the original Excel tool and are Dutch averages. Change them if you have better figures for your area; your changes are saved with your profile.',
+    lead: 'Reference values for {country}. Under each value you see where it comes from. Change any of them if you have better figures for your area; your changes are saved with your profile.',
+    source: 'Source: {source}',
+    maxPanels: 'Most solar panels per home',
+    roofNote:
+      'The roof limit caps the solar panels entered in step 3. It is the roof space available on an average home of each type, so it is a maximum, not a typical installation.',
     changed: 'changed: {n}',
     resetAll: 'Back to the reference values',
     housesTitle: 'Energy use per home, per year',
@@ -216,7 +232,108 @@ export const profile = {
     original: 'Original Excel tool, version 1.03',
     manual: 'Energy Profile Tool manual',
     differences: 'How this calculator differs from the Excel tool',
+    sources: 'Where the numbers come from',
     lesson: 'Lesson: how to use the Energy Profile Tool',
+  },
+  /** Where each reference value comes from. Keys match SOURCE_KINDS in engine/energy-profile/countries.ts. */
+  sources: {
+    short: {
+      workbook: 'Excel tool (Dutch)',
+      technical: 'Excel tool, same in every country',
+      roof: 'Dutch roof study (PBL 2014)',
+      'eurostat-electricity': 'Eurostat, scaled from the Dutch value',
+      'eurostat-heat': 'Eurostat, scaled from the Dutch value',
+      pvgis: 'PVGIS (European Commission)',
+      'degree-days': 'Eurostat heating degree days',
+      'wind-monthly': 'Eurostat monthly wind output',
+      'car-km': 'National statistics',
+      'dutch-only': 'Dutch value, no local source yet',
+    },
+  },
+  sourcesPage: {
+    title: 'Where the numbers come from',
+    lead: 'The Energy Profile starts from reference values: the energy an average home uses, what a solar panel produces, how far a car drives. This page shows every value for each of the five CIRCUS countries, where it comes from and how it was worked out.',
+    pending:
+      'The values for Belgium, France, Germany and Ireland are estimates made for this site from EU statistics. They await review by the project partners.',
+    methodTitle: 'How the country values are made',
+    method: [
+      'The Netherlands keeps the values of the original Excel tool, made by LochemEnergie.',
+      'For the other countries, each value starts from the Dutch one and is scaled by how the country compares with the Netherlands on the same EU statistic. For example, an average Belgian household uses {heat} times as much energy for heating and hot water as a Dutch one, so the gas use of each Dutch type of home is multiplied by {heat}. This keeps the five types of home of the Excel tool.',
+      'The monthly patterns of heating, solar and wind come from each country’s own data.',
+      'Where no country source has been found yet, the Dutch value stays and is marked as such.',
+    ],
+    valuesTitle: 'The values per country',
+    valuesCaption: 'Reference values per country and their source',
+    value: 'Value',
+    source: 'Source',
+    groups: {
+      electricity: 'Electricity per home and year, not for heating (kWh)',
+      gas: 'Gas per home and year, for heating and hot water (m³)',
+      roof: 'Roof limit: most solar panels per home',
+      other: 'Other values',
+      seasonality: 'How the year is split over the months (share of the year, %)',
+    },
+    rawTitle: 'The EU figures behind the estimates',
+    rawCaption: 'Average per household, and solar output per kWp, by country',
+    raw: {
+      electricity: 'Electricity per household, not for heating (kWh/year)',
+      spaceHeat: 'Space heating per household, all fuels (kWh/year)',
+      waterHeat: 'Hot water per household, all fuels (kWh/year)',
+      pv: 'Solar output of 1 kWp (kWh/year)',
+      factor: 'Ratio to the Netherlands (× NL)',
+    },
+    rawNote:
+      '“× NL” is the ratio to the Netherlands that scales the Dutch values: electricity per home, gas per home (from space heating and hot water together) and the yearly solar yield.',
+    seasonNote:
+      'Household electricity and car use keep the Excel tool’s Dutch monthly pattern in every country: no country source has been found yet.',
+    kindsTitle: 'The sources',
+    kinds: {
+      workbook: 'Energy Profile Tool 1A, Excel version 1.03, made by LochemEnergie for CIRCUS. Dutch reference values.',
+      technical:
+        'Technical values from the Excel tool: the energy in 1 m³ of gas, boiler and heat-pump efficiency, the consumption of an electric car, the output of one panel. They are the same in every country. Outside the Netherlands, “gas” means gas or the same amount of energy from another heating fuel.',
+      roof:
+        'PBL Netherlands Environmental Assessment Agency and DNV GL (2014), “Het potentieel van zonnestroom in de gebouwde omgeving van Nederland”, table 2: the average roof area available for panels per household (detached 61.7 m², semi-detached 45.8 m², terraced 32.5 m², apartment 24.8 m²), divided by the size of one panel, 172 × 113 cm (Milieu Centraal), rounded down. The study does not separate corner and terraced houses. It counts every side of the roof and ignores shade, so these are maximums. The same limits are used in every country until country figures are available.',
+      'eurostat-electricity':
+        'Eurostat, energy use of households by purpose (nrg_d_hhq) and number of households (lfst_hhnhtych), average of {households}: the electricity a household uses other than for heating and hot water.',
+      'eurostat-heat':
+        'Eurostat, the same datasets: the energy a household uses for space heating and hot water, all fuels together.',
+      pvgis:
+        'PVGIS 5.3, Joint Research Centre of the European Commission: the output of 1 kWp of panels at the best angle with 14% system losses, for a point in the capital city. The yearly yield is the Dutch value scaled by the ratio to Amsterdam; the monthly pattern is the place’s own.',
+      'degree-days':
+        'Eurostat, heating degree days per month (nrg_chdd_m), average of {degreeDays}. Space heating follows the degree days; hot water is spread evenly over the year.',
+      'wind-monthly': 'Eurostat, electricity from wind per month (nrg_cb_pem), average of {wind}.',
+      'car-km': 'National statistics, listed below.',
+      'dutch-only':
+        'No country source has been found yet, so the Dutch value of the Excel tool is used. Replace it with a local figure if you have one.',
+    },
+    datasetLink: 'Open the data',
+    windNote:
+      'Wind full-load hours stay at the Excel tool’s value in every country. They depend far more on the turbine and its site than on the country; ask the supplier or a nearby wind project for a local figure.',
+    carTitle: 'Distance per car',
+    car: {
+      nl: 'Excel tool. For comparison, CBS (table 86385NED) gives 12,348 km for 2025, provisional.',
+      be: 'Car-Pass, annual report 2025: passenger cars with an odometer reading in 2025 and one 6 to 18 months earlier.',
+      de: 'Kraftfahrt-Bundesamt, “Verkehr in Kilometern – Inländerfahrleistung”, 2025: all cars registered in Germany.',
+      fr: 'SDES, “40 millions de voitures en circulation en France au 1er janvier 2026”: cars in circulation in 2025, provisional.',
+      ie: 'Central Statistics Office, table THA10 “Road Traffic Volumes”, 2023: private cars, from NCT odometer readings.',
+    },
+    carNote:
+      'Each country counts in its own way, so these figures show a typical car in each country; they are not meant to be compared with each other.',
+    ownTitle: 'Using your own figures',
+    own: [
+      'Choose your country in step 1 of the Energy Profile.',
+      'Open “Assumptions behind the numbers” below the results. Every value can be changed there; a changed value is marked and saved with your profile.',
+      'Solar output for your own place: open PVGIS, click your location and read the yearly output of 1 kWp. The Excel tool’s Dutch value ({nl} kWh per Wp) is {gap}% below PVGIS for Amsterdam; to stay comparable, multiply your PVGIS figure by {factor} and divide it by 1,000.',
+      'Energy use per home: the energy bills of a few households, your energy supplier, a local energy agency or national statistics.',
+      'Roof limit: the roof-potential layers of the GIS Tool maps show the rooftop capacity of buildings in the pilot regions.',
+    ],
+    pvgisLink: 'Open PVGIS',
+    partnersTitle: 'For the project partners',
+    partners:
+      'Please check the values for your country and send better national figures, by type of home where possible, through the feedback page. They will replace the estimates here.',
+    retrieved:
+      'EU data retrieved on {date}. The script scripts/country-data.mjs in the source code fetches it again and works out every value shown here.',
+    back: 'Back to the calculator',
   },
   otherParts: {
     title: 'The other parts of Tool 1',
@@ -268,7 +385,7 @@ export const profile = {
     },
     additionsTitle: 'Additions',
     additions:
-      'The calculator also shows a few things the workbook does not: use today next to use with your goals, the share of yearly use covered by local production, saved scenarios and a comparison between them. All of them come from the same model and reference values.',
+      'The calculator also shows a few things the workbook does not: use today next to use with your goals, the share of yearly use covered by local production, saved scenarios and a comparison between them. All of them come from the same model and reference values. Two more additions change what goes into the model, not the model itself: reference values for Belgium, France, Germany and Ireland besides the Dutch ones (see “Where the numbers come from”), and a roof limit, so the solar panels entered cannot exceed what the roofs of the homes can take.',
     back: 'Back to the calculator',
   },
 };

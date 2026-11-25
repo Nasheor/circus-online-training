@@ -5,7 +5,18 @@ import type { Workspace } from './schema';
  * One step per schema version: MIGRATIONS[n] turns a version-n document into
  * version n + 1. Add a step whenever SCHEMA_VERSION goes up; never edit old ones.
  */
-const MIGRATIONS: Record<number, (document: Record<string, unknown>) => Record<string, unknown>> = {};
+const MIGRATIONS: Record<number, (document: Record<string, unknown>) => Record<string, unknown>> = {
+  // 1 -> 2: profiles gain a country. Everything saved before was calculated with the Dutch workbook values.
+  1: (document) => {
+    const next = structuredClone(document) as any;
+    if (next.profile?.current && typeof next.profile.current === 'object') next.profile.current.country ??= 'nl';
+    if (Array.isArray(next.profile?.scenarios)) {
+      for (const scenario of next.profile.scenarios) if (scenario && typeof scenario === 'object') scenario.country ??= 'nl';
+    }
+    next.schemaVersion = 2;
+    return next;
+  },
+};
 
 export type LoadFailure =
   /** Not valid JSON or not an object. */

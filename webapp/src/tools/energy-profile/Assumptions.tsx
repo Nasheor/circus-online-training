@@ -1,9 +1,12 @@
-import { NL_REFERENCE, readAssumption } from '../../engine/energy-profile/assumptions';
+import { readAssumption, referenceFor } from '../../engine/energy-profile/assumptions';
+import { sourceOf } from '../../engine/energy-profile/countries';
+import type { CountryId } from '../../engine/energy-profile/countries';
 import type { AssumptionOverrides } from '../../engine/energy-profile/assumptions';
 import { HOUSE_TYPES, SEASONAL_SERIES } from '../../engine/energy-profile/types';
 import type { Assumptions as AssumptionValues } from '../../engine/energy-profile/types';
 import type { Locale } from '../../i18n/config';
 import { fill, formatNumber, monthNames } from '../../i18n/format';
+import { href } from '../../i18n/href';
 import type { Strings } from '../../i18n/strings';
 import { updateWorkspace } from '../../workspace/store';
 import { NumberField } from '../shared/NumberField';
@@ -23,23 +26,28 @@ interface Props {
   s: Strings;
   assumptions: AssumptionValues;
   overrides: AssumptionOverrides;
+  country: CountryId;
 }
 
 /** The workbook's adjustable ("orange") cells: reference values a community can replace with its own. */
-export function Assumptions({ locale, s, assumptions, overrides }: Props) {
+export function Assumptions({ locale, s, assumptions, overrides, country }: Props) {
   const t = s.profile.assumptions;
   const months = monthNames(locale);
   const changedCount = Object.keys(overrides).length;
 
   const set = (path: string, value: number) =>
     updateWorkspace((draft) => {
-      const reference = readAssumption(NL_REFERENCE, path);
+      const reference = readAssumption(referenceFor(country), path);
       // Only real differences are stored, so "changed" stays meaningful.
       if (Math.abs(value - reference) < 1e-12) delete draft.profile.current.assumptionOverrides[path];
       else draft.profile.current.assumptionOverrides[path] = value;
     });
 
-  const field = (path: string, label: string, options: { min?: number; max?: number; scale?: number } = {}) => (
+  const field = (
+    path: string,
+    label: string,
+    options: { min?: number; max?: number; scale?: number; whole?: boolean } = {},
+  ) => (
     <span className={path in overrides ? 'changed' : undefined}>
       <NumberField
         value={readAssumption(assumptions, path)}
@@ -48,6 +56,13 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
         ariaLabel={label}
         {...options}
       />
+    </span>
+  );
+
+  // Where a value comes from, shown under it (profile.sources.short).
+  const source = (path: string) => (
+    <span className="source-tag" data-kind={sourceOf(country, path)}>
+      {fill(t.source, { source: s.profile.sources.short[sourceOf(country, path)] })}
     </span>
   );
 
@@ -63,7 +78,10 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
       </summary>
       <div className="disclosure__body stack-lg">
         <div className="stack">
-          <p>{t.lead}</p>
+          <p>
+            {fill(t.lead, { country: s.profile.country.names[country] })}{' '}
+            <a href={href(locale, 'tools/energy-profile/sources')}>{s.profile.country.sourcesLink}</a>
+          </p>
           {changedCount > 0 && (
             <div>
               <button
@@ -89,8 +107,18 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
               <thead>
                 <tr>
                   <th scope="col">{s.profile.homes.type}</th>
-                  <th scope="col">{t.electricityKwh}</th>
-                  <th scope="col">{t.gasM3}</th>
+                  <th scope="col">
+                    {t.electricityKwh}
+                    {source('houses.corner.electricityKwh')}
+                  </th>
+                  <th scope="col">
+                    {t.gasM3}
+                    {source('houses.corner.gasM3')}
+                  </th>
+                  <th scope="col">
+                    {t.maxPanels}
+                    {source('maxPanelsPerHome.corner')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -99,11 +127,15 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
                     <th scope="row">{s.profile.houseTypes[type]}</th>
                     <td>{field(`houses.${type}.electricityKwh`, `${s.profile.houseTypes[type]}: ${t.electricityKwh}`)}</td>
                     <td>{field(`houses.${type}.gasM3`, `${s.profile.houseTypes[type]}: ${t.gasM3}`)}</td>
+                    <td>
+                      {field(`maxPanelsPerHome.${type}`, `${s.profile.houseTypes[type]}: ${t.maxPanels}`, { whole: true })}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <p className="small muted">{t.roofNote}</p>
         </div>
 
         <div>
@@ -113,6 +145,7 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
               <label key={key} className="field">
                 <span className="small">{t.scalars[key]}</span>
                 {field(key, t.scalars[key], { min: MIN[key] ?? 0, max: MAX[key] })}
+                {source(key)}
               </label>
             ))}
           </div>
@@ -135,6 +168,7 @@ export function Assumptions({ locale, s, assumptions, overrides }: Props) {
                   {SEASONAL_SERIES.map((series) => (
                     <th key={series} scope="col">
                       {t.seasonalSeries[series]}
+                      {source(`seasonality.${series}.0`)}
                     </th>
                   ))}
                 </tr>

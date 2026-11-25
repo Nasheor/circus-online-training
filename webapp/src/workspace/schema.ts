@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { COUNTRIES } from '../engine/energy-profile/countries';
 
 /**
  * The community workspace: everything a community enters, kept in the browser.
@@ -6,7 +7,7 @@ import { z } from 'zod';
  * this shape needs a new SCHEMA_VERSION and a step in migrate.ts.
  */
 export const APP_ID = 'circus-method-training';
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 const text = z.string();
 const iso = z.string();
@@ -38,6 +39,8 @@ const profileStateSchema = z.object({
   inputs: profileInputsSchema,
   /** Sparse changes to the reference values, keyed by dotted path. */
   assumptionOverrides: z.record(z.string(), z.number()),
+  /** Country whose reference values the profile starts from (schema 2). */
+  country: z.enum(COUNTRIES),
 });
 
 export const scenarioSchema = profileStateSchema.extend({

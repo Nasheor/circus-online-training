@@ -2,8 +2,7 @@ import { useStore } from '@nanostores/react';
 import { useId, useRef, useState } from 'react';
 import { ACTIVITIES, CANVAS_BLOCKS, DATA_CATEGORIES, GO_FURTHER } from '../../content/business';
 import { PHASES, cardsOfDeck } from '../../content/structure';
-import { resolveAssumptions } from '../../engine/energy-profile/assumptions';
-import { compute } from '../../engine/energy-profile/compute';
+import { computeProfile } from '../../engine/energy-profile/profile';
 import type { Locale } from '../../i18n/config';
 import { fill, formatDate, formatMwh, formatNumber, formatPercent } from '../../i18n/format';
 import { href } from '../../i18n/href';
@@ -194,7 +193,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
   const loadProblem = useStore($loadProblem);
   const { community, journey, profile, cards, sites, business } = workspace;
 
-  const results = compute(profile.current.inputs, resolveAssumptions(profile.current.assumptionOverrides));
+  const { results } = computeProfile(profile.current);
   const overrides = Object.keys(profile.current.assumptionOverrides).length;
   const activities = ACTIVITIES.filter((activity) => business.activities[activity.id]);
   const collected = countCollected(workspace);
@@ -310,7 +309,7 @@ export default function DossierApp({ locale }: { locale: Locale }) {
             <h3 style={{ fontSize: 'var(--text-base)' }}>{t.scenarios}</h3>
             <ul>
               {profile.scenarios.map((scenario) => {
-                const scenarioResults = compute(scenario.inputs, resolveAssumptions(scenario.assumptionOverrides));
+                const { results: scenarioResults } = computeProfile(scenario);
                 return (
                   <li key={scenario.id}>
                     <strong>{scenario.name}</strong>: {mwh(scenarioResults.annual.usageTarget)},{' '}

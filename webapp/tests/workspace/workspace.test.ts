@@ -26,6 +26,22 @@ describe('workspace', () => {
     expect(isPristine(workspace)).toBe(false);
   });
 
+  it('migrates a version 1 workspace: profiles and scenarios get the Netherlands', () => {
+    const v1: any = createWorkspace();
+    v1.schemaVersion = 1;
+    delete v1.profile.current.country;
+    v1.profile.scenarios.push({
+      id: 'x', name: 'Before', createdAt: 'a', updatedAt: 'a',
+      inputs: structuredClone(v1.profile.current.inputs), assumptionOverrides: {},
+    });
+    const result = loadWorkspace(JSON.stringify(v1));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.workspace.schemaVersion).toBe(SCHEMA_VERSION);
+    expect(result.workspace.profile.current.country).toBe('nl');
+    expect(result.workspace.profile.scenarios[0].country).toBe('nl');
+  });
+
   it('refuses files that are not a workspace', () => {
     expect(loadWorkspace('not json')).toEqual({ ok: false, reason: 'unreadable' });
     expect(loadWorkspace('[1, 2]')).toEqual({ ok: false, reason: 'unreadable' });

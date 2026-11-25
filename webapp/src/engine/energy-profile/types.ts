@@ -48,6 +48,12 @@ export interface Assumptions {
   kwhPerWp: number;
   windFullLoadHours: number;
   seasonality: Record<SeasonalSeries, Monthly>;
+  /**
+   * Most solar panels one home's roof can take, by house type. Not in the
+   * workbook and not used by `compute`: it caps the panels input
+   * (see `profile.ts`).
+   */
+  maxPanelsPerHome: Record<HouseType, number>;
 }
 
 export interface SeasonMatch {

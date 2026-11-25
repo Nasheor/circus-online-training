@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { resolveAssumptions } from '../../engine/energy-profile/assumptions';
-import { compute } from '../../engine/energy-profile/compute';
+import { computeProfile } from '../../engine/energy-profile/profile';
 import type { ProfileInputs } from '../../engine/energy-profile/types';
 import type { Locale } from '../../i18n/config';
 import { getStrings } from '../../i18n/strings';
@@ -21,9 +20,10 @@ export default function EnergyProfileApp({ locale }: { locale: Locale }) {
   const workspace = useWorkspace();
   const storageAvailable = useStore($storageAvailable);
   const loadProblem = useStore($loadProblem);
-  const { inputs, assumptionOverrides } = workspace.profile.current;
-  const assumptions = useMemo(() => resolveAssumptions(assumptionOverrides), [assumptionOverrides]);
-  const results = useMemo(() => compute(inputs, assumptions), [inputs, assumptions]);
+  const current = workspace.profile.current;
+  const { inputs, assumptionOverrides, country } = current;
+  const outcome = useMemo(() => computeProfile(current), [current]);
+  const { assumptions, results } = outcome;
 
   return (
     <div className="stack-lg" data-phase="p1">
@@ -32,7 +32,7 @@ export default function EnergyProfileApp({ locale }: { locale: Locale }) {
       {/* the inputs beside the headline figures, which stay in view; then the chart band; then scenarios and assumptions */}
       <div className="profile">
         <div className="stack-lg">
-          <Inputs s={s} inputs={inputs} change={changeInputs} />
+          <Inputs locale={locale} s={s} inputs={inputs} country={country} outcome={outcome} change={changeInputs} />
         </div>
         <div className="profile__results">
           <Results locale={locale} s={s} results={results} part="summary" />
@@ -41,7 +41,7 @@ export default function EnergyProfileApp({ locale }: { locale: Locale }) {
       <Results locale={locale} s={s} results={results} part="detail" />
       <div className="profile__more no-print">
         <Scenarios locale={locale} s={s} workspace={workspace} results={results} />
-        <Assumptions locale={locale} s={s} assumptions={assumptions} overrides={assumptionOverrides} />
+        <Assumptions locale={locale} s={s} assumptions={assumptions} overrides={assumptionOverrides} country={country} />
       </div>
     </div>
   );

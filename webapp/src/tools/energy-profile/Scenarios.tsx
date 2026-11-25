@@ -1,6 +1,6 @@
 import { useId, useState } from 'react';
-import { emptyInputs, resolveAssumptions } from '../../engine/energy-profile/assumptions';
-import { compute } from '../../engine/energy-profile/compute';
+import { emptyInputs } from '../../engine/energy-profile/assumptions';
+import { computeProfile } from '../../engine/energy-profile/profile';
 import type { ProfileResults } from '../../engine/energy-profile/types';
 import type { Locale } from '../../i18n/config';
 import { fill, formatMwh, formatNumber, formatPercent } from '../../i18n/format';
@@ -43,7 +43,7 @@ export function Scenarios({ locale, s, workspace, results }: Props) {
   const [confirmReset, setConfirmReset] = useState(false);
   const baseline = scenarios.find((scenario) => scenario.id === baselineId);
   const baselineResults = baseline
-    ? compute(baseline.inputs, resolveAssumptions(baseline.assumptionOverrides))
+    ? computeProfile(baseline).results
     : null;
 
   const format = (metric: Metric, value: number | null) => {
@@ -70,6 +70,7 @@ export function Scenarios({ locale, s, workspace, results }: Props) {
         updatedAt: timestamp,
         inputs: structuredClone(draft.profile.current.inputs),
         assumptionOverrides: { ...draft.profile.current.assumptionOverrides },
+        country: draft.profile.current.country,
       });
     });
     setName('');
@@ -112,7 +113,7 @@ export function Scenarios({ locale, s, workspace, results }: Props) {
                 className="btn btn--small btn--danger"
                 onClick={() => {
                   updateWorkspace((draft) => {
-                    draft.profile.current = { inputs: emptyInputs(), assumptionOverrides: {} };
+                    draft.profile.current = { inputs: emptyInputs(), assumptionOverrides: {}, country: draft.profile.current.country };
                   });
                   setConfirmReset(false);
                 }}
@@ -153,6 +154,7 @@ export function Scenarios({ locale, s, workspace, results }: Props) {
                     draft.profile.current = {
                       inputs: structuredClone(scenario.inputs),
                       assumptionOverrides: { ...scenario.assumptionOverrides },
+                      country: scenario.country,
                     };
                   });
                   setMessage(fill(t.loaded, { name: scenario.name }));

@@ -1,5 +1,4 @@
-import { resolveAssumptions } from '../../engine/energy-profile/assumptions';
-import { compute } from '../../engine/energy-profile/compute';
+import { computeProfile } from '../../engine/energy-profile/profile';
 import type { Locale } from '../../i18n/config';
 import { fill, formatMwh, formatNumber, formatPercent } from '../../i18n/format';
 import { href } from '../../i18n/href';
@@ -12,8 +11,8 @@ import type { Workspace } from '../../workspace/schema';
  */
 export function BusinessContext({ locale, s, workspace }: { locale: Locale; s: Strings; workspace: Workspace }) {
   const t = s.business.context;
-  const { inputs, assumptionOverrides } = workspace.profile.current;
-  const results = compute(inputs, resolveAssumptions(assumptionOverrides));
+  const { inputs } = workspace.profile.current;
+  const { results } = computeProfile(workspace.profile.current);
 
   return (
     <aside className="panel biz-context stack">

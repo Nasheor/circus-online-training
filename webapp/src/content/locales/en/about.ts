@@ -44,6 +44,7 @@ export const about = {
   licence:
     'The CIRCUS results are public and free to use. The exact licence terms for this site and for the partner materials are being agreed by the project partners and will be stated here.',
   differences: 'How the Energy Profile calculator differs from the Excel tool',
+  sources: 'Where the Energy Profile numbers come from',
   projectSite: 'Visit the CIRCUS project website',
   links: { privacy: 'Privacy', accessibility: 'Accessibility statement', feedback: 'Feedback' },
 };

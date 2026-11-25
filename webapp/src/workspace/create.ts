@@ -1,4 +1,5 @@
 import { emptyInputs } from '../engine/energy-profile/assumptions';
+import { DEFAULT_COUNTRY } from '../engine/energy-profile/countries';
 import { APP_ID, SCHEMA_VERSION } from './schema';
 import type { Workspace } from './schema';
 
@@ -20,7 +21,7 @@ export function createWorkspace(): Workspace {
     updatedAt: timestamp,
     community: { name: '', place: '', notes: '' },
     journey: { phases: { p1: { done: false }, p2: { done: false }, p3: { done: false } } },
-    profile: { current: { inputs: emptyInputs(), assumptionOverrides: {} }, scenarios: [] },
+    profile: { current: { inputs: emptyInputs(), assumptionOverrides: {}, country: DEFAULT_COUNTRY }, scenarios: [] },
     cards: { sessions: [] },
     sites: [],
     business: { activities: {}, canvases: [], dataChecklist: {}, goFurther: {}, planNotes: '' },

@@ -1,0 +1,433 @@
+---
+import AboutNav from '../../../../components/AboutNav.astro';
+import PageHero from '../../../../components/PageHero.astro';
+import { DATA_SOURCE_LINKS, PVGIS_TOOL } from '../../../../content/data-sources';
+import { NL_REFERENCE, readAssumption, referenceFor } from '../../../../engine/energy-profile/assumptions';
+import {
+  CAR_KM,
+  COUNTRIES,
+  SOURCE_KINDS,
+  sourceOf,
+} from '../../../../engine/energy-profile/countries';
+import type { CountryId } from '../../../../engine/energy-profile/countries';
+import {
+  COUNTRY_DATA_PERIODS,
+  COUNTRY_DATA_RETRIEVED,
+  COUNTRY_DERIVED,
+  COUNTRY_RAW,
+} from '../../../../engine/energy-profile/countries.data';
+import { HOUSE_TYPES } from '../../../../engine/energy-profile/types';
+import { localePaths } from '../../../../i18n/config';
+import type { Locale } from '../../../../i18n/config';
+import { fill, formatNumber, monthNames } from '../../../../i18n/format';
+import { href } from '../../../../i18n/href';
+import { getStrings } from '../../../../i18n/strings';
+import Base from '../../../../layouts/Base.astro';
+
+export const getStaticPaths = localePaths;
+
+const locale = Astro.params.locale as Locale;
+const s = getStrings(locale);
+const t = s.profile.sourcesPage;
+const a = s.profile.assumptions;
+const names = s.profile.country.names;
+const short = s.profile.sources.short;
+const months = monthNames(locale);
+const references = Object.fromEntries(COUNTRIES.map((c) => [c, referenceFor(c)])) as Record<
+  CountryId,
+  ReturnType<typeof referenceFor>
+>;
+
+const num = (value: number, digits = 0) => formatNumber(locale, value, digits);
+const value = (country: CountryId, path: string, digits = 0) => num(readAssumption(references[country], path), digits);
+
+/** The source of a value: one label when every country shares it, else the Dutch one and the others'. */
+function sourceCell(path: string): string {
+  const kinds = [...new Set(COUNTRIES.map((c) => sourceOf(c, path)))];
+  if (kinds.length === 1) return short[kinds[0]];
+  const nl = sourceOf('nl', path);
+  const others = [...new Set(COUNTRIES.filter((c) => c !== 'nl').map((c) => sourceOf(c, path)))];
+  return `NL: ${short[nl]} · ${others.map((k) => short[k]).join(' / ')}`;
+}
+
+const OTHER = [
+  { path: 'kmPerCar', digits: 0 },
+  { path: 'kwhPerWp', digits: 2 },
+  { path: 'windFullLoadHours', digits: 0 },
+  { path: 'gasKwhPerM3', digits: 2 },
+  { path: 'boilerEfficiency', digits: 2 },
+  { path: 'hybridHeatShare', digits: 2 },
+  { path: 'electricHeatShare', digits: 2 },
+  { path: 'hybridCop', digits: 1 },
+  { path: 'electricCop', digits: 1 },
+  { path: 'evKwhPerKm', digits: 3 },
+  { path: 'panelWp', digits: 0 },
+] as const;
+const SEASONS = ['heating', 'solar', 'wind'] as const;
+
+const kindPeriods = {
+  households: COUNTRY_DATA_PERIODS.households,
+  degreeDays: COUNTRY_DATA_PERIODS.degreeDays,
+  wind: COUNTRY_DATA_PERIODS.wind,
+};
+type RawRow = { label: string; cell: (c: CountryId) => string; note?: (c: CountryId) => string; ratio?: boolean };
+const RAW_ROWS: RawRow[] = [
+  { label: t.raw.electricity, cell: (c) => num(COUNTRY_RAW.household[c].electricityKwh) },
+  { label: t.raw.factor, cell: (c) => num(COUNTRY_DERIVED[c].electricityFactor, 2), ratio: true },
+  { label: t.raw.spaceHeat, cell: (c) => num(COUNTRY_RAW.household[c].spaceHeatKwh) },
+  { label: t.raw.waterHeat, cell: (c) => num(COUNTRY_RAW.household[c].waterHeatKwh) },
+  { label: t.raw.factor, cell: (c) => num(COUNTRY_DERIVED[c].heatFactor, 2), ratio: true },
+  { label: t.raw.pv, cell: (c) => num(COUNTRY_RAW.pvgis[c].yearlyKwhPerKwp), note: (c) => COUNTRY_RAW.pvgis[c].place },
+  { label: t.raw.factor, cell: (c) => num(COUNTRY_DERIVED[c].solarFactor, 2), ratio: true },
+];
+const pvNl = COUNTRY_RAW.pvgis.nl.yearlyKwhPerKwp;
+const pvFactor = NL_REFERENCE.kwhPerWp / (pvNl / 1000);
+---
+
+<Base locale={locale} title={t.title} section="tools" phase="p1" path="tools/energy-profile/sources">
+  <PageHero
+    eyebrow={s.profile.title}
+    title={t.title}
+    lead={t.lead}
+    breadcrumbLabel={s.common.breadcrumb}
+    crumbs={[
+      { label: s.nav.home, href: href(locale) },
+      { label: s.nav.tools, href: href(locale, 'tools') },
+      { label: s.profile.title, href: href(locale, 'tools/energy-profile') },
+      { label: t.title },
+    ]}
+  />
+  <div class="container section about-layout">
+    <AboutNav locale={locale} current="sources" />
+    <div class="sources">
+      <p class="pending">{t.pending}</p>
+
+      <section class="part">
+        <h2>{t.methodTitle}</h2>
+        <ol class="method">
+          {t.method.map((line) => <li>{fill(line, { heat: num(COUNTRY_DERIVED.be.heatFactor, 2) })}</li>)}
+        </ol>
+      </section>
+
+      <section class="part">
+        <h2>{t.valuesTitle}</h2>
+        <div class="table-wrap">
+          <table class="table small values">
+            <caption class="visually-hidden">{t.valuesCaption}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t.value}</th>
+                {COUNTRIES.map((c) => <th scope="col" class="num">{names[c]}</th>)}
+                <th scope="col">{t.source}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                (
+                  [
+                    ['electricity', 'electricityKwh'],
+                    ['gas', 'gasM3'],
+                  ] as const
+                ).map(([group, key]) => (
+                  <Fragment>
+                    <tr class="group">
+                      <th scope="colgroup" colspan={COUNTRIES.length + 2}>{t.groups[group]}</th>
+                    </tr>
+                    {HOUSE_TYPES.map((type) => (
+                      <tr>
+                        <th scope="row">{s.profile.houseTypes[type]}</th>
+                        {COUNTRIES.map((c) => <td class="num">{value(c, `houses.${type}.${key}`)}</td>)}
+                        <td class="src">{sourceCell(`houses.${type}.${key}`)}</td>
+                      </tr>
+                    ))}
+                  </Fragment>
+                ))
+              }
+              <tr class="group">
+                <th scope="colgroup" colspan={COUNTRIES.length + 2}>{t.groups.roof}</th>
+              </tr>
+              {
+                HOUSE_TYPES.map((type) => (
+                  <tr>
+                    <th scope="row">{s.profile.houseTypes[type]}</th>
+                    {COUNTRIES.map((c) => <td class="num">{value(c, `maxPanelsPerHome.${type}`)}</td>)}
+                    <td class="src">{sourceCell(`maxPanelsPerHome.${type}`)}</td>
+                  </tr>
+                ))
+              }
+              <tr class="group">
+                <th scope="colgroup" colspan={COUNTRIES.length + 2}>{t.groups.other}</th>
+              </tr>
+              {
+                OTHER.map(({ path, digits }) => (
+                  <tr>
+                    <th scope="row">{a.scalars[path]}</th>
+                    {COUNTRIES.map((c) => <td class="num">{value(c, path, digits)}</td>)}
+                    <td class="src">{sourceCell(path)}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted">{t.windNote}</p>
+      </section>
+
+      <section class="part">
+        <h2>{t.groups.seasonality}</h2>
+        <div class="seasons">
+          {
+            SEASONS.map((series) => (
+              <div class="table-wrap">
+                <table class="table small">
+                  <caption>
+                    <strong>{a.seasonalSeries[series]}</strong>
+                    <span class="src">{sourceCell(`seasonality.${series}.0`)}</span>
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{s.profile.chart.month}</th>
+                      {COUNTRIES.map((c) => <th scope="col" class="num">{c.toUpperCase()}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {months.map((month, index) => (
+                      <tr>
+                        <th scope="row">{month}</th>
+                        {COUNTRIES.map((c) => (
+                          <td class="num">{num(references[c].seasonality[series][index] * 100, 1)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          }
+        </div>
+        <p class="small muted">{t.seasonNote}</p>
+      </section>
+
+      <section class="part">
+        <h2>{t.carTitle}</h2>
+        <ul class="rows">
+          {
+            COUNTRIES.map((c) => (
+              <li>
+                <strong>{names[c]}</strong>
+                <span class="row-value">{value(c, 'kmPerCar')} km</span>
+                <span>
+                  {t.car[c]}{' '}
+                  {c !== 'nl' && CAR_KM[c] && (
+                    <a href={CAR_KM[c]!.url} rel="noopener">
+                      {t.datasetLink}
+                    </a>
+                  )}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="small muted">{t.carNote}</p>
+      </section>
+
+      <section class="part">
+        <h2>{t.rawTitle}</h2>
+        <div class="table-wrap">
+          <table class="table small raw">
+            <caption class="visually-hidden">{t.rawCaption}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{t.value}</th>
+                {COUNTRIES.map((c) => <th scope="col" class="num">{names[c]}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {
+                RAW_ROWS.map((row) => (
+                  <tr class={row.ratio ? 'ratio-row' : undefined}>
+                    <th scope="row">{row.label}</th>
+                    {COUNTRIES.map((c) => (
+                      <td class="num">
+                        {row.cell(c)}
+                        {row.note && <span class="src">{row.note(c)}</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted">{t.rawNote}</p>
+      </section>
+
+      <section class="part">
+        <h2>{t.kindsTitle}</h2>
+        <dl class="kinds">
+          {
+            SOURCE_KINDS.map((kind) => (
+              <div>
+                <dt>{short[kind]}</dt>
+                <dd>
+                  {fill(t.kinds[kind], kindPeriods)}
+                  {(DATA_SOURCE_LINKS[kind] ?? []).map((url) => (
+                    <>
+                      {' '}
+                      <a href={url} rel="noopener">
+                        {t.datasetLink}
+                      </a>
+                    </>
+                  ))}
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+
+      <section class="part">
+        <h2>{t.ownTitle}</h2>
+        <ol class="method">
+          {
+            t.own.map((line) => (
+              <li>
+                {fill(line, {
+                  nl: num(NL_REFERENCE.kwhPerWp, 2),
+                  gap: num((1 - pvFactor) * 100, 0),
+                  factor: num(pvFactor, 2),
+                })}
+              </li>
+            ))
+          }
+        </ol>
+        <p><a class="btn" href={PVGIS_TOOL} rel="noopener">{t.pvgisLink}</a></p>
+      </section>
+
+      <section class="part partners">
+        <h2>{t.partnersTitle}</h2>
+        <p>
+          {t.partners} <a href={href(locale, 'about/feedback')}>{s.about.links.feedback}</a>
+        </p>
+        <p class="small muted">{fill(t.retrieved, { date: COUNTRY_DATA_RETRIEVED })}</p>
+      </section>
+
+      <p><a class="btn btn--primary" href={href(locale, 'tools/energy-profile')}>← {t.back}</a></p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  /* Where the numbers come from (2026-11-23): in the About menu, like the differences page. */
+  .about-layout {
+    display: grid;
+    grid-template-columns: minmax(13rem, 16rem) minmax(0, 1fr);
+    gap: var(--s-72);
+    align-items: start;
+  }
+  .pending {
+    font-size: var(--t-18);
+    font-weight: 600;
+    padding-left: var(--s-24);
+    border-left: 4px solid var(--warn);
+    margin-bottom: var(--s-32);
+  }
+  .part {
+    padding-block: var(--s-32);
+    border-top: 1px solid var(--border);
+  }
+  .part h2 {
+    font-size: var(--t-28);
+    margin-bottom: var(--s-16);
+  }
+  .method {
+    padding-left: 1.4em;
+  }
+  .method li {
+    margin-bottom: var(--s-8);
+  }
+  .values .group th {
+    padding-top: var(--s-24);
+    font-size: var(--t-16);
+    color: var(--p1-strong);
+    border-bottom: 2px solid var(--p1);
+  }
+  .src {
+    display: block;
+    font-size: var(--t-12);
+    color: var(--muted);
+    font-weight: 400;
+  }
+  td.src {
+    display: table-cell;
+    min-width: 12rem;
+  }
+  .seasons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: var(--s-24) var(--s-48);
+  }
+  .seasons caption {
+    text-align: left;
+    padding-bottom: var(--s-8);
+  }
+  .rows {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .rows li {
+    display: grid;
+    grid-template-columns: 10rem 7rem minmax(0, 1fr);
+    gap: var(--s-16);
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+    max-width: none;
+  }
+  .row-value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .ratio-row th,
+  .ratio-row td {
+    border-bottom: 2px solid var(--p1);
+  }
+  .ratio-row td,
+  .ratio-col {
+    color: var(--p1-strong);
+    font-weight: 700;
+  }
+  .kinds > div {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: var(--s-16);
+    padding-block: var(--s-12);
+    border-bottom: 1px solid var(--border);
+  }
+  .kinds dt {
+    font-weight: 700;
+  }
+  .kinds dd {
+    margin: 0;
+  }
+  .partners {
+    border-top: 4px solid var(--accent);
+  }
+  @media (max-width: 62rem) {
+    .about-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-32);
+    }
+  }
+  @media (max-width: 40rem) {
+    .rows li,
+    .kinds > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-4);
+    }
+    .row-value {
+      text-align: left;
+    }
+  }
+</style>

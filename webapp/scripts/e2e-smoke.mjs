@@ -100,6 +100,20 @@ try {
   check((await text()).includes('79.1'), 'yearly use matches the hand-worked example (79.1 MWh)');
   check((await text()).includes('1,278') || (await text()).includes('1278'), 'highest-month match needs 1,278 panels');
 
+  // Roof limit (2026-11-23): 20 terraced homes x 16 panels = 320.
+  check((await text()).includes('can take up to 320 panels'), 'panels hint shows the roof limit of 320');
+  await fill('input[id$="-panels"]', 999);
+  check((await workspace()).profile.current.inputs.solarPanels === 0, 'more panels than the roofs can take is refused');
+  await fill('input[id$="-panels"]', 0);
+  // Country choice: Belgian reference values change the yearly use; back to the Netherlands for the rest.
+  await page.select('select[id$="-country"]', 'be');
+  await settle();
+  check((await workspace()).profile.current.country === 'be', 'country choice is saved');
+  check((await text()).includes('Reference values for Belgium') && !(await text()).includes('79.1'), 'Belgian values change the profile');
+  await page.select('select[id$="-country"]', 'nl');
+  await settle();
+  check((await text()).includes('79.1'), 'back to the Dutch values');
+
   await page.type('input[id$="-name"]', 'Today');
   await click('button::-p-text(Save as scenario)');
   await page.waitForSelector('::-p-text(Saved “Today”.)');

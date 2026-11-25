@@ -1,14 +1,24 @@
 import { useId } from 'react';
+import { COUNTRIES } from '../../engine/energy-profile/countries';
+import type { CountryId } from '../../engine/energy-profile/countries';
+import type { ProfileOutcome } from '../../engine/energy-profile/profile';
 import { HEATING_TYPES, HOUSE_TYPES } from '../../engine/energy-profile/types';
 import type { ProfileInputs } from '../../engine/energy-profile/types';
-import { fill } from '../../i18n/format';
+import type { Locale } from '../../i18n/config';
+import { fill, formatNumber } from '../../i18n/format';
+import { href } from '../../i18n/href';
 import type { Strings } from '../../i18n/strings';
+import { updateWorkspace } from '../../workspace/store';
 import { NumberField } from '../shared/NumberField';
 import { PercentField } from '../shared/PercentField';
 
 interface Props {
+  locale: Locale;
   s: Strings;
   inputs: ProfileInputs;
+  country: CountryId;
+  /** Assumptions, results and the roof limit for the panels. */
+  outcome: ProfileOutcome;
   /** Apply a change to the inputs held in the workspace. */
   change: (mutate: (inputs: ProfileInputs) => void) => void;
 }
@@ -28,7 +38,7 @@ function Step({ id, number, title, lead, children }: { id: string; number: numbe
   );
 }
 
-export function Inputs({ s, inputs, change }: Props) {
+export function Inputs({ locale, s, inputs, country, outcome, change }: Props) {
   const t = s.profile;
   const id = useId();
   const totalHomes = HOUSE_TYPES.reduce(
@@ -40,6 +50,30 @@ export function Inputs({ s, inputs, change }: Props) {
   return (
     <div className="stack-lg">
       <Step id="homes" number={1} title={t.steps.homes.title} lead={t.steps.homes.lead}>
+        <div className="field country-field">
+          <label htmlFor={`${id}-country`}>{t.country.label}</label>
+          <select
+            id={`${id}-country`}
+            className="select"
+            value={country}
+            aria-describedby={`${id}-country-hint`}
+            onChange={(event) =>
+              updateWorkspace((draft) => {
+                draft.profile.current.country = event.target.value as CountryId;
+              })
+            }
+          >
+            {COUNTRIES.map((code) => (
+              <option key={code} value={code}>
+                {t.country.names[code]}
+              </option>
+            ))}
+          </select>
+          <span id={`${id}-country-hint`} className="hint">
+            {country === 'nl' ? t.country.nl : fill(t.country.other, { country: t.country.names[country] })}{' '}
+            <a href={href(locale, 'tools/energy-profile/sources')}>{t.country.sourcesLink}</a>
+          </span>
+        </div>
         <div className="table-wrap">
           <table className="table homes-table">
             <caption className="visually-hidden">{t.homes.caption}</caption>
@@ -133,11 +167,26 @@ export function Inputs({ s, inputs, change }: Props) {
             }
             errors={t.errors}
             whole
+            max={outcome.panelLimit}
             ariaDescribedBy={`${id}-panels-hint`}
           />
           <span id={`${id}-panels-hint`} className="hint">
-            {t.fields.solarPanels.hint}
+            {t.fields.solarPanels.hint}{' '}
+            {totalHomes === 0
+              ? t.fields.solarPanels.noHomes
+              : fill(t.fields.solarPanels.limit, {
+                  homes: formatNumber(locale, totalHomes),
+                  max: formatNumber(locale, outcome.panelLimit),
+                })}
           </span>
+          {outcome.panelsCapped && (
+            <p className="notice notice--warn" role="status">
+              {fill(t.fields.solarPanels.capped, {
+                entered: formatNumber(locale, inputs.solarPanels),
+                used: formatNumber(locale, outcome.panelsUsed),
+              })}
+            </p>
+          )}
         </div>
         <fieldset className="stack">
           <legend>{t.fields.wind.legend}</legend>
